@@ -49,19 +49,26 @@ let bnodeIdMap = new Map(); // Keeps track of old blank node ids and their repla
 
 // HMAC based bnode replacement function
 function hmacID(bnode) {
-  if (bnodeIdMap.has(bnode)) {
-    return bnodeIdMap.get(bnode)
+  let label = bnode.slice(2);
+  if (bnodeIdMap.has(label)) {
+    return bnodeIdMap.get(label)
   }
-  let hmacBytes = hmac(sha256, hmacKey, bnode);
+  let hmacBytes = hmac(sha256, hmacKey, label);
   let newId = '_:' + base64url.encode(hmacBytes);
-  bnodeIdMap.set(bnode, newId);
+  bnodeIdMap.set(label, newId);
   return newId;
 }
 
 // Using JavaScripts string replace with global regex and above replacement function
 let hmacQuads = cannon.replace(/(_:c14n[0-9]+)/g, hmacID);
+
 console.log(hmacQuads);
 console.log(bnodeIdMap);
+
+// Try producing list like they did
+let hmacQuadArray = hmacQuads.split('\n').slice(0, -1).sort();
+console.log(hmacQuadArray); // Identical to theirs except for CR at the end of each element of array.
+
 
 // Need to set up mandatory pointers and pointers to frame stuff
 // 3.4.10 jsonPointersToFrame
@@ -96,7 +103,7 @@ function createInitialFrame(value) {
 }
 
 let frame = createInitialFrame(document);
-console.log(frame);
+// console.log(frame);
 
 pointers.forEach(function(pointer){
   //  Initialize parentFrame to frame.
@@ -106,7 +113,7 @@ pointers.forEach(function(pointer){
   let valueFrame = parentFrame;
   // Parse the pointer into an array of paths using the algorithm in Section 3.4.8 jsonPointerToPaths.
   let paths = jsonPointerToPaths(pointer);
-  console.log(pointer, paths);
+  // console.log(pointer, paths);
   //  For each path in paths:
   paths.forEach(function(path){
     parentFrame = valueFrame;
@@ -160,8 +167,8 @@ pointers.forEach(function(pointer){
 
 // Set frame['@context'] to a deep copy of document['@context'].
 frame['@context'] = klona(document['@context']);
-console.log("\nCreated Frame:");
-console.log(JSON.stringify(frame, null, 2));
+// console.log("\nCreated Frame:");
+// console.log(JSON.stringify(frame, null, 2));
 // Return frame.
 // Try using the frame
 const FRAME_FLAGS = {
@@ -175,8 +182,8 @@ skolQuads = skolQuads.join("\n");
 let hmacQuad2Doc = await jsonld.fromRDF(skolQuads, {format: 'application/n-quads'})
 // console.log(hmacQuad2Doc);
 const test2 = await jsonld.frame(hmacQuad2Doc, frame, FRAME_FLAGS);
-console.log(test);
-console.log(JSON.stringify(test2, null, 2));
+// console.log(test);
+// console.log(JSON.stringify(test2, null, 2));
 
 // 3.4.8 jsonPointerToPaths
 // The following algorithm converts a JSON Pointer [RFC6901] to an array of paths
