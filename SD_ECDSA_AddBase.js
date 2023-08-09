@@ -66,7 +66,7 @@ console.log(bnodeIdMap);
 // Need to set up mandatory pointers and pointers to frame stuff
 // 3.4.10 jsonPointersToFrame
 // example pointers:
-const pointers = ["/sailNumber", "/sails/1", "/boards/0/year", "/sails/2"];
+const pointers = ["/sailNumber", "/sails/1", "/boards/0/year"];
 // Initialize frame to an initial frame passing document as value to the algorithm in Section 3.4.9 createInitialFrame.
 
 // 3.4.9 createInitialFrame

@@ -1,7 +1,7 @@
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://windsurf.grotto-networking.com/selective#"
+    {"@vocab": "https://windsurf.grotto-networking.com/selective#"}
   ],
   "type": [
     "VerifiableCredential"
