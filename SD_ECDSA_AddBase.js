@@ -1,6 +1,8 @@
 /*
-    Start of ECDSA-SD Add base test vector creation based on curve P-256.
+    Rough start of ECDSA-SD Add base test vector creation based on curve P-256.
     As we go along we will probably pull out functions into a separate file...
+
+    DO NOT USE YET!!!
 
 */
 
@@ -73,7 +75,7 @@ console.log(hmacQuadArray); // Identical to theirs except for CR at the end of e
 // Need to set up mandatory pointers and pointers to frame stuff
 // 3.4.10 jsonPointersToFrame
 // example pointers:
-const pointers = ["/sailNumber", "/sails/1", "/boards/0/year"];
+const pointers = ["/sailNumber", "/sails/1"];
 // Initialize frame to an initial frame passing document as value to the algorithm in Section 3.4.9 createInitialFrame.
 
 // 3.4.9 createInitialFrame
@@ -167,8 +169,8 @@ pointers.forEach(function(pointer){
 
 // Set frame['@context'] to a deep copy of document['@context'].
 frame['@context'] = klona(document['@context']);
-// console.log("\nCreated Frame:");
-// console.log(JSON.stringify(frame, null, 2));
+console.log("\nCreated Frame:");
+console.log(JSON.stringify(frame, null, 2));
 // Return frame.
 // Try using the frame
 const FRAME_FLAGS = {

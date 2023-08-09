@@ -1,6 +1,10 @@
 /*
     Checking SD-Primitive: hmacIdCanonize
-
+    function hmacIdCanonize({document, options, hmac, labelMap} = {})
+    The labelMap is optional and if present will be used instead of the hmac function.
+    This returns a sorted *array* of quads.
+    hmac is a HMAC function that has already been set up with a key. See below for
+    usage.
 */
 
 import { readFile, writeFile } from 'fs/promises';
@@ -19,9 +23,7 @@ let document = JSON.parse(
     )
   );
 
-// function hmacIdCanonize({document, options, hmac, labelMap} = {})
-// The labelMap is optional and if present will be used instead of the hmac function.
-// This returns an *array* of quads.
+
 // Need an HMAC string
 let hmacKeyString = '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF';
 let hmacKey = hexToBytes(hmacKeyString);

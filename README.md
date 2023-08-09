@@ -1,6 +1,6 @@
 ---
 author: Dr. Greg M. Bernstein
-date: 2023-08-6
+date: 2023-08-06
 title: Selective Disclosure for ECDSA -- Test Vectors
 ---
 
@@ -8,7 +8,12 @@ title: Selective Disclosure for ECDSA -- Test Vectors
 
 This repository contains JavaScript (Node.js) code for the generation of test vectors for the ECDSA-SD (selective disclosure with ECDSA) Verifiable Credential Data Integrity specification, [VC-DI-ECDSA](https://w3c.github.io/vc-di-ecdsa/).
 
-For an alternative implementation see: [DigitalBazaar: ECDSA-SD-2023](https://github.com/digitalbazaar/ecdsa-sd-2023-cryptosuite) and [DigitalBazaar: DI-SD-Primitives](https://github.com/digitalbazaar/di-sd-primitives).
+We will be using the specification, [DigitalBazaar: DI-SD-Primitives](https://github.com/digitalbazaar/di-sd-primitives), and my own code to come up with a consistent set of test vectors.
+
+Notes:
+
+* This effort is just starting so things are in very **rough** shape
+* Included are non-SD creation/verification files for reference: `ECDSAP256Create.js` and `ECDSAP256Verify.js`.
 
 ## Implementation Notes
 
@@ -19,11 +24,15 @@ Libraries used:
 * [jsonld]() for JSON-LD processing
 * [multiformats](), [varint]() for Multiformat processing
 * [klona](https://www.npmjs.com/package/klona) For deep cloning of arrays and objects
+* [di-sd-primitives](https://github.com/digitalbazaar/di-sd-primitives/tree/main) Some of the processing is quite involved so will compare my implementations against this. Will use both to generate test vectors. Using NPM's [link](https://docs.npmjs.com/cli/v8/commands/npm-link) mechanism to tie to a locally built version of this. In this project use the command `npm link @digitalbazaar/di-sd-primitives` after running `npm link` within that project.
 
 Libraries used to investigate stuff:
 
 * [json-pointer](https://www.npmjs.com/package/json-pointer) To check that my example pointers are okay and select what I wanted.
-* [di-sd-primitives](https://github.com/digitalbazaar/di-sd-primitives/tree/main) Some of the processing is quite involved so will compare my implementations against this. Will use both to generate test vectors. Using NPM's [link](https://docs.npmjs.com/cli/v8/commands/npm-link) mechanism to tie to a locally built version of this. In this project use the command `npm link @digitalbazaar/di-sd-primitives` after running `npm link` within that project.
+
+# Assorted Notes
+
+**Very rough** subject to removal...
 
 ## Add Base Proof
 
@@ -88,46 +97,3 @@ From the `strictFrame` function description: "Set framedDocument to the result o
 See `input/windDoc`. It is mandatory that the sail number be revealed. In addition one board and one sail must be revealed.
 
 Setting up mandatory pointers. See [JSON Pointers RFC6901](https://datatracker.ietf.org/doc/html/rfc6901)
-
-## Temp stuff
-
-```
-{
-  "@requireAll": true,
-  "@explicit": true,
-  "@omitGraph": true,
-  "type": [
-    "VerifiableCredential"
-  ],
-  "sailNumber": {
-    "0": "E",
-    "1": "a",
-    "2": "r",
-    "3": "t",
-    "4": "h",
-    "5": "1",
-    "6": "0",
-    "7": "1"
-  },
-  "sails": [
-    null,
-    {
-      "size": 6.1,
-      "name": "Eagle-FR",
-      "year": 2023
-    }
-  ],
-  "boards": [
-    {
-      "year": {}
-    }
-  ],
-  "@context": [
-    "https://www.w3.org/ns/credentials/v2",
-    "https://www.w3.org/ns/credentials/examples/v2",
-    {
-      "@vocab": "https://windsurf.grotto-networking.com/selective#"
-    }
-  ]
-}
-```
