@@ -8,7 +8,7 @@ import {p384} from '@noble/curves/p384';
 import { hexToBytes, bytesToHex, concatBytes } from '@noble/hashes/utils';
 import { base58btc } from "multiformats/bases/base58";
 import varint from 'varint';
-import { writeFile } from 'fs/promises';
+import { access, writeFile, mkdir } from 'fs/promises';
 
 // Multicodec information from https://github.com/multiformats/multicodec/
 /*
@@ -23,6 +23,10 @@ const P256_PUB_PREFIX = 0x1200;
 const P384_PUB_PREFIX = 0x1201;
 const P256_PRIV_PREFIX = 0x1306;
 const P384_PRIV_PREFIX = 0x1307;
+
+// Create output directory for the results
+const baseDir = "./output/KeyCheck/";
+let status = await mkdir(baseDir, {recursive: true});
 
 console.log("Multicodec leading bytes in hex for P-256 and P-384 compressed public keys:");
 let myBytes = new Uint8Array(varint.encode(P256_PUB_PREFIX));
@@ -59,7 +63,7 @@ let p256KeyPair = {
    "publicKeyMultibase": pub256Encoded,
    "privateKeyMultibase": priv256Encoded
 };
-await writeFile('./output/p256KeyPair.json', JSON.stringify(p256KeyPair, null, 2));
+await writeFile(baseDir + 'p256KeyPair.json', JSON.stringify(p256KeyPair, null, 2));
 
 let privateKey384 = hexToBytes("6B9D3DAD2E1B8C1C05B19875B6659F4DE23C3B667BF297BA9AA47740787137D896D5724E4C70A825F872C9EA60D2EDF5");
 let publicKey384 = p384.getPublicKey(privateKey384);
@@ -82,7 +86,7 @@ let p384KeyPair = {
    "publicKeyMultibase": pub384Encoded,
    "privateKeyMultibase": priv384Encoded
 };
-await writeFile('./output/p384KeyPair.json', JSON.stringify(p384KeyPair, null, 2));
+await writeFile(baseDir + 'p384KeyPair.json', JSON.stringify(p384KeyPair, null, 2));
 
 // From example 1 ECDSA-2019 P-384 public key
 // "zsJV1eTDACogBS8FMj5vXSa51g1CY1y88DR2DGDwTsMTotTGELVH1XTEsFP8ok9q22ssAaqHN5fMgm1kweTABZZNRSc"

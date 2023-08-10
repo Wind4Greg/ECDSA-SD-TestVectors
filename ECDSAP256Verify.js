@@ -14,10 +14,11 @@ import { bytesToHex, concatBytes } from '@noble/hashes/utils';
 
 jsonld.documentLoader = localLoader;
 
+const baseDir = "./output/ecdsa-rdfc-2019-p256/";
 // Read signed input document from a file or just specify it right here.
 const signedDocument = JSON.parse(
     await readFile(
-      new URL('./output/signedECDSAP256.json', import.meta.url)
+      new URL(baseDir + 'signedECDSAP256.json', import.meta.url)
     )
   );
 
