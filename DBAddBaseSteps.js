@@ -17,6 +17,8 @@ import { p256 } from '@noble/curves/p256';
 import {klona} from 'klona';
 import varint from 'varint';
 import { base58btc } from "multiformats/bases/base58";
+import cbor from "cbor";
+import { base64url} from "multiformats/bases/base64";
 
 // Create output directory for the results
 const baseDir = "./output/ecdsa-sd-2023/";
@@ -142,6 +144,40 @@ let rawBaseSignatureInfo = { baseSignature: bytesToHex(baseSignature), publicKey
 // console.log(rawBaseSignatureInfo);
 writeFile(baseDir + 'rawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2));
 
+/* 3.4.2 serializeBaseProofValue
+The following algorithm serializes the base proof value, including the base signature, public key,
+HMAC key, signatures, and mandatory pointers. The required inputs are a base signature baseSignature,
+a public key publicKey, an HMAC key hmacKey, an array of signatures, and an array of mandatoryPointers.
+A single base proof string value is produced as output.
 
+Initialize a byte array, proofValue, that starts with the ECDSA-SD base proof header bytes 0xd9, 0x5d, and 0x00.
+
+Initialize components to an array with five elements containing the values of: baseSignature, publicKey, hmacKey,
+ signatures, and mandatoryPointers.
+
+CBOR-encode components and append it to proofValue.
+
+Initialize baseProof to a string with the multibase-base64url-no-pad-encoding of proofValue. That is, return a
+ string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
+Return baseProof as base proof.
+
+*/
+
+let proofValue = new Uint8Array([0xd9, 0x5d, 0x00]);
+let components = [baseSignature, pub256Encoded, hmacKey, signatures, mandatoryPointers];
+let cborThing = await cbor.encodeAsync(components);
+proofValue = concatBytes(proofValue, cborThing);
+let baseProof = base64url.encode(proofValue);
+console.log(baseProof);
+console.log(`Length of baseProof is ${baseProof.length} characters`);
+
+// Construct Signed Document
+let signedDocument = klona(document);
+delete proofConfig['@context'];
+signedDocument.proof = proofConfig;
+signedDocument.proof.proofValue = baseProof;
+
+console.log(JSON.stringify(signedDocument, null, 2));
+writeFile(baseDir + 'signedSDBase.json', JSON.stringify(signedDocument, null, 2));
 
 
