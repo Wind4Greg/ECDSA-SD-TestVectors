@@ -3,7 +3,7 @@
 export const windSDexamples = {
   "@context": {
       '@protected': true,
-      year: 'urn:example:https://windsurf.grotto-networking/selective#year',
+      year: 'https://windsurf.grotto-networking/selective#year',
       boardName: 'https://windsurf.grotto-networking/selective#boardName',
       sailName: 'https://windsurf.grotto-networking/selective#sailName',
       size: 'https://windsurf.grotto-networking/selective#size',
