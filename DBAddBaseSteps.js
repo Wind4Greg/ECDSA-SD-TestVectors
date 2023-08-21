@@ -50,7 +50,11 @@ const labelMapFactoryFunction = createHmacIdLabelMapFunction({hmac});
 
 // Initialize groupDefinitions to a map with an entry with a key of the string
 // "mandatory" and a value of mandatoryPointers.
-const mandatoryPointers = ["/sailNumber", "/sails/1", "/boards/0/year", "/sails/2"];
+const mandatoryPointers = JSON.parse(
+  await readFile(
+    new URL('./input/windMandatory.json', import.meta.url)
+  )
+);
 const groups = {"mandatory": mandatoryPointers };
 
 let stuff = await canonicalizeAndGroup({document, labelMapFactoryFunction, groups, options});
