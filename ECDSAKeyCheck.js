@@ -9,6 +9,7 @@ import { hexToBytes, bytesToHex, concatBytes } from '@noble/hashes/utils';
 import { base58btc } from "multiformats/bases/base58";
 import varint from 'varint';
 import { access, writeFile, mkdir } from 'fs/promises';
+import {encode, decode} from 'base58-universal';
 
 // Multicodec information from https://github.com/multiformats/multicodec/
 /*
@@ -98,3 +99,12 @@ console.log("DID:key example P384 key in hex bytes:");
 console.log(bytesToHex(ex384bytes));
 console.log(`Length of example P-384 key without prefix: ${ex384bytes.length-2}`);
 
+// DB example public key
+const publicKeyMultibase = 'zDnaekGZTbQBerwcehBSXLqAg6s55hVEBms1zFy89VHXtJSa9';
+const dbMultiKeyBytes = base58btc.decode(publicKeyMultibase);
+// For base58-universal you take off the 'z' prefix!
+const altDecode = decode(publicKeyMultibase.slice(1)); // removes z prefix
+console.log(`Length decoded dbMultiKeyBytes: ${dbMultiKeyBytes.length}`);
+console.log(`Length decoded altDecode: ${altDecode.length}`);
+console.log(dbMultiKeyBytes);
+console.log(altDecode);

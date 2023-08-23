@@ -143,7 +143,7 @@ const filteredSignatures = signatures.filter(() => {
 // Initialize revealDocument to the result of the "selectJsonLd" algorithm,
 // passing document, and combinedPointers as pointers.
 // function selectJsonLd({document, pointers, includeTypes = true} = {})
-let revealDocument = selectJsonLd({ document, pointers: combinedPointers, includeTypes: true });
+let revealDocument = selectJsonLd({ document, pointers: combinedPointers}); // , includeTypes: true
 // console.log(revealDocument);
 /*
 Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
@@ -156,12 +156,11 @@ reveal document.
 let deskolemizedNQuads = stuff.groups.combined.deskolemizedNQuads;
 let canonicalIdMap = new Map();
 // The goal of the below is to get the canonicalIdMap and not the canonical document
-await canonicalize(
-  deskolemizedNQuads.join(''),
+await canonicalize(deskolemizedNQuads.join(''),
   { ...options, inputFormat: 'application/n-quads', canonicalIdMap });
 // implementation-specific bnode prefix fix
 canonicalIdMap = stripBlankNodePrefixes(canonicalIdMap);
-// console.log(canonicalIdMap);
+console.log(canonicalIdMap);
 /* Initialize verifierLabelMap to an empty map. This map will map the canonical blank node identifiers
  the verifier will produce when they canonicalize the revealed document to the blank node identifiers
   that were originally signed in the base proof. (step 13)
@@ -176,6 +175,16 @@ let labelMap = stuff.labelMap;
 canonicalIdMap.forEach(function (value, key) {
   verifierLabelMap.set(value, labelMap.get(key));
 });
+
+  // DB code:
+  // 9. Produce a blank node label map from the canonical blank node labels
+  //   the verifier will see to the HMAC labels.
+  // const verifierLabelMap = new Map();
+  // for(const [inputLabel, verifierLabel] of canonicalIdMap) {
+  //   verifierLabelMap.set(verifierLabel, labelMap.get(inputLabel));
+  // }
+
+//
 // console.log(verifierLabelMap);
 /* Return an object with properties matching baseSignature, publicKey, "signatures" for filteredSignatures,
 "verifierLabelMap" for labelMap, mandatoryIndexes, and revealDocument.
@@ -227,7 +236,7 @@ verifierLabelMap.forEach(function(v, k){
   That is, return a string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
 */
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01]);
-let components = [baseSignature, publicKey, filteredSignatures, compressLabelMap, mandatoryPointers];
+let components = [baseSignature, publicKey, filteredSignatures, compressLabelMap, mandatoryIndexes];
 let cborThing = await cbor.encodeAsync(components);
 derivedProofValue = concatBytes(derivedProofValue, cborThing);
 let derivedProofValueString = base64url.encode(derivedProofValue);
@@ -239,6 +248,6 @@ console.log(`Length of derivedProofValue is ${derivedProofValueString.length} ch
   Return revealDocument as the selectively revealed document. */
 newProof.proofValue = derivedProofValueString;
 revealDocument.proof = newProof;
-console.log(JSON.stringify(revealDocument, null, 2));
+// console.log(JSON.stringify(revealDocument, null, 2));
 writeFile(baseDir + 'revealDocument.json', JSON.stringify(revealDocument, null, 2));
 
