@@ -10,7 +10,8 @@
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import {createLabelMapFunction, labelReplacementCanonicalizeJsonLd,
+import {
+  createLabelMapFunction, labelReplacementCanonicalizeJsonLd,
   canonicalizeAndGroup,
   selectJsonLd, canonicalize, stripBlankNodePrefixes
 } from '@digitalbazaar/di-sd-primitives';
@@ -32,10 +33,10 @@ let status = await mkdir(baseDir, { recursive: true });
 
 jsonld.documentLoader = localLoader; // Local loader for JSON-LD
 
-// Read base signed document from a file
+// Read base signed document from a file 'revealDocument.json', 'DBderivedCredential.json'
 let document = JSON.parse(
   await readFile(
-    new URL(baseDir + 'DBderivedCredential.json', import.meta.url)
+    new URL(baseDir + 'revealDocument.json', import.meta.url)
   )
 );
 
@@ -53,7 +54,8 @@ value is produced as output containing the following fields: "baseSignature", "p
   P-256 curve. Note: This step can be performed in parallel; it only needs to be completed before
   this algorithm needs to use the proofHash value.
 */
-const proofValue = document.proof.proofValue;
+const proof = document.proof;
+const proofValue = proof.proofValue;
 let proofConfig = klona(document.proof);
 delete proofConfig.proofValue;
 proofConfig["@context"] = document["@context"];
@@ -99,9 +101,8 @@ let decodeThing = cbor.decode(decodedProofValue.slice(3));
       length 36, an array of byte arrays, each of length 64, a map of integers to byte arrays of
       length 32, and an array of integers, throwing an error if not.
 */
-/* **ISSUE** publicKey is currently in multi-key encoded form and not raw bytes. Spec did not say to
-  use raw bytes in add proof or derive proof.
-  ==> DB's code uses raw bytes. Will change my code. They have wrong key length.
+/* **CAUTION** publicKey is currently encoded in raw bytes with multi-key byte
+    header. For a total length of 35 bytes.
 */
 if (decodeThing.length != 5) {
   throw new Error("Bad length of CBOR decoded proofValue data");
@@ -119,7 +120,7 @@ console.log(`publicKey length: ${publicKey.length}`);
 if (!Array.isArray(signatures)) {
   throw new Error("signatures in proof value is not an array");
 }
-signatures.forEach(function(value){
+signatures.forEach(function (value) {
   if (!value.BYTES_PER_ELEMENT === 1 && value.length === 64) {
     throw new Error("Bad signature in signatures array in proofValue");
   }
@@ -127,7 +128,7 @@ signatures.forEach(function(value){
 if (!labelMapCompressed instanceof Map) {
   throw new Error("Bad label map in proofValue");
 }
-labelMapCompressed.forEach(function(value, key) {
+labelMapCompressed.forEach(function (value, key) {
   if (!Number.isInteger(key) || value.length !== 32) {
     throw new Error("Bad key or value in compress label map in proofValue");
   }
@@ -154,7 +155,7 @@ mandatoryIndexes.forEach(value => {
     Return map as decompressed label map.
 */
 let labelMap = new Map();
-labelMapCompressed.forEach(function(v, k) {
+labelMapCompressed.forEach(function (v, k) {
   let key = "c14n" + k;
   let value = base64url.encode(v);
   labelMap.set(key, value);
@@ -163,35 +164,112 @@ labelMapCompressed.forEach(function(v, k) {
 /* Return derived proof value as an object with properties set to the five elements, using the
   names "baseSignature", "publicKey", "signatures", "labelMap", and "mandatoryIndexes", respectively.*/
 // Could use a test vector here
-let derivedProofValue = { baseSignature: bytesToHex(baseSignature),
-  publicKey,
+let derivedProofValue = {
+  baseSignature: bytesToHex(baseSignature),
+  publicKey: base58btc.encode(publicKey),
   signatures: signatures.map(sig => bytesToHex(sig)),
   labelMap: [...labelMap],
   mandatoryIndexes
 }
-console.log(labelMap);
-/*
-Map(5) {
-  'c14n0' => 'u6i_pt_uhM5j8KYmPPuIyFbjnLpeuM4oLoNC_c-VnUCw',
-  'c14n1' => 'uhEPZucmqaRiNUuY9C7wpl92P3odrK7c-MRnUBh3P0Aw',
-  'c14n2' => 'uQ7WMgN7TDEZCoqcDsMjr48_dgUKxSzfSD3DUkAuhMpw',
-  'c14n3' => 'u_7bWKzi7k-tAtKgsCOdLsp6maOxmhf7ND6ITBKKeoU8',
-  'c14n4' => 'uY0YIS2SugLXL1SwfOM0rIvP3UDcKTQmAvV64_FpdYJw'
-}
-*/
+// console.log(labelMap);
 writeFile(baseDir + 'derivedProofValue.json', JSON.stringify(derivedProofValue, null, 2));
 
 // Initialize labelMapFactoryFunction to the result of calling the "createLabelMapFunction" algorithm.
-let labelMapFactoryFunction = await createLabelMapFunction({labelMap});
+let labelMapFactoryFunction = await createLabelMapFunction({ labelMap });
 /* Initialize nquads to the result of calling the "labelReplacementCanonicalize" algorithm, passing
   document, labelMapFactoryFunction, and any custom JSON-LD API options. Note: This step transforms
   the document into an array of canonical N-Quads with pseudorandom blank node identifiers based on
   labelMap.
 */
 // async function labelReplacementCanonicalizeJsonLd({document, labelMapFactoryFunction, options} = {})
-let nquads = await labelReplacementCanonicalizeJsonLd({document,
-  labelMapFactoryFunction, options});
-console.log(nquads);
+let nquads = await labelReplacementCanonicalizeJsonLd({
+  document,
+  labelMapFactoryFunction, options
+});
+// console.log(nquads);
 writeFile(baseDir + 'verifyQuads.json', JSON.stringify(nquads, null, 2));
- console.log("document:");
- console.log(document);
+/*  Initialize mandatory to an empty array.
+Initialize nonMandatory to an empty array.
+For each entry (index, nq) in nquads, separate the N-Quads into mandatory and non-mandatory categories:
+
+    If mandatoryIndexes includes index, add nq to mandatory.
+    Otherwise, add nq to nonMandatory.
+*/
+let mandatory = [];
+let nonMandatory = [];
+nquads.forEach(function (value, index) {
+  if (mandatoryIndexes.includes(index)) {
+    mandatory.push(value);
+  } else {
+    nonMandatory.push(value);
+  }
+})
+/*  Initialize mandatoryHash to the result of calling the "hashMandatory" primitive, passing mandatory.
+Return an object with properties matching baseSignature, proofHash, publicKey, signatures,
+nonMandatory, and mandatoryHash.
+*/
+let mandatoryHash = sha256(mandatory.join());
+// End of Create Verify Data ==> Create a test vector
+let createVerifyData = {
+  baseSignature: bytesToHex(baseSignature),
+  proofHash: bytesToHex(proofHash),
+  publicKey: base58btc.encode(publicKey),
+  signatures: signatures.map(sig => bytesToHex(sig)),
+  nonMandatory,
+  mandatoryHash: bytesToHex(mandatoryHash)
+};
+writeFile(baseDir + 'createVerifyData.json', JSON.stringify(createVerifyData, null, 2));
+
+/* If the length of signatures does not match the length of nonMandatory, throw an error
+indicating that the signature count does not match the non-mandatory message count.
+*/
+if (signatures.length !== nonMandatory.length) {
+  throw new Error("signature and nonMandatory counts do not match");
+}
+/* Initialize publicKeyBytes to the public key bytes expressed in publicKey. Instructions on
+how to decode the public key value can be found in Section 2.1.1 Multikey.
+**ISSUE**: Which public key? ==> non-ephemeral key from issuer
+*/
+// Get public key
+let encodedPbk = proof.verificationMethod.split("#")[1];
+let pbk = base58btc.decode(encodedPbk);
+pbk = pbk.slice(2, pbk.length); // First two bytes are multi-format indicator
+console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`);
+
+/* Initialize toVerify to the result of calling the algorithm in Setion 3.4.1 serializeSignData,
+passing proofHash, publicKey, and mandatoryHash.
+*/
+let toVerify = concatBytes(proofHash, publicKey, mandatoryHash);
+/* Initialize verificationResult be the result of applying the verification algorithm of the
+Elliptic Curve Digital Signature Algorithm (ECDSA) [FIPS-186-5], with toVerify as the data to
+be verified against the baseSignature using the public key specified by publicKeyBytes.
+If verificationResult is false, return false.
+*/
+
+// Verify base signature
+let msgHash = sha256(toVerify); // Hash is done outside of the algorithm in noble/curve case.
+let verificationResult = p256.verify(baseSignature, msgHash, pbk);
+console.log(`Base Signature verified: ${verificationResult}`);
+
+/* For every entry (index, signature) in signatures, verify every signature for every
+selectively disclosed (non-mandatory) statement:
+
+    Initialize verificationResult to the result of applying the verification algorithm
+    Elliptic Curve Digital Signature Algorithm (ECDSA) [FIPS-186-5], with the UTF-8
+    representation of the value at index of nonMandatory as the data to be verified
+    against signature using the public key specified by publicKeyBytes.
+    If verificationResult is false, return false.
+
+    **ISSUE**: this uses the ephemeral public key recovered from the CBOR encoding
+    above and not the public key just used on the base signature.
+*/
+
+let ephemeralPubKey = publicKey.slice(2);
+nonMandatory.forEach(function(quad, index) {
+  let msgHash = sha256(quad); // Hash is done outside of the algorithm in noble/curve case.
+  let sigVerified = p256.verify(signatures[index], msgHash, ephemeralPubKey);
+  console.log(`Non Mandatory Signature ${index} verified: ${sigVerified}`);
+  verificationResult &&= sigVerified;
+})
+
+console.log(`Derived document verified: ${verificationResult}`);

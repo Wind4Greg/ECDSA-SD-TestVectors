@@ -1,46 +1,48 @@
 {
-  "baseSignature": "c840b40404cc8b9e50f94a44373f5b820471f3f4a413bf18998787dc759cfce7488c2828909ba8e8aabb1d80ef966ab857fa6f2e0b44075e358a60927461ebac",
+  "baseSignature": "b40b6947835c8ec42e37b84bdbc88bf40b9278e3bb908c7beea74a53b690199cb2675b9849cc102c19164fc82d6cfad5195a05b472975a6fd6f3eb3e0002cd65",
   "publicKey": "zDnaeTHfhmSaQKBc7CmdL3K7oYg3D6SC7yowe2eBeVd2DH32r",
   "signatures": [
-    "b1194e4592a880414847434522f91dac9d15e57cc97e9fdae9db45b36132e22815204bb009c2e9a82718482e74212e115fc3dcbc4c641b45221d9163355d16fb",
-    "5b4b8b22ad027a61b0e0314cc009c6cc1c7ebd98275457e5e12193778dbdb7255948fdf5185f48b56f8adbacb413aca4b1f18d1344700fa19b74764ea9b35ae9",
-    "4ed3306442fdd1eadd783b572fc8ac4139f3d088f8d56dcec784fe1e31a2ae3a361fc428032c938972c099cc563d440695cda4aa7a9bd46c34cd6495b6d7cc9b",
-    "0ffeb7009fad6f7a9c1a375a68e0b3831fa1c593f8eccfe8d8ca162bd64f39ee00dca831211b930fe0f724e6796bc5f9ac3cf993a92871b30515ba5c1d0d1174"
+    "66317e8f3aa093b0024b94615664e6ef8b74c57fc1fdb1b44bd6c68c791d7b72274148974c1cbc2b2f638283793385e409d66b90ca5e0de84e218388a24504c5",
+    "3f6842d33162f2b67b7997af0ad8dcec5efc9b8376aaa23feef40d818fb4f1fd312cf97225ee98d4b09fb7b97b82a9d2467d419bfbb702591d264b14457ccb42",
+    "78f5f79c389db480356242250a1e55d639bb3b9d93903ab5c90f55a53747e2e1cc87dd5d715651dfdf27245609f08f86fddf3e0e6768ca545024c20314877b2b",
+    "0e3d249105f519556a615b093aebfe147fe60e18ba8678401b2989a8bef343bcf245ee635216371d9fbc01e3c7d2767e16dcc4302828a0f6cda31032e2f346c2",
+    "6112e746b34dcf9726979be03d956efc0f524d0a9c04cc3d6e7c0bda41e5ab113784434fb9a799992cf322e347a9a668023bda7f1f54248ed5dfcd931e4445be",
+    "9e76ad4e62bafab3470f7be6d92ca88a4876df8b0784c66a1ddbafefd7781315ca2452eb03f7220d65bdac13f33901e6c5188ba7f713645f2206010fa6d1f205"
   ],
   "labelMap": [
     [
       "c14n0",
-      "u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg"
-    ],
-    [
-      "c14n1",
-      "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
-    ],
-    [
-      "c14n2",
-      "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
-    ],
-    [
-      "c14n3",
       "uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk"
     ],
     [
+      "c14n1",
+      "u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg"
+    ],
+    [
+      "c14n2",
+      "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
+    ],
+    [
+      "c14n3",
+      "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
+    ],
+    [
       "c14n4",
-      "u2IE-HtO6PyHQsGnuqhO1mX6V7RkRREhF0d0sWZlxNOY"
+      "ufUWJRHQ9j1jmUKHLL8k6m0CZ8g4v73gOpaM5kL3ZACQ"
     ]
   ],
   "mandatoryIndexes": [
-    3,
+    0,
+    1,
+    2,
     5,
-    6,
-    7,
-    8,
     9,
     10,
-    11,
     12,
     13,
     14,
+    15,
+    16,
     17
   ],
   "revealDocument": {

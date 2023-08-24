@@ -137,8 +137,7 @@ console.log(`proofPublicKey multikey: ${pub256Encoded}`);
 // the proof-scoped multikey-encoded public key (publicKey), and the mandatory hash (mandatoryHash).
 // A single sign data value, represented as series of bytes, is produced as output.
 // Return the concatenation of proofHash, publicKey, and mandatoryHash, in that order, as sign data.
-let te = new TextEncoder(); // Uses UTF-8 encoding
-let signData = concatBytes(proofHash, te.encode(pub256Encoded), mandatoryHash);
+let signData = concatBytes(proofHash,base58btc.decode(pub256Encoded), mandatoryHash);
 console.log(`signData length: ${signData.length}`);
 let baseSignature = p256.sign(sha256(signData), privateKey).toCompactRawBytes();
 // baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers are inputs to
@@ -168,7 +167,7 @@ Return baseProof as base proof.
 */
 
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x00]);
-let components = [baseSignature, pub256Encoded, hmacKey, signatures, mandatoryPointers];
+let components = [baseSignature, base58btc.decode(pub256Encoded), hmacKey, signatures, mandatoryPointers];
 let cborThing = await cbor.encodeAsync(components);
 proofValue = concatBytes(proofValue, cborThing);
 let baseProof = base64url.encode(proofValue);

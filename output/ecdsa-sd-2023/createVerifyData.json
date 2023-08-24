@@ -1,5 +1,6 @@
 {
   "baseSignature": "b40b6947835c8ec42e37b84bdbc88bf40b9278e3bb908c7beea74a53b690199cb2675b9849cc102c19164fc82d6cfad5195a05b472975a6fd6f3eb3e0002cd65",
+  "proofHash": "cbbb2845046705baed3a6c73a6ce86249f135b7e310ed1c694e8b3fd72ab8516",
   "publicKey": "zDnaeTHfhmSaQKBc7CmdL3K7oYg3D6SC7yowe2eBeVd2DH32r",
   "signatures": [
     "66317e8f3aa093b0024b94615664e6ef8b74c57fc1fdb1b44bd6c68c791d7b72274148974c1cbc2b2f638283793385e409d66b90ca5e0de84e218388a24504c5",
@@ -9,40 +10,13 @@
     "6112e746b34dcf9726979be03d956efc0f524d0a9c04cc3d6e7c0bda41e5ab113784434fb9a799992cf322e347a9a668023bda7f1f54248ed5dfcd931e4445be",
     "9e76ad4e62bafab3470f7be6d92ca88a4876df8b0784c66a1ddbafefd7781315ca2452eb03f7220d65bdac13f33901e6c5188ba7f713645f2206010fa6d1f205"
   ],
-  "labelMap": [
-    [
-      "c14n0",
-      "uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk"
-    ],
-    [
-      "c14n1",
-      "u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg"
-    ],
-    [
-      "c14n2",
-      "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
-    ],
-    [
-      "c14n3",
-      "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
-    ],
-    [
-      "c14n4",
-      "ufUWJRHQ9j1jmUKHLL8k6m0CZ8g4v73gOpaM5kL3ZACQ"
-    ]
+  "nonMandatory": [
+    "_:uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
+    "_:uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw <https://windsurf.grotto-networking.com/selective#brand> \"Tillo\" .\n",
+    "_:ufUWJRHQ9j1jmUKHLL8k6m0CZ8g4v73gOpaM5kL3ZACQ <https://windsurf.grotto-networking.com/selective#boardName> \"Tillo Custom\" .\n",
+    "_:ufUWJRHQ9j1jmUKHLL8k6m0CZ8g4v73gOpaM5kL3ZACQ <https://windsurf.grotto-networking.com/selective#brand> \"Tillo\" .\n",
+    "_:ufUWJRHQ9j1jmUKHLL8k6m0CZ8g4v73gOpaM5kL3ZACQ <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk <https://windsurf.grotto-networking.com/selective#boards> _:ufUWJRHQ9j1jmUKHLL8k6m0CZ8g4v73gOpaM5kL3ZACQ .\n"
   ],
-  "mandatoryIndexes": [
-    0,
-    1,
-    2,
-    5,
-    9,
-    10,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17
-  ]
+  "mandatoryHash": "de48264d44054d254a7ce8b01fe30786b8e71e7034075e4aba1c887714c6bae6"
 }

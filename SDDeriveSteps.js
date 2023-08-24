@@ -63,7 +63,9 @@ values of the associated properties in the object returned when calling the algo
 parseBaseProofValue, passing the proofValue from proof. */
 
 // parseBaseProofValue:
-const proofValue = document.proof.proofValue; // base64url encoded
+const proof = document.proof;
+delete document.proof; // IMPORTANT: all work uses document without proof
+const proofValue = proof.proofValue; // base64url encoded
 const proofValueBytes = base64url.decode(proofValue);
 // console.log(proofValueBytes.length);
 // check header bytes are: 0xd9, 0x5d, and 0x00
@@ -97,7 +99,7 @@ let stuff = await canonicalizeAndGroup({
   document, labelMapFactoryFunction, groups,
   options
 });
-console.log(stuff);
+// console.log(stuff);
 let combinedMatch = stuff.groups.combined.matching;
 let mandatoryMatch = stuff.groups.mandatory.matching;
 let selectiveMatch = stuff.groups.selective.matching;
@@ -117,7 +119,8 @@ combinedMatch.forEach(function (value, absoluteIndex) {
 })
 // console.log(mandatoryIndexes);
 /* Determine which signatures match a selectively disclosed statement, which requires incrementing
-an index counter while iterating over all signatures, skipping over any indexes that match the mandatory group.
+an index counter while iterating over all signatures, skipping over any indexes that match
+the mandatory group.
     Initialize index to 0.
     Initialize filteredSignatures to an empty array.
     For each signature in signatures:
@@ -127,11 +130,14 @@ an index counter while iterating over all signatures, skipping over any indexes 
 */
 /* Could not figure out this step from the above description so took the code
 from https://github.com/digitalbazaar/ecdsa-sd-2023-cryptosuite/blob/main/lib/disclose.js
-and used my variable names.
+and used my variable names. Is this just a set difference in disguise???
 */
-// 6. Filter signatures from `baseProof` to those matching non-mandatory
-//   absolute indexes and shifting by any absolute mandatory indexes that
-//   occur before each entry.
+
+console.log(`size of signatures: ${signatures.length}`);
+// console.log("mandatoryMatch:");
+// console.log(mandatoryMatch);
+// console.log("selectiveMatch:");
+// console.log(selectiveMatch);
 let index = 0;
 const filteredSignatures = signatures.filter(() => {
   while (mandatoryMatch.has(index)) {
@@ -139,7 +145,7 @@ const filteredSignatures = signatures.filter(() => {
   }
   return selectiveMatch.has(index++);
 });
-// console.log(`Size of filteredSignatures: ${filteredSignatures.length}`);
+console.log(`Size of filteredSignatures: ${filteredSignatures.length}`);
 // Initialize revealDocument to the result of the "selectJsonLd" algorithm,
 // passing document, and combinedPointers as pointers.
 // function selectJsonLd({document, pointers, includeTypes = true} = {})
@@ -191,7 +197,7 @@ canonicalIdMap.forEach(function (value, key) {
   **End** of the *createDisclosureData* function
 */
 let disclosureData = {
-  baseSignature: bytesToHex(baseSignature), publicKey,
+  baseSignature: bytesToHex(baseSignature), publicKey: base58btc.encode(publicKey),
   signatures: filteredSignatures.map(sig => bytesToHex(sig)),
   labelMap: [...verifierLabelMap],
   mandatoryIndexes,
@@ -200,7 +206,7 @@ let disclosureData = {
 // console.log(JSON.stringify(disclosureData, null, 2));
 writeFile(baseDir + 'disclosureData.json', JSON.stringify(disclosureData, null, 2));
 // Initialize newProof to a shallow copy of proof.
-let newProof = Object.assign({}, document.proof);
+let newProof = Object.assign({}, proof);
 /* 3.4.7 serializeDerivedProofValue
   The following algorithm serializes a derived proof value. The required inputs are a base signature
   (baseSignature), public key (publicKey), an array of signatures (signatures), a label map (labelMap),
