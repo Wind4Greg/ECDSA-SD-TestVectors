@@ -10,22 +10,16 @@
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import {
-  createLabelMapFunction, labelReplacementCanonicalizeJsonLd,
-  canonicalizeAndGroup,
-  selectJsonLd, canonicalize, stripBlankNodePrefixes
-} from '@digitalbazaar/di-sd-primitives';
+import {createLabelMapFunction, labelReplacementCanonicalizeJsonLd} from '@digitalbazaar/di-sd-primitives';
 import jsonld from 'jsonld';
 import { localLoader } from './documentLoader.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils';
 import { p256 } from '@noble/curves/p256';
 import { klona } from 'klona';
-import varint from 'varint';
 import { base58btc } from "multiformats/bases/base58";
 import cbor from "cbor";
 import { base64url } from "multiformats/bases/base64";
-import { bytes } from 'multiformats';
 
 // Create output directory for the results
 const baseDir = "./output/ecdsa-sd-2023/";
@@ -112,8 +106,9 @@ let [baseSignature, publicKey, signatures, labelMapCompressed, mandatoryIndexes]
 if (!baseSignature.BYTES_PER_ELEMENT === 1 && baseSignature.length === 64) {
   throw new Error("Bad baseSignature in proofValue");
 }
-console.log(`publicKey: ${bytesToHex(publicKey)}`);
-console.log(`publicKey length: ${publicKey.length}`);
+publicKey = new Uint8Array(publicKey); // Just to make sure convert into byte array
+// console.log(`publicKey: ${bytesToHex(publicKey)}`);
+// console.log(`publicKey length: ${publicKey.length}`);
 // let publicKeyBytes = base58btc.decode(publicKey);
 // publicKeyBytes = publicKeyBytes.slice(2, publicKeyBytes.length); // First two bytes are multi-format indicator
 // console.log(`Public Key hex: ${bytesToHex(publicKeyBytes)}, Length: ${publicKeyBytes.length}`);
@@ -208,7 +203,11 @@ nquads.forEach(function (value, index) {
 Return an object with properties matching baseSignature, proofHash, publicKey, signatures,
 nonMandatory, and mandatoryHash.
 */
-let mandatoryHash = sha256(mandatory.join());
+// console.log("mandatory:");
+// console.log(mandatory);
+let te = new TextEncoder();
+// **CAUTION** JavaScript join() without argument uses ',' comma!!!
+let mandatoryHash = sha256(te.encode(mandatory.join('')));
 // End of Create Verify Data ==> Create a test vector
 let createVerifyData = {
   baseSignature: bytesToHex(baseSignature),
@@ -231,7 +230,10 @@ how to decode the public key value can be found in Section 2.1.1 Multikey.
 **ISSUE**: Which public key? ==> non-ephemeral key from issuer
 */
 // Get public key
-let encodedPbk = proof.verificationMethod.split("#")[1];
+console.log(proof.verificationMethod.split("did:key:"));
+//
+let encodedPbk = proof.verificationMethod.split("did:key:")[1].split("#")[0];
+console.log(encodedPbk);
 let pbk = base58btc.decode(encodedPbk);
 pbk = pbk.slice(2, pbk.length); // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`);
@@ -239,7 +241,16 @@ console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`);
 /* Initialize toVerify to the result of calling the algorithm in Setion 3.4.1 serializeSignData,
 passing proofHash, publicKey, and mandatoryHash.
 */
+
 let toVerify = concatBytes(proofHash, publicKey, mandatoryHash);
+// console.log(`toVerify length: ${toVerify.length}`);
+// console.log("proof hash:");
+// console.log(proofHash);
+// console.log("public key:");
+// console.log(publicKey);
+// console.log("mandatoryHash:");
+// console.log(mandatoryHash);
+
 /* Initialize verificationResult be the result of applying the verification algorithm of the
 Elliptic Curve Digital Signature Algorithm (ECDSA) [FIPS-186-5], with toVerify as the data to
 be verified against the baseSignature using the public key specified by publicKeyBytes.

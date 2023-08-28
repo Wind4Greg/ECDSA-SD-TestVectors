@@ -9,8 +9,6 @@
     Key steps:
     1. [createDisclosureData](https://pr-preview.s3.amazonaws.com/dlongley/vc-di-ecdsa/pull/27.html#createdisclosuredata)
     2. [serializeDerivedProofValue](https://pr-preview.s3.amazonaws.com/dlongley/vc-di-ecdsa/pull/27.html#serializederivedproofvalue)
-
-
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises';
@@ -20,15 +18,10 @@ import {
 } from '@digitalbazaar/di-sd-primitives';
 import jsonld from 'jsonld';
 import { localLoader } from './documentLoader.js';
-import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils';
-import { p256 } from '@noble/curves/p256';
-import { klona } from 'klona';
-import varint from 'varint';
 import { base58btc } from "multiformats/bases/base58";
 import cbor from "cbor";
 import { base64url } from "multiformats/bases/base64";
-import { bytes } from 'multiformats';
 
 // Create output directory for the results
 const baseDir = "./output/ecdsa-sd-2023/";

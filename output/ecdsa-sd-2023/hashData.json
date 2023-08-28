@@ -114,6 +114,6 @@
     ]
   ],
   "hmacKeyString": "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF",
-  "proofHash": "cbbb2845046705baed3a6c73a6ce86249f135b7e310ed1c694e8b3fd72ab8516",
-  "mandatoryHash": "de48264d44054d254a7ce8b01fe30786b8e71e7034075e4aba1c887714c6bae6"
+  "proofHash": "df7aa7b219aae5e0cdcab257b5005e62741d3caea0721edf2102382aebeed605",
+  "mandatoryHash": "e9965e07b5e431d43bb329feddcc76f1d38e7327a7f5c1823ce771f939c84e4a"
 }

@@ -78,7 +78,7 @@ let proofConfig = {};
 proofConfig.type = "DataIntegrityProof";
 proofConfig.cryptosuite = "ecdsa-rdfc-2019";
 proofConfig.created = "2023-08-15T23:36:38Z";
-proofConfig.verificationMethod = "https://vc.example/issuers/5679#" + keyPair.publicKeyMultibase;
+proofConfig.verificationMethod = "did:key:" + keyPair.publicKeyMultibase;
 proofConfig.proofPurpose = "assertionMethod";
 proofConfig["@context"] = document["@context"];
 const proofCanon = await jsonld.canonize(proofConfig);
@@ -94,7 +94,8 @@ let hashTestVector = {proofHash: bytesToHex(proofHash)};
 // Initialize bytes to the UTF-8 representation of the joined mandatory N-Quads.
 // Initialize mandatoryHash to the result of using hasher to hash bytes.
 // Return mandatoryHash.
-let mandatoryHash = sha256([...mandatory.values()].join());
+
+let mandatoryHash = sha256([...mandatory.values()].join(''));
 // Initialize hashData as a deep copy of transformedDocument and add proofHash as
 // "proofHash" and mandatoryHash as "mandatoryHash" to that object.
 const hashData = klona(transformed);
@@ -138,6 +139,8 @@ console.log(`proofPublicKey multikey: ${pub256Encoded}`);
 // A single sign data value, represented as series of bytes, is produced as output.
 // Return the concatenation of proofHash, publicKey, and mandatoryHash, in that order, as sign data.
 let signData = concatBytes(proofHash,base58btc.decode(pub256Encoded), mandatoryHash);
+console.log("mandatory hash:");
+console.log(mandatoryHash);
 console.log(`signData length: ${signData.length}`);
 let baseSignature = p256.sign(sha256(signData), privateKey).toCompactRawBytes();
 // baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers are inputs to
