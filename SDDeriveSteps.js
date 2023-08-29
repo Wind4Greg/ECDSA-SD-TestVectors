@@ -1,6 +1,6 @@
 /*
-    Walking through the steps to  create a derived SD proof using Digital
-    Bazaar SD-primitive functions.
+    Walking through the steps to  create a derived SD proof according to the spec
+    using Digital Bazaar SD-primitive functions.
 
     Reference:
 
@@ -175,15 +175,6 @@ canonicalIdMap.forEach(function (value, key) {
   verifierLabelMap.set(value, labelMap.get(key));
 });
 
-  // DB code:
-  // 9. Produce a blank node label map from the canonical blank node labels
-  //   the verifier will see to the HMAC labels.
-  // const verifierLabelMap = new Map();
-  // for(const [inputLabel, verifierLabel] of canonicalIdMap) {
-  //   verifierLabelMap.set(verifierLabel, labelMap.get(inputLabel));
-  // }
-
-//
 // console.log(verifierLabelMap);
 /* Return an object with properties matching baseSignature, publicKey, "signatures" for filteredSignatures,
 "verifierLabelMap" for labelMap, mandatoryIndexes, and revealDocument.

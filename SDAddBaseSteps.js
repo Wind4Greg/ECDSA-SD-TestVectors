@@ -76,7 +76,7 @@ await writeFile(baseDir + 'addBaseTransform.json', JSON.stringify(transformOutpu
 // Set proof options per draft
 let proofConfig = {};
 proofConfig.type = "DataIntegrityProof";
-proofConfig.cryptosuite = "ecdsa-rdfc-2019";
+proofConfig.cryptosuite = "ecdsa-sd-2023";
 proofConfig.created = "2023-08-15T23:36:38Z";
 proofConfig.verificationMethod = "did:key:" + keyPair.publicKeyMultibase;
 proofConfig.proofPurpose = "assertionMethod";
@@ -102,7 +102,8 @@ const hashData = klona(transformed);
 hashData.proofHash = proofHash;
 hashData.mandatoryHash = mandatoryHash;
 // For test vector purposes convert maps to arrays of pairs and uint8arrays to hex
-const hashDataOutput = klona(transformOutput);
+// and don't rewrite the transformed information.
+const hashDataOutput = {};
 hashDataOutput.proofHash = bytesToHex(proofHash);
 hashDataOutput.mandatoryHash = bytesToHex(mandatoryHash);
 // console.log(hashDataOutput);
@@ -132,6 +133,7 @@ const P256_PUB_PREFIX = 0x1200;
 let p256Prefix = new Uint8Array(varint.encode(P256_PUB_PREFIX)); // Need to use varint on the multicodecs code
 let pub256Encoded = base58btc.encode(concatBytes(p256Prefix, proofPublicKey));
 console.log(`proofPublicKey multikey: ${pub256Encoded}`);
+
 // 3.4.1 serializeSignData
 //The following algorithm serializes the data that is to be signed by the private key associated
 // with the base proof verification method. The required inputs are the proof options hash (proofHash),
@@ -177,13 +179,10 @@ let baseProof = base64url.encode(proofValue);
 console.log(baseProof);
 console.log(`Length of baseProof is ${baseProof.length} characters`);
 
-// Construct Signed Document
+// Construct and Write Signed Document
 let signedDocument = klona(document);
 delete proofConfig['@context'];
 signedDocument.proof = proofConfig;
 signedDocument.proof.proofValue = baseProof;
-
 console.log(JSON.stringify(signedDocument, null, 2));
 writeFile(baseDir + 'signedSDBase.json', JSON.stringify(signedDocument, null, 2));
-
-
