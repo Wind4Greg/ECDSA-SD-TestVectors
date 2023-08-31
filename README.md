@@ -1,9 +1,3 @@
----
-author: Dr. Greg M. Bernstein
-date: 2023-08-06
-title: Selective Disclosure for ECDSA -- Test Vectors
----
-
 # Test Vector Derivation for ECDSA-SD
 
 This repository contains JavaScript (Node.js) code for the generation of test vectors for the ECDSA-SD (selective disclosure with ECDSA) Verifiable Credential Data Integrity specification, [VC-DI-ECDSA](https://w3c.github.io/vc-di-ecdsa/).
@@ -35,8 +29,14 @@ Libraries used to investigate stuff:
 
 To produce the test vectors we need an input document, i.e., and unsigned verifiable credential. For this we use the file [windDoc.json](input/windDoc.json). Change this if you want to generate different examples, however you may also need to deal with JSON-LD document loading. See [documentLoader.js](./documentLoader.js) and the `contexts` directory. To indicate which parts of the document must be **mandatory* to reveal (from the issuer perspective) we use the array of JSON Pointers in the file [windMandatory.json](input/windMandatory.json).
 
-## Add Base Proof Steps and Vectors
+## Add Base Proof Steps and Test Vectors
 
-## Add Derived Proof
+The code in [SDAddBaseSteps.js](./SDAddBaseSteps.js) produces a signed selective disclosure base proof, [addSignedSDBase.json](output/ecdsa-sd-2023/addSignedSDBase.json) and test vectors for intermediate steps. These are contained in the directory `output/ecdsa-sd-2023` and have files names prefixed with `add`.
 
-## Verify Derived Proof
+## Derived Proof Steps and Test Vectors
+
+The code in [SDDeriveSteps.js](./SDDeriveSteps.js) produces a selective disclosure derived proof, [deriveRevealDocument.json](output/ecdsa-sd-2023/derivedRevealDocument.json) and test vectors for intermediate steps. These are contained in the directory `output/ecdsa-sd-2023` and have files names prefixed with `derive`. It starts with the file [addSignedSDBase.json](output/ecdsa-sd-2023/addSignedSDBase.json).
+
+## Verify Derived Proof Steps and Test Vectors
+
+The code in [SDVerifyDeriveSteps.js](./SDVerifyDeriveSteps.js) verifies a selective disclosure derived document, and generates test vectors for intermediate steps. The test vectors are contained in the directory `output/ecdsa-sd-2023` and have files names prefixed with `verify`. It starts with the file [deriveRevealDocument.json](output/ecdsa-sd-2023/derivedRevealDocument.json).
