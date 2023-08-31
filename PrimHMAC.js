@@ -7,33 +7,31 @@
     usage.
 */
 
-import { readFile, writeFile } from 'fs/promises';
-import { createHmac, hmacIdCanonize} from '@digitalbazaar/di-sd-primitives';
-import jsonld from 'jsonld';
-import { localLoader } from './documentLoader.js';
-import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils';
+import { readFile, writeFile } from 'fs/promises'
+import { createHmac, hmacIdCanonize } from '@digitalbazaar/di-sd-primitives'
+import jsonld from 'jsonld'
+import { localLoader } from './documentLoader.js'
+import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 
-
-jsonld.documentLoader = localLoader; // Local loader for JSON-LD
+jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
 // Read input document from a file or just specify it right here.
-let document = JSON.parse(
-    await readFile(
-      new URL('./input/windDoc.json', import.meta.url)
-    )
-  );
-
+const document = JSON.parse(
+  await readFile(
+    new URL('./input/windDoc.json', import.meta.url)
+  )
+)
 
 // Need an HMAC string
-let hmacKeyString = '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF';
-let hmacKey = hexToBytes(hmacKeyString);
+const hmacKeyString = '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
+const hmacKey = hexToBytes(hmacKeyString)
 // async function createHmac({algorithm = 'HS256', key} = {})
-let hmac = await createHmac( {algorithm: 'HS256', key: hmacKey} );
-let options = {};
+const hmac = await createHmac({ algorithm: 'HS256', key: hmacKey })
+const options = {}
 
-let result = await hmacIdCanonize({document, options, hmac});
-console.log(result);
-console.log(`Result is an array? ${Array.isArray(result)}`);
+const result = await hmacIdCanonize({ document, options, hmac })
+console.log(result)
+console.log(`Result is an array? ${Array.isArray(result)}`)
 
 /*
 

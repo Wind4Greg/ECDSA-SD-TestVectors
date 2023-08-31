@@ -12,34 +12,34 @@
   "sails": [
     {
       "size": 5.5,
-      "sailName": "Osprey",
+      "sailName": "Kihei",
       "year": 2023
     },
     {
       "size": 6.1,
-      "sailName": "Eagle-FR",
+      "sailName": "Lahaina",
       "year": 2023
     },
     {
       "size": 7,
-      "sailName": "Eagle-FR",
+      "sailName": "Lahaina",
       "year": 2020
     },
     {
       "size": 7.8,
-      "sailName": "Eagle-FR",
+      "sailName": "Lahaina",
       "year": 2023
     }
   ],
   "boards": [
     {
       "boardName": "CompFoil170",
-      "brand": "Tillo",
+      "brand": "Wailea",
       "year": 2022
     },
     {
-      "boardName": "Tillo Custom",
-      "brand": "Tillo",
+      "boardName": "Kanaha Custom",
+      "brand": "Wailea",
       "year": 2019
     }
   ],
@@ -49,6 +49,6 @@
     "created": "2023-08-15T23:36:38Z",
     "verificationMethod": "did:key:zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP#zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP",
     "proofPurpose": "assertionMethod",
-    "proofValue": "u2V0AhdhAWEDjfOhA-bS0ZDeLT52nmBTlYFWJHctQP7K2pC8Xh9OdXYHY9Vej9-JsLSS1I_mMtD4wduh8Hjghs-6AxgjzG4yO2EBYI4AkAipyzhm2PxbjPgEqUpJDsbCEdhPJ-zJdqtVEOrRMM4uT2EBYIAARIjNEVWZ3iJmqu8zd7v8AESIzRFVmd4iZqrvM3e7_jthAWECxGU5FkqiAQUhHQ0Ui-R2snRXlfMl-n9rp20WzYTLiKBUgS7AJwumoJxhILnQhLhFfw9y8TGQbRSIdkWM1XRb72EBYQFtLiyKtAnphsOAxTMAJxswcfr2YJ1RX5eEhk3eNvbclWUj99RhfSLVvitustBOspLHxjRNEcA-hm3R2TqmzWunYQFhATtMwZEL90erdeDtXL8isQTnz0Ij41W3Ox4T-HjGirjo2H8QoAyyTiXLAmcxWPUQGlc2kqnqb1Gw0zWSVttfMm9hAWECKkPfsfBIwl2Y52eQ6Rnp7vivM0DFSUmowPiwFVt7tlXTj-8H5s345vopGBW9QR2N-Z1dqTGIaucNCzL_GLHaJ2EBYQA_-twCfrW96nBo3Wmjgs4MfocWT-OzP6NjKFivWTznuANyoMSEbkw_g9yTmeWvF-aw8-ZOpKHGzBRW6XB0NEXTYQFhAtRzSQdtNyrxryTFqrYuE0fqsy1ZJF9N2HraoW1m4peGY1H-Zet2nz6GsYd612tZRTDNRIeQu0bPzLP-HtHlOIdhAWEBmMX6POqCTsAJLlGFWZObvi3TFf8H9sbRL1saMeR17cidBSJdMHLwrL2OCg3kzheQJ1muQyl4N6E4hg4iiRQTF2EBYQD9oQtMxYvK2e3mXrwrY3Oxe_JuDdqqiP-70DYGPtPH9MSz5ciXumNSwn7e5e4Kp0kZ9QZv7twJZHSZLFEV8y0LYQFhAePX3nDidtIA1YkIlCh5V1jm7O52TkDq1yQ9VpTdH4uHMh91dcVZR398nJFYJ8I-G_d8-DmdoylRQJMIDFId7K9hAWEAOPSSRBfUZVWphWwk66_4Uf-YOGLqGeEAbKYmovvNDvPJF7mNSFjcdn7wB48fSdn4W3MQwKCig9s2jEDLi80bC2EBYQGES50azTc-XJpeb4D2VbvwPUk0KnATMPW58C9pB5asRN4RDT7mnmZks8yLjR6mmaAI72n8fVCSO1d_Nkx5ERb7YQFhAnnatTmK6-rNHD3vm2Syoikh234sHhMZqHduv79d4ExXKJFLrA_ciDWW9rBPzOQHmxRiLp_cTZF8iBgEPptHyBdhAWEB6EqOU8VA7C3obnimVyg14ux7-um75hZfAq9IptMkcFZRpYk66s7WcxCDih5ankh1tm-7hknHGsdYEiVo6V0pe2EBYQJukwZcINwPaVsgR8zgpqWU30uqFhI7DxMEGfeY4f9luLunpBYyyVrUCoEUJM3mM46VKTc9yA4VGwbnHNVFLK2iEay9zYWlsTnVtYmVyaC9zYWlscy8xbi9ib2FyZHMvMC95ZWFyaC9zYWlscy8y"
+    "proofValue": "u2V0AhdhAWEBaJuRWMVBM9C9EW3UfAWd9XEsz2JuQ1nUEKRA6jHylSoHKNlB52Wdykgo15WHvZjiC-9TonU0QzKsM54xffZED2EBYI4AkAipyzhm2PxbjPgEqUpJDsbCEdhPJ-zJdqtVEOrRMM4uT2EBYIAARIjNEVWZ3iJmqu8zd7v8AESIzRFVmd4iZqrvM3e7_jthAWEApVgozbnQMNw1Y5hClSZgLVnk1mElHCJ7y9VR6_3hAay3zdaGhbv9QzolQuwqM1UePFmVlDKi83jHDUz-aGfpM2EBYQLKjEoM9BHmj3tB5qOUjdSTWZgo4mfgjSQeEnJsiuOrO4Q6LTWbhh8ShmgBQuNztBcXCnlAveqv8_TxnheQt1aXYQFhAmeoEU8I1ZzxFyR-QMxwoSkqRG9E8_CaSrhH8TD2t-tV32HKAC4hJkKl6xHuz6XL2G-V0cm6d_rWozjhmmVaMjdhAWEBtAwxySlwwASjXlYLoLwyjdsIRYUa05OQzE0P4skx1-QJKi8HtGcJHtJfOTn7RhWKC0nkXODvUAChvnKDVY02T2EBYQKUB5WERpVFZL_ll9ToyWCdfTsO4qb1cFL5vdEp9yIzUS7svaa-Qx5t8FZVTD1aS6o0vhPP4yQ3iVeaWNG3yvwPYQFhAO_Hj0vxsuJZzpVGtgoMKK2ZlGKvhLX3_vUCvdL-MTlszVr2iC3XJpCbOc8B_W_On-csaLPzUSvlSDtNec1ZVk9hAWEB2bYe3iy_95zezUdGp66X77IQbHhKunDI1BF0trlkrIkOCqviH4S1U3Nz4n5WWW8qsc3zAEq1Spquojg2mevHt2EBYQDkTC12M95efTs3O0g5Nno-3Ja3q_QZ-nmgVEBu-9wKkOem3PqBl3npnpMGQjR4xSzhEjaDau6nrTvBUW4hR2-DYQFhAW-otSFVlUPFmg119n3TeSE7up5hBS34AqP2TGUQA5pDGyOTetrf8qq3bWj1lpCu1Z6yEZJlQ6nrLiCoaNVhpL9hAWEDXBb8eGxM9R9SWoxfpkywt6byFtZoV7-tkOk-nk03Ta8wcicOM7UafQGtdTJUAydNjd8asOOy7LawaAzNH5ujX2EBYQLzhklx-dXkaAlrVfS5aWQ9dIsdCLrlQp2reX0cVO4ahrNAMzNPZBrJrgzEY6MKedcYYhSd4jGoyDjoVlIT8RwrYQFhAvSW9q88RLZ9lWdg2ZeK-cf-cFlU_Pjqx1bUVAXMHQ3tf4Jfj2IUNury3EzfO3sj3VYX7dDvlETtT0HYn3r-DSthAWEDn3XTeqxsj1QjNxTdgSloHCmeICfKN6bD_sRo83d_fuyIfv1HCiXq1_vbpBQ9SJqs3KaCFJl5e8huOnGqUrP5Q2EBYQEMJNELryBxVHKwGR6_t62L32c2s8M2CUAqTmHOFF9z3BQcVbciO1PT4nlDjYvNxCxVQN9YKJsS3AmLp--fda32Eay9zYWlsTnVtYmVyaC9zYWlscy8xbi9ib2FyZHMvMC95ZWFyaC9zYWlscy8y"
   }
 }

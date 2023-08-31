@@ -10,34 +10,34 @@
   "sails": [
     {
       "size": 5.5,
-      "sailName": "Osprey",
+      "sailName": "Kihei",
       "year": 2023
     },
     {
       "size": 6.1,
-      "sailName": "Eagle-FR",
+      "sailName": "Lahaina",
       "year": 2023
     },
     {
       "size": 7.0,
-      "sailName": "Eagle-FR",
+      "sailName": "Lahaina",
       "year": 2020
     },
     {
       "size": 7.8,
-      "sailName": "Eagle-FR",
+      "sailName": "Lahaina",
       "year": 2023
     }
   ],
   "boards": [
     {
       "boardName": "CompFoil170",
-      "brand": "Tillo",
+      "brand": "Wailea",
       "year": 2022
     },
     {
-      "boardName": "Tillo Custom",
-      "brand": "Tillo",
+      "boardName": "Kanaha Custom",
+      "brand": "Wailea",
       "year": 2019
     }
   ]
