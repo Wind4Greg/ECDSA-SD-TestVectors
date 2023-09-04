@@ -32,11 +32,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 const baseDir = './output/ecdsa-sd-2023/'
 const status = await mkdir(baseDir, { recursive: true })
 
-// Sample long term issuer signing/public keys
-const keyPair = {
-  publicKeyMultibase: 'zDnaepBuvsQ8cpsWrVKw8fbpGpvPeNSjVPTWoq6cRqaYzBKVP'
-}
-const privateKey = hexToBytes('C9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721')
+
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
@@ -44,12 +40,35 @@ jsonld.documentLoader = localLoader // Local loader for JSON-LD
 const document = JSON.parse(
   await readFile(new URL('./input/windDoc.json', import.meta.url)))
 
+// Obtain key material and process into byte array format
+const keyMaterial = JSON.parse(
+  await readFile(new URL('./input/SDKeyMaterial.json', import.meta.url)))
+// HMAC/PRF key material -- Shared between issuer and holder
+const hmacKeyString = keyMaterial.hmacKeyString
+const hmacKey = hexToBytes(hmacKeyString)
+// proof specific key material. Used only for one proof, secret key is not kept
+const proofPrivateKey = base58btc.decode(keyMaterial.proofPrivateKeyMultibase).slice(2)
+const proofPublicKey = base58btc.decode(keyMaterial.proofPublicKeyMultibase) // Leave prefix on
+// Sample long term issuer signing key
+const privateKey = base58btc.decode(keyMaterial.privateKeyMultibase).slice(2)
+const publicKeyMultibase = keyMaterial.publicKeyMultibase;
+
 const options = { documentLoader: localLoader }
 
+// Missing Step: **Proof Configuration Options**
+// Set proof options per draft
+const proofConfig = {}
+proofConfig.type = 'DataIntegrityProof'
+proofConfig.cryptosuite = 'ecdsa-sd-2023'
+proofConfig.created = '2023-08-15T23:36:38Z'
+proofConfig.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicKeyMultibase
+proofConfig.proofPurpose = 'assertionMethod'
+proofConfig['@context'] = document['@context']
+const proofCanon = await jsonld.canonize(proofConfig)
+writeFile(baseDir + 'addProofConfigCanonECDSA_SD.txt', proofCanon)
+
 // **Transformation Step**
-// Need an HMAC string
-const hmacKeyString = '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
-const hmacKey = hexToBytes(hmacKeyString)
+
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
 
@@ -74,18 +93,11 @@ const transformed = { mandatoryPointers, mandatory, nonMandatory, hmacKey }
 // for algorithm.
 const transformOutput = { mandatoryPointers, mandatory, nonMandatory, hmacKeyString }
 await writeFile(baseDir + 'addBaseTransform.json', JSON.stringify(transformOutput, replacerMap, 2))
-
-// Missing Step: **Configuration Options**
-// Set proof options per draft
-const proofConfig = {}
-proofConfig.type = 'DataIntegrityProof'
-proofConfig.cryptosuite = 'ecdsa-sd-2023'
-proofConfig.created = '2023-08-15T23:36:38Z'
-proofConfig.verificationMethod = 'did:key:' + keyPair.publicKeyMultibase + '#' + keyPair.publicKeyMultibase
-proofConfig.proofPurpose = 'assertionMethod'
-proofConfig['@context'] = document['@context']
-const proofCanon = await jsonld.canonize(proofConfig)
-writeFile(baseDir + 'addProofConfigCanonECDSA_SD.txt', proofCanon)
+// For illustration purposes only show the canonicalized document nquads
+let documentCanon = await jsonld.canonize(document)
+documentCanon = documentCanon.split('\n').slice(0,-1).map(q => q + '\n')
+await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, replacerMap, 2))
+// TODO: show HMAC version of quads
 
 /* **Hashing Step**
    "The required inputs to this algorithm are a transformed data document (transformedDocument)
@@ -115,10 +127,6 @@ writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
   to the values associated with their property names hashData.
 */
 
-// Initialize proofScopedKeyPair to a locally generated P-256 ECDSA key pair.
-// Note: This key pair is scoped to the specific proof;
-const proofPrivateKey = hexToBytes('776448934c81996709671ef7d17ea1c054912f1c702c50d25b14b6c1fad13183')
-const proofPublicKey = p256.getPublicKey(proofPrivateKey)
 
 // Initialize signatures to an array where each element holds the result of digitally signing
 // the UTF-8 representation of each N-Quad string in nonMandatory, in order.
@@ -129,11 +137,7 @@ nonMandatory.forEach(function (value, key) {
   signatures.push(signature.toCompactRawBytes())
   // console.log(`value: ${value}, sig: ${signature.toCompactHex()}`);
 })
-// Initialize publicKey to the multikey expression of the public key exported from proofScopedKeyPair.
-const P256_PUB_PREFIX = 0x1200
-const p256Prefix = new Uint8Array(varint.encode(P256_PUB_PREFIX)) // Need to use varint on the multicodecs code
-const pub256Encoded = base58btc.encode(concatBytes(p256Prefix, proofPublicKey))
-// console.log(`proofPublicKey multikey: ${pub256Encoded}`);
+
 
 // 3.4.1 serializeSignData
 // The following algorithm serializes the data that is to be signed by the private key associated
@@ -141,13 +145,13 @@ const pub256Encoded = base58btc.encode(concatBytes(p256Prefix, proofPublicKey))
 // the proof-scoped multikey-encoded public key (publicKey), and the mandatory hash (mandatoryHash).
 // A single sign data value, represented as series of bytes, is produced as output.
 // Return the concatenation of proofHash, publicKey, and mandatoryHash, in that order, as sign data.
-const signData = concatBytes(proofHash, base58btc.decode(pub256Encoded), mandatoryHash)
+const signData = concatBytes(proofHash, proofPublicKey, mandatoryHash)
 const baseSignature = p256.sign(sha256(signData), privateKey).toCompactRawBytes()
 // baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers are inputs to
 // 3.4.2 serializeBaseProofValue. This seems like a good test vector
 const rawBaseSignatureInfo = {
   baseSignature: bytesToHex(baseSignature),
-  publicKey: pub256Encoded,
+  publicKey: keyMaterial.proofPublicKeyMultibase,
   signatures: signatures.map(sig => bytesToHex(sig)),
   mandatoryPointers
 }
@@ -172,7 +176,7 @@ Initialize baseProof to a string with the multibase-base64url-no-pad-encoding of
 Return baseProof as base proof.
 */
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x00])
-const components = [baseSignature, base58btc.decode(pub256Encoded), hmacKey, signatures, mandatoryPointers]
+const components = [baseSignature, proofPublicKey, hmacKey, signatures, mandatoryPointers]
 const cborThing = await cbor.encodeAsync(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)

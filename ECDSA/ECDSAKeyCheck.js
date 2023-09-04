@@ -66,6 +66,18 @@ const p256KeyPair = {
 }
 await writeFile(baseDir + 'p256KeyPair.json', JSON.stringify(p256KeyPair, null, 2))
 
+// Create another P-256 key pair for proofKey example for ECDSA-SD
+const proofPrivateKey = hexToBytes('776448934c81996709671ef7d17ea1c054912f1c702c50d25b14b6c1fad13183')
+const proofPublicKey = p256.getPublicKey(proofPrivateKey)
+const proofPriv256Encoded = base58btc.encode(concatBytes(priv256Prefix, proofPrivateKey))
+const proofPub256Encoded = base58btc.encode(concatBytes(p256Prefix, proofPublicKey))
+const sdKeyMaterial = {...p256KeyPair,
+  proofPublicKeyMultibase: proofPub256Encoded,
+  proofPrivateKeyMultibase: proofPriv256Encoded,
+  hmacKeyString: '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'
+}
+await writeFile(baseDir + 'SDKeyMaterial.json', JSON.stringify(sdKeyMaterial, null, 2))
+
 const privateKey384 = hexToBytes('6B9D3DAD2E1B8C1C05B19875B6659F4DE23C3B667BF297BA9AA47740787137D896D5724E4C70A825F872C9EA60D2EDF5')
 const publicKey384 = p384.getPublicKey(privateKey384)
 console.log(`P-384 private key length: ${privateKey384.length}`)
@@ -99,12 +111,4 @@ console.log('DID:key example P384 key in hex bytes:')
 console.log(bytesToHex(ex384bytes))
 console.log(`Length of example P-384 key without prefix: ${ex384bytes.length - 2}`)
 
-// DB example public key
-const publicKeyMultibase = 'zDnaekGZTbQBerwcehBSXLqAg6s55hVEBms1zFy89VHXtJSa9'
-const dbMultiKeyBytes = base58btc.decode(publicKeyMultibase)
-// For base58-universal you take off the 'z' prefix!
-const altDecode = decode(publicKeyMultibase.slice(1)) // removes z prefix
-console.log(`Length decoded dbMultiKeyBytes: ${dbMultiKeyBytes.length}`)
-console.log(`Length decoded altDecode: ${altDecode.length}`)
-console.log(dbMultiKeyBytes)
-console.log(altDecode)
+//
