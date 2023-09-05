@@ -71,7 +71,8 @@ const proofPrivateKey = hexToBytes('776448934c81996709671ef7d17ea1c054912f1c702c
 const proofPublicKey = p256.getPublicKey(proofPrivateKey)
 const proofPriv256Encoded = base58btc.encode(concatBytes(priv256Prefix, proofPrivateKey))
 const proofPub256Encoded = base58btc.encode(concatBytes(p256Prefix, proofPublicKey))
-const sdKeyMaterial = {...p256KeyPair,
+const sdKeyMaterial = {
+  ...p256KeyPair,
   proofPublicKeyMultibase: proofPub256Encoded,
   proofPrivateKeyMultibase: proofPriv256Encoded,
   hmacKeyString: '00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF'

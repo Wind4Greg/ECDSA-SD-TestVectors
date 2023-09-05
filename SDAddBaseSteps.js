@@ -9,6 +9,7 @@ import { createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup } from '
 import jsonld from 'jsonld'
 import { localLoader } from './documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
+import { hmac } from '@noble/hashes/hmac'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { p256 } from '@noble/curves/p256'
 import { klona } from 'klona'
@@ -32,8 +33,6 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 const baseDir = './output/ecdsa-sd-2023/'
 const status = await mkdir(baseDir, { recursive: true })
 
-
-
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
 // Read input document from a file
@@ -51,7 +50,7 @@ const proofPrivateKey = base58btc.decode(keyMaterial.proofPrivateKeyMultibase).s
 const proofPublicKey = base58btc.decode(keyMaterial.proofPublicKeyMultibase) // Leave prefix on
 // Sample long term issuer signing key
 const privateKey = base58btc.decode(keyMaterial.privateKeyMultibase).slice(2)
-const publicKeyMultibase = keyMaterial.publicKeyMultibase;
+const publicKeyMultibase = keyMaterial.publicKeyMultibase
 
 const options = { documentLoader: localLoader }
 
@@ -65,12 +64,12 @@ proofConfig.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicK
 proofConfig.proofPurpose = 'assertionMethod'
 proofConfig['@context'] = document['@context']
 const proofCanon = await jsonld.canonize(proofConfig)
-writeFile(baseDir + 'addProofConfigCanonECDSA_SD.txt', proofCanon)
+writeFile(baseDir + 'addProofConfigCanon.txt', proofCanon)
 
 // **Transformation Step**
 
-const hmac = await createHmac({ key: hmacKey })
-const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
+const hmacFunc = await createHmac({ key: hmacKey })
+const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac: hmacFunc })
 
 /* Initialize groupDefinitions to a map with an entry with a key of the string
    "mandatory" and a value of mandatoryPointers. */
@@ -94,10 +93,27 @@ const transformed = { mandatoryPointers, mandatory, nonMandatory, hmacKey }
 const transformOutput = { mandatoryPointers, mandatory, nonMandatory, hmacKeyString }
 await writeFile(baseDir + 'addBaseTransform.json', JSON.stringify(transformOutput, replacerMap, 2))
 // For illustration purposes only show the canonicalized document nquads
-let documentCanon = await jsonld.canonize(document)
-documentCanon = documentCanon.split('\n').slice(0,-1).map(q => q + '\n')
-await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, replacerMap, 2))
-// TODO: show HMAC version of quads
+const documentCanonQuads = await jsonld.canonize(document) // block of text
+const documentCanon = documentCanonQuads.split('\n').slice(0, -1).map(q => q + '\n') // array
+await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, null, 2))
+// HMAC based bnode replacement function
+const bnodeIdMap = new Map() // Keeps track of old blank node ids and their replacements
+function hmacID (bnode) {
+  if (bnodeIdMap.has(bnode)) {
+    return bnodeIdMap.get(bnode)
+  }
+  // console.log(`bnode: ${bnode}`)
+  const hmacBytes = hmac(sha256, hmacKey, bnode.split('_:')[1]) // only use the c14nx part
+  const newId = '_:' + base64url.encode(hmacBytes)
+  bnodeIdMap.set(bnode, newId)
+  return newId
+}
+// Using JavaScripts string replace with global regex and above replacement function
+const hmacQuads = documentCanonQuads.replace(/(_:c14n[0-9]+)/g, hmacID)
+// console.log(hmacQuads)
+// console.log(bnodeIdMap)
+const sortedHMACQuads = hmacQuads.split('\n').slice(0, -1).map(q => q + '\n').sort()
+await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(sortedHMACQuads, null, 2))
 
 /* **Hashing Step**
    "The required inputs to this algorithm are a transformed data document (transformedDocument)
@@ -127,7 +143,6 @@ writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
   to the values associated with their property names hashData.
 */
 
-
 // Initialize signatures to an array where each element holds the result of digitally signing
 // the UTF-8 representation of each N-Quad string in nonMandatory, in order.
 const signatures = []
@@ -137,7 +152,6 @@ nonMandatory.forEach(function (value, key) {
   signatures.push(signature.toCompactRawBytes())
   // console.log(`value: ${value}, sig: ${signature.toCompactHex()}`);
 })
-
 
 // 3.4.1 serializeSignData
 // The following algorithm serializes the data that is to be signed by the private key associated
@@ -180,8 +194,8 @@ const components = [baseSignature, proofPublicKey, hmacKey, signatures, mandator
 const cborThing = await cbor.encodeAsync(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)
-console.log(baseProof)
-console.log(`Length of baseProof is ${baseProof.length} characters`)
+// console.log(baseProof)
+// console.log(`Length of baseProof is ${baseProof.length} characters`)
 
 // Construct and Write Signed Document
 const signedDocument = klona(document)
