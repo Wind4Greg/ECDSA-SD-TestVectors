@@ -63,6 +63,7 @@ proofConfig.created = '2023-08-15T23:36:38Z'
 proofConfig.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicKeyMultibase
 proofConfig.proofPurpose = 'assertionMethod'
 proofConfig['@context'] = document['@context']
+writeFile(baseDir + 'addProofConfig.json', JSON.stringify(proofConfig, null, 2))
 const proofCanon = await jsonld.canonize(proofConfig)
 writeFile(baseDir + 'addProofConfigCanon.txt', proofCanon)
 

@@ -24,6 +24,17 @@ import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { encode } from 'cborg'
 import { base64url } from 'multiformats/bases/base64'
+// For serialization of JavaScript Map via JSON
+function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
+  if (value instanceof Map) {
+    return {
+      dataType: 'Map',
+      value: Array.from(value.entries()) // or with spread: value: [...value]
+    }
+  } else {
+    return value
+  }
+}
 
 // Create output directory for the test vectors
 const baseDir = './output/ecdsa-sd-2023/'
@@ -31,7 +42,11 @@ const status = await mkdir(baseDir, { recursive: true })
 
 // Chosen to be tricky as mandatory has "/boards/0/year" and we are going to
 // reveal all about board 0
-const selectivePointers = ['/boards/0', '/boards/1']
+const selectivePointers = JSON.parse(
+  await readFile(
+    new URL('./input/' + 'windSelective.json', import.meta.url)
+  )
+)
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
@@ -52,6 +67,8 @@ is produced as output, which contains the "baseSignature", "publicKey", "signatu
 "filteredSignatures", "labelMap", "mandatoryIndexes", and "revealDocument" fields.
 */
 
+
+
 /* Initialize baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers to the
 values of the associated properties in the object returned when calling the algorithm
 parseBaseProofValue, passing the proofValue from proof. */
@@ -71,13 +88,24 @@ if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [baseSignature, proofPublicKey, hmacKey, signatures, mandatoryPointers] = decodeThing
-
+const baseProofData = { baseSignature: bytesToHex(baseSignature),
+  proofPublicKey: base58btc.encode(proofPublicKey),
+  hmacKey: bytesToHex(hmacKey),
+  signatures: signatures.map(sig => bytesToHex(sig)),
+  mandatoryPointers
+}
+await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))
+// Combine pointers
+const combinedPointers = mandatoryPointers.concat(selectivePointers)
+// Initialize revealDocument to the result of the "selectJsonLd" algorithm,
+// passing document, and combinedPointers as pointers.
+// function selectJsonLd({document, pointers, includeTypes = true} = {})
+const revealDocument = selectJsonLd({ document, pointers: combinedPointers })
+await writeFile(baseDir + 'derivedUnsignedReveal.json', JSON.stringify(revealDocument, replacerMap, 2))
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
 
-// Combine pointers
-const combinedPointers = mandatoryPointers.concat(selectivePointers)
 /*
 Initialize groupDefinitions to a map with the following entries: key of the string "mandatory"
 and value of mandatoryPointers, key of the string "selective" and value of selectivePointers,
@@ -94,10 +122,19 @@ const stuff = await canonicalizeAndGroup({
   groups,
   options
 })
-// console.log(stuff);
+// console.log(JSON.stringify(stuff, replacerMap, 2))
+writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap, 2))
 const combinedMatch = stuff.groups.combined.matching
 const mandatoryMatch = stuff.groups.mandatory.matching
+const mandatoryNonMatch = stuff.groups.mandatory.nonMatching // For reverse engineering
 const selectiveMatch = stuff.groups.selective.matching
+console.log('Combined indexes:')
+const combinedIndexes = [...combinedMatch.keys()]
+console.log([...combinedMatch.keys()])
+console.log('Mandatory indexes:')
+console.log([...mandatoryMatch.keys()])
+console.log('Non-Mandatory indexes:')
+console.log([...mandatoryNonMatch.keys()]) // These were used for individual signatures
 let relativeIndex = 0
 const mandatoryIndexes = []
 /* For each absoluteIndex in the keys in groups.combined.matching, convert the absolute index
@@ -112,6 +149,14 @@ combinedMatch.forEach(function (value, absoluteIndex) {
   }
   relativeIndex++
 })
+const myAdjMandatory = []
+mandatoryMatch.forEach((value, index) => {
+  myAdjMandatory.push(combinedIndexes.indexOf(index))
+})
+console.log('My Adjusted Mandatory:')
+console.log(myAdjMandatory)
+console.log('Adjusted Mandatory Indexes relative to Combined List:')
+console.log(mandatoryIndexes)
 // console.log(mandatoryIndexes);
 /* Determine which signatures match a selectively disclosed statement, which requires incrementing
 an index counter while iterating over all signatures, skipping over any indexes that match
@@ -128,16 +173,19 @@ from https://github.com/digitalbazaar/ecdsa-sd-2023-cryptosuite/blob/main/lib/di
 and used my variable names. Is this just a set difference in disguise???
 */
 let index = 0
+const sigIndexes = [] // My debugging help
 const filteredSignatures = signatures.filter(() => {
   while (mandatoryMatch.has(index)) {
     index++
   }
+  if (selectiveMatch.has(index)) {
+    sigIndexes.push(index)
+  }
   return selectiveMatch.has(index++)
 })
-// Initialize revealDocument to the result of the "selectJsonLd" algorithm,
-// passing document, and combinedPointers as pointers.
-// function selectJsonLd({document, pointers, includeTypes = true} = {})
-const revealDocument = selectJsonLd({ document, pointers: combinedPointers })
+console.log('Signature Indexes:')
+console.log(sigIndexes)
+
 /*
 Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
 passing any custom options, and get the canonical bnode identifier map, canonicalIdMap. Note: This map
