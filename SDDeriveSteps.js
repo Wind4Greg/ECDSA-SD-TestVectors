@@ -134,30 +134,37 @@ console.log([...combinedMatch.keys()])
 console.log('Mandatory indexes:')
 console.log([...mandatoryMatch.keys()])
 console.log('Non-Mandatory indexes:')
-console.log([...mandatoryNonMatch.keys()]) // These were used for individual signatures
-let relativeIndex = 0
-const mandatoryIndexes = []
-/* For each absoluteIndex in the keys in groups.combined.matching, convert the absolute index
-   of any mandatory N-Quad to an index relative to the combined output that is to be revealed:
+const nonMandatoryIndexes = [...mandatoryNonMatch.keys()]
+console.log(nonMandatoryIndexes) // These were used for individual signatures
+console.log('Selective Indexes:')
+console.log([...selectiveMatch.keys()])
+// let relativeIndex = 0
+// const mandatoryIndexes = []
+// /* For each absoluteIndex in the keys in groups.combined.matching, convert the absolute index
+//    of any mandatory N-Quad to an index relative to the combined output that is to be revealed:
 
-    If groups.mandatory.matching has absoluteIndex as a key, then append relativeIndex to mandatoryIndexes.
-    Increment relativeIndex.
+//     If groups.mandatory.matching has absoluteIndex as a key, then append relativeIndex to mandatoryIndexes.
+//     Increment relativeIndex.
+// */
+// combinedMatch.forEach(function (value, absoluteIndex) {
+//   if (mandatoryMatch.has(absoluteIndex)) {
+//     mandatoryIndexes.push(relativeIndex)
+//   }
+//   relativeIndex++
+// })
+/*
+  My simplification. Compute the "adjusted mandatory indexes" relative to their
+  positions in the combined statement list, i.e., find at what position a mandatory
+  statement occurs in the list of combined statements.
 */
-combinedMatch.forEach(function (value, absoluteIndex) {
-  if (mandatoryMatch.has(absoluteIndex)) {
-    mandatoryIndexes.push(relativeIndex)
-  }
-  relativeIndex++
-})
-const myAdjMandatory = []
+const adjMandatoryIndexes = []
 mandatoryMatch.forEach((value, index) => {
-  myAdjMandatory.push(combinedIndexes.indexOf(index))
+  adjMandatoryIndexes.push(combinedIndexes.indexOf(index))
 })
 console.log('My Adjusted Mandatory:')
-console.log(myAdjMandatory)
+console.log(adjMandatoryIndexes)
 console.log('Adjusted Mandatory Indexes relative to Combined List:')
-console.log(mandatoryIndexes)
-// console.log(mandatoryIndexes);
+// console.log(mandatoryIndexes)
 /* Determine which signatures match a selectively disclosed statement, which requires incrementing
 an index counter while iterating over all signatures, skipping over any indexes that match
 the mandatory group.
@@ -172,20 +179,29 @@ the mandatory group.
 from https://github.com/digitalbazaar/ecdsa-sd-2023-cryptosuite/blob/main/lib/disclose.js
 and used my variable names. Is this just a set difference in disguise???
 */
-let index = 0
-const sigIndexes = [] // My debugging help
-const filteredSignatures = signatures.filter(() => {
-  while (mandatoryMatch.has(index)) {
-    index++
+// let index = 0
+// const sigIndexes = [] // My debugging help
+// const filteredSignatures = signatures.filter(() => {
+//   while (mandatoryMatch.has(index)) {
+//     index++
+//   }
+//   if (selectiveMatch.has(index)) {
+//     sigIndexes.push(index)
+//   }
+//   return selectiveMatch.has(index++)
+// })
+// console.log('Signature Indexes:')
+// console.log(sigIndexes)
+const adjSignatureIndexes = []
+selectiveMatch.forEach((value, index) => {
+  const adjIndex = nonMandatoryIndexes.indexOf(index)
+  if (adjIndex !== -1) {
+    adjSignatureIndexes.push(adjIndex)
   }
-  if (selectiveMatch.has(index)) {
-    sigIndexes.push(index)
-  }
-  return selectiveMatch.has(index++)
 })
-console.log('Signature Indexes:')
-console.log(sigIndexes)
-
+console.log('adjust Signature Indexes:')
+console.log(adjSignatureIndexes)
+const filteredSignatures = signatures.filter((value, index) => adjSignatureIndexes.includes(index))
 /*
 Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
 passing any custom options, and get the canonical bnode identifier map, canonicalIdMap. Note: This map
@@ -221,7 +237,7 @@ const disclosureData = {
   publicKey: base58btc.encode(proofPublicKey),
   signatures: filteredSignatures.map(sig => bytesToHex(sig)),
   labelMap: [...verifierLabelMap],
-  mandatoryIndexes,
+  mandatoryIndexes: adjMandatoryIndexes,
   revealDocument
 }
 writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, null, 2))
@@ -263,7 +279,7 @@ verifierLabelMap.forEach(function (v, k) {
   That is, return a string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
 */
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
-const components = [baseSignature, proofPublicKey, filteredSignatures, compressLabelMap, mandatoryIndexes]
+const components = [baseSignature, proofPublicKey, filteredSignatures, compressLabelMap, adjMandatoryIndexes]
 // TODO: resolve CBOR encoding/decoding issue
 // let cborThing = await cbor.encodeAsync(components);
 const cborThing = await encode(components) // trying cborg library's encode
