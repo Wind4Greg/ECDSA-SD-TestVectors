@@ -112,4 +112,7 @@ console.log('DID:key example P384 key in hex bytes:')
 console.log(bytesToHex(ex384bytes))
 console.log(`Length of example P-384 key without prefix: ${ex384bytes.length - 2}`)
 
-//
+// 	bls12_381-g2-pub	key	0xeb	draft	BLS12-381 public key in the G2 field
+console.log('Multicodec leading bytes in hex for BLS12-381 G2 public key:')
+myBytes = new Uint8Array(varint.encode(0xeb))
+console.log(`BLS12-381 prefix bytes: ${bytesToHex(myBytes)}`)
