@@ -67,8 +67,6 @@ is produced as output, which contains the "baseSignature", "publicKey", "signatu
 "filteredSignatures", "labelMap", "mandatoryIndexes", and "revealDocument" fields.
 */
 
-
-
 /* Initialize baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers to the
 values of the associated properties in the object returned when calling the algorithm
 parseBaseProofValue, passing the proofValue from proof. */
@@ -123,7 +121,7 @@ const stuff = await canonicalizeAndGroup({
   options
 })
 // console.log(JSON.stringify(stuff, replacerMap, 2))
-writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap, 2))
+await writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap, 2))
 const combinedMatch = stuff.groups.combined.matching
 const mandatoryMatch = stuff.groups.mandatory.matching
 const mandatoryNonMatch = stuff.groups.mandatory.nonMatching // For reverse engineering
@@ -137,21 +135,15 @@ console.log('Non-Mandatory indexes:')
 const nonMandatoryIndexes = [...mandatoryNonMatch.keys()]
 console.log(nonMandatoryIndexes) // These were used for individual signatures
 console.log('Selective Indexes:')
-console.log([...selectiveMatch.keys()])
-// let relativeIndex = 0
-// const mandatoryIndexes = []
-// /* For each absoluteIndex in the keys in groups.combined.matching, convert the absolute index
-//    of any mandatory N-Quad to an index relative to the combined output that is to be revealed:
-
-//     If groups.mandatory.matching has absoluteIndex as a key, then append relativeIndex to mandatoryIndexes.
-//     Increment relativeIndex.
-// */
-// combinedMatch.forEach(function (value, absoluteIndex) {
-//   if (mandatoryMatch.has(absoluteIndex)) {
-//     mandatoryIndexes.push(relativeIndex)
-//   }
-//   relativeIndex++
-// })
+const selectiveIndexes = [...selectiveMatch.keys()]
+console.log(selectiveIndexes)
+const groupIndexes = {
+  combinedIndexes,
+  mandatoryIndexes: [...mandatoryMatch.keys()],
+  nonMandatoryIndexes,
+  selectiveIndexes
+}
+await writeFile(baseDir + 'derivedGroupIndexes.json', JSON.stringify(groupIndexes, replacerMap, 2))
 /*
   My simplification. Compute the "adjusted mandatory indexes" relative to their
   positions in the combined statement list, i.e., find at what position a mandatory
@@ -161,37 +153,15 @@ const adjMandatoryIndexes = []
 mandatoryMatch.forEach((value, index) => {
   adjMandatoryIndexes.push(combinedIndexes.indexOf(index))
 })
-console.log('My Adjusted Mandatory:')
-console.log(adjMandatoryIndexes)
-console.log('Adjusted Mandatory Indexes relative to Combined List:')
-// console.log(mandatoryIndexes)
-/* Determine which signatures match a selectively disclosed statement, which requires incrementing
-an index counter while iterating over all signatures, skipping over any indexes that match
-the mandatory group.
-    Initialize index to 0.
-    Initialize filteredSignatures to an empty array.
-    For each signature in signatures:
-        While index is in groups.mandatory.matching, increment index.
-        If index is in groups.selective.matching, add signature to filteredSignatures.
-        Increment index.
+// console.log('My Adjusted Mandatory:')
+// console.log(adjMandatoryIndexes)
+await writeFile(baseDir + 'derivedAdjMandatoryIndexes.json', JSON.stringify({ adjMandatoryIndexes }))
+/* Determine which signatures match a selectively disclosed statement.
+  First determine the "adjusted signature indexes", i.e., relative to their
+  place in the list of statements with signatures. These correspond to the
+  non-mandatory statements.
+  Then simply filter to only those signatures.
 */
-/* Could not figure out this step from the above description so took the code
-from https://github.com/digitalbazaar/ecdsa-sd-2023-cryptosuite/blob/main/lib/disclose.js
-and used my variable names. Is this just a set difference in disguise???
-*/
-// let index = 0
-// const sigIndexes = [] // My debugging help
-// const filteredSignatures = signatures.filter(() => {
-//   while (mandatoryMatch.has(index)) {
-//     index++
-//   }
-//   if (selectiveMatch.has(index)) {
-//     sigIndexes.push(index)
-//   }
-//   return selectiveMatch.has(index++)
-// })
-// console.log('Signature Indexes:')
-// console.log(sigIndexes)
 const adjSignatureIndexes = []
 selectiveMatch.forEach((value, index) => {
   const adjIndex = nonMandatoryIndexes.indexOf(index)
@@ -199,9 +169,11 @@ selectiveMatch.forEach((value, index) => {
     adjSignatureIndexes.push(adjIndex)
   }
 })
-console.log('adjust Signature Indexes:')
-console.log(adjSignatureIndexes)
+// console.log('adjust Signature Indexes:')
+// console.log(adjSignatureIndexes)
 const filteredSignatures = signatures.filter((value, index) => adjSignatureIndexes.includes(index))
+await writeFile(baseDir + 'derivedAdjSignatures.json',
+  JSON.stringify({ adjSignatureIndexes, filteredSignatures: filteredSignatures.map(s => bytesToHex(s)) }))
 /*
 Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
 passing any custom options, and get the canonical bnode identifier map, canonicalIdMap. Note: This map
@@ -213,7 +185,9 @@ let canonicalIdMap = new Map()
 // The goal of the below is to get the canonicalIdMap and not the canonical document
 await canonicalize(deskolemizedNQuads.join(''),
   { ...options, inputFormat: 'application/n-quads', canonicalIdMap })
+// console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
 canonicalIdMap = stripBlankNodePrefixes(canonicalIdMap)
+// console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
 /* Initialize verifierLabelMap to an empty map. This map will map the canonical blank node identifiers
  the verifier will produce when they canonicalize the revealed document to the blank node identifiers
   that were originally signed in the base proof. (step 13)
@@ -236,11 +210,10 @@ const disclosureData = {
   baseSignature: bytesToHex(baseSignature),
   publicKey: base58btc.encode(proofPublicKey),
   signatures: filteredSignatures.map(sig => bytesToHex(sig)),
-  labelMap: [...verifierLabelMap],
-  mandatoryIndexes: adjMandatoryIndexes,
-  revealDocument
+  labelMap: verifierLabelMap,
+  mandatoryIndexes: adjMandatoryIndexes
 }
-writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, null, 2))
+await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap, 2))
 
 // Initialize newProof to a shallow copy of proof.
 const newProof = Object.assign({}, proof)

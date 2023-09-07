@@ -9,28 +9,31 @@
     "39130b5d8cf7979f4ecdced20e4d9e8fb725adeafd067e9e6815101bbef702a439e9b73ea065de7a67a4c1908d1e314b38448da0dabba9eb4ef0545b8851dbe0",
     "bd25bdabcf112d9f6559d83665e2be71ff9c16553f3e3ab1d5b515017307437b5fe097e3d8850dbabcb71337cedec8f75585fb743be5113b53d07627debf834a"
   ],
-  "labelMap": [
-    [
-      "c14n0",
-      "u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38"
-    ],
-    [
-      "c14n1",
-      "uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk"
-    ],
-    [
-      "c14n2",
-      "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
-    ],
-    [
-      "c14n3",
-      "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
-    ],
-    [
-      "c14n4",
-      "uQ-qOZUDlozRsGk46ux9gp9fjT28Fy3g3nctmMoqi_U0"
+  "labelMap": {
+    "dataType": "Map",
+    "value": [
+      [
+        "c14n0",
+        "u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38"
+      ],
+      [
+        "c14n1",
+        "uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk"
+      ],
+      [
+        "c14n2",
+        "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
+      ],
+      [
+        "c14n3",
+        "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
+      ],
+      [
+        "c14n4",
+        "uQ-qOZUDlozRsGk46ux9gp9fjT28Fy3g3nctmMoqi_U0"
+      ]
     ]
-  ],
+  },
   "mandatoryIndexes": [
     2,
     3,
@@ -44,41 +47,5 @@
     15,
     16,
     17
-  ],
-  "revealDocument": {
-    "@context": [
-      "https://www.w3.org/ns/credentials/v2",
-      {
-        "@vocab": "https://windsurf.grotto-networking.com/selective#"
-      }
-    ],
-    "type": [
-      "VerifiableCredential"
-    ],
-    "sailNumber": "Earth101",
-    "sails": [
-      {
-        "size": 6.1,
-        "sailName": "Lahaina",
-        "year": 2023
-      },
-      {
-        "size": 7,
-        "sailName": "Lahaina",
-        "year": 2020
-      }
-    ],
-    "boards": [
-      {
-        "year": 2022,
-        "boardName": "CompFoil170",
-        "brand": "Wailea"
-      },
-      {
-        "boardName": "Kanaha Custom",
-        "brand": "Wailea",
-        "year": 2019
-      }
-    ]
-  }
+  ]
 }
