@@ -87,7 +87,8 @@ labelMapCompressed.forEach(function (v, k) {
 const derivedProofValue = {
   bbsProof: bytesToHex(bbsProof),
   labelMap: [...labelMap],
-  mandatoryIndexes
+  mandatoryIndexes,
+  adjSelectedIndexes
 }
 // console.log(labelMap);
 writeFile(baseDir + 'verifyDerivedProofValue.json', JSON.stringify(derivedProofValue, null, 2))
