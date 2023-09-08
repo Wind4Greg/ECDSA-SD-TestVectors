@@ -11,7 +11,7 @@ import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
 import { hmac } from '@noble/hashes/hmac'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
-import { messages_to_scalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
+import { messages_to_scalars as msgsToScalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
@@ -132,7 +132,7 @@ writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await messages_to_scalars(bbsMessages)
+const msgScalars = await msgsToScalars(bbsMessages)
 const gens = await prepareGenerators(bbsMessages.length)
 const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens)
 console.log(`BBS signature: ${bytesToHex(bbsSignature)}`)

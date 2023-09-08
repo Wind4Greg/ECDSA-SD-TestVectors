@@ -1,0 +1,42 @@
+{
+  "bbsProof": "b3a55130e977405ee9bce01e41522e210806f5205ff787f273e7e75b2c35de8c1984c55e4fd11e982101c1db5992880e91bd0da6d3ad24d42e23e3e3a35eb3bae36ec05fb2a688c65455e454ebe9e77ddf82b2aaed4d956069dc35e2cfd59fcf15d8498cf4b3beefe994db1ad1cb648d619cc19922d104cf9a74fcf721aa4173369956da4e8f26ad0ad9bcb5108b5cfe4f54a2538c0bb79d7cf5a85eb41952ad3eaf25bc1cd7b0131a5ecf5d952ceb18f0b02542a988711b9dc03609994b73b93abcfa321440936ac3e47731d617f5a1c92db02625e3901a900c6abcebf0e0ba1067f3b68bce761e6d9ec9e4cb47f23aaf5b93236418db00cec951e2a21e379e221325b05782b546f14138bb6b4d4dd440d2a8305285ae2ed85469c64c8017576b994b4ac6db9650d75fd54593632920817e2762ac148dfabf0b19050908ae084834cfa350770faa0ed6eb04caa56d3efcde77866d6f50963e2316f56fcb42a0120045c536da460c4d6f1f0a73820d8cacf247766bf9fb8ef42b24554abf411956113a0b8e51cc99ed81e685f73fda5897586707152cf2fadf6675b3ffdcc41e274efc482cdfd62f1535f11fced5e6ec48388aec10794e98e1bdcfd32ccb42fc",
+  "labelMap": {
+    "dataType": "Map",
+    "value": [
+      [
+        "c14n0",
+        "u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38"
+      ],
+      [
+        "c14n1",
+        "uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk"
+      ],
+      [
+        "c14n2",
+        "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
+      ],
+      [
+        "c14n3",
+        "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
+      ],
+      [
+        "c14n4",
+        "uQ-qOZUDlozRsGk46ux9gp9fjT28Fy3g3nctmMoqi_U0"
+      ]
+    ]
+  },
+  "mandatoryIndexes": [
+    2,
+    3,
+    4,
+    5,
+    9,
+    10,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ]
+}

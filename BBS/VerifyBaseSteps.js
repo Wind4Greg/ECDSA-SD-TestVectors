@@ -13,7 +13,7 @@ import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
-import { messages_to_scalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
+import { messages_to_scalars as msgsToScalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
 
 // Create output directory for the test vectors
 const baseDir = './output/bbs/'
@@ -60,7 +60,7 @@ const stuff = await canonicalizeAndGroup({
 })
 const mandatoryMatch = stuff.groups.mandatory.matching
 const mandatoryNonMatch = stuff.groups.mandatory.nonMatching
-// Check baseSignature;
+
 // canonize proof configuration and hash it
 const proofConfig = klona(proof)
 proofConfig['@context'] = document['@context']
@@ -82,7 +82,7 @@ console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await messages_to_scalars(bbsMessages)
+const msgScalars = await msgsToScalars(bbsMessages)
 const gens = await prepareGenerators(bbsMessages.length)
 const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens)
 console.log(`Base proof verified: ${verified}`)
