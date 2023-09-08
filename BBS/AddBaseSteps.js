@@ -11,9 +11,8 @@ import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
 import { hmac } from '@noble/hashes/hmac'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
-import { messages_to_scalars, prepareGenerators, publicFromPrivate, sign, verify } from '@grottonetworking/bbs-signatures'
+import { messages_to_scalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
 import { klona } from 'klona'
-import varint from 'varint'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
@@ -31,7 +30,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 
 // Create output directory for the test vectors
 const baseDir = './output/bbs/'
-const status = await mkdir(baseDir, { recursive: true })
+await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
@@ -67,12 +66,9 @@ const proofCanon = await jsonld.canonize(proofConfig)
 writeFile(baseDir + 'addProofConfigCanon.txt', proofCanon)
 
 // **Transformation Step**
-
 const hmacFunc = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac: hmacFunc })
 
-/* Initialize groupDefinitions to a map with an entry with a key of the string
-   "mandatory" and a value of mandatoryPointers. */
 const mandatoryPointers = JSON.parse(
   await readFile(
     new URL('../input/windMandatory.json', import.meta.url)
@@ -115,16 +111,10 @@ const hmacQuads = documentCanonQuads.replace(/(_:c14n[0-9]+)/g, hmacID)
 const sortedHMACQuads = hmacQuads.split('\n').slice(0, -1).map(q => q + '\n').sort()
 await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(sortedHMACQuads, null, 2))
 
-/* **Hashing Step**
-   "The required inputs to this algorithm are a transformed data document (transformedDocument)
-   and canonical proof configuration (canonicalProofConfig). A hash data value represented as an
-   object is produced as output. " */
+// **Hashing Step**
 const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
 // 3.3.17 hashMandatoryNQuads
-// Initialize bytes to the UTF-8 representation of the joined mandatory N-Quads.
-// Initialize mandatoryHash to the result of using hasher to hash bytes.
-// Return mandatoryHash.
 const mandatoryHash = sha256([...mandatory.values()].join(''))
 // Initialize hashData as a deep copy of transformedDocument and add proofHash as
 // "proofHash" and mandatoryHash as "mandatoryHash" to that object.
