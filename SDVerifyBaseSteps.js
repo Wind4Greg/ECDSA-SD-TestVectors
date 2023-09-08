@@ -1,32 +1,19 @@
 /*
     Walking through the steps for verifying a base SD proof.
 */
-
-import { mkdir, readFile, writeFile } from 'fs/promises'
+import { mkdir, readFile } from 'fs/promises'
 import { klona } from 'klona'
 import {
-  createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup, selectJsonLd,
-  canonicalize, stripBlankNodePrefixes
+  createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup
 } from '@digitalbazaar/di-sd-primitives'
 import jsonld from 'jsonld'
 import { sha256 } from '@noble/hashes/sha256'
+import { p256 } from '@noble/curves/p256'
 import { localLoader } from './documentLoader.js'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
-import { encode } from 'cborg'
 import { base64url } from 'multiformats/bases/base64'
-// For serialization of JavaScript Map via JSON
-function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
-  if (value instanceof Map) {
-    return {
-      dataType: 'Map',
-      value: Array.from(value.entries()) // or with spread: value: [...value]
-    }
-  } else {
-    return value
-  }
-}
 
 // Create output directory for the test vectors
 const baseDir = './output/ecdsa-sd-2023/'
@@ -42,10 +29,6 @@ const document = JSON.parse(
 )
 
 const options = { documentLoader: localLoader }
-
-/* Initialize baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers to the
-values of the associated properties in the object returned when calling the algorithm
-parseBaseProofValue, passing the proofValue from proof. */
 
 // parseBaseProofValue:
 const proof = document.proof
@@ -74,8 +57,7 @@ const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
 
 /*
 Initialize groupDefinitions to a map with the following entries: key of the string "mandatory"
-and value of mandatoryPointers, key of the string "selective" and value of selectivePointers,
-and key of the string "combined" and value of combinedPointers.
+and value of mandatoryPointers.
 */
 const groups = {
   mandatory: mandatoryPointers
@@ -87,13 +69,8 @@ const stuff = await canonicalizeAndGroup({
   options
 })
 const mandatoryMatch = stuff.groups.mandatory.matching
-const mandatoryNonMatch = stuff.groups.mandatory.nonMatching // For reverse engineering
-console.log('Mandatory indexes:')
-console.log([...mandatoryMatch.keys()])
-console.log('Non-Mandatory indexes:')
-const nonMandatoryIndexes = [...mandatoryNonMatch.keys()]
-console.log(nonMandatoryIndexes) // These were used for individual signatures
-// Check baseSignature; Need signData = concatBytes(proofHash, proofPublicKey, mandatoryHash)
+const mandatoryNonMatch = stuff.groups.mandatory.nonMatching
+// Check baseSignature;
 // canonize proof configuration and hash it
 const proofConfig = klona(proof)
 proofConfig['@context'] = document['@context']
@@ -101,4 +78,24 @@ delete proofConfig.proofValue // Don't forget to remove this
 const proofCanon = await jsonld.canonize(proofConfig)
 const proofHash = sha256(proofCanon)
 console.log(`proofHash: ${bytesToHex(proofHash)}`)
-// TODO: mandatory hash...
+const mandatoryCanon = [...mandatoryMatch.values()].join('')
+const mandatoryHash = sha256(mandatoryCanon)
+console.log(`mandatory hash: ${bytesToHex(mandatoryHash)}`)
+const signData = concatBytes(proofHash, proofPublicKey, mandatoryHash)
+// Get issuer public key
+// console.log(proof.verificationMethod.split('did:key:'))
+const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
+let pbk = base58btc.decode(encodedPbk)
+pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
+console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
+let verificationResult = p256.verify(baseSignature, sha256(signData), pbk)
+console.log(`baseSignature verified: ${verificationResult}`)
+// Check each non-mandatory nquad signature
+const nonMandatory = [...mandatoryNonMatch.values()]
+let baseVerified = verificationResult
+nonMandatory.forEach((value, index) => {
+  verificationResult = p256.verify(signatures[index], sha256(value), proofPublicKey.slice(2))
+  console.log(`Signature ${index} verified: ${verificationResult}`)
+  baseVerified &&= verificationResult
+})
+console.log(`Base proof verified: ${baseVerified}`)
