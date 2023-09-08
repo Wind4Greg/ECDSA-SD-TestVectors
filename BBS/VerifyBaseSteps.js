@@ -78,7 +78,7 @@ const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
 let pbk = base58btc.decode(encodedPbk)
 pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
-/* Create BBS signature */
+// **Verify BBS signature**
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays

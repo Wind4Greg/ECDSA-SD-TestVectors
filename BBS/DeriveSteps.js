@@ -7,7 +7,8 @@ To come up with Derived Proof for BBS we need:
 4. Indexes of selective messages to be revealed (BBS proof input)
 5. Need to recreate the header via proofConfig and mandatory disclosure stuff
 6. Generate the BBSProofValue (output of BBS proof procedure)
-7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes
+7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes,
+    adjusted selective indexes (needed for BBS proof verify)
 
 */
 
@@ -192,7 +193,8 @@ const bbsProof = await proofGen(pbk, bbsSignature, bbsHeader, ph, msgScalars,
 const disclosureData = {
   bbsProof: bytesToHex(bbsProof),
   labelMap: verifierLabelMap,
-  mandatoryIndexes: adjMandatoryIndexes
+  mandatoryIndexes: adjMandatoryIndexes,
+  adjSelectiveIndexes
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap, 2))
 
@@ -206,7 +208,7 @@ verifierLabelMap.forEach(function (v, k) {
 })
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes]
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
 // TODO: resolve CBOR encoding/decoding issue
 // let cborThing = await cbor.encodeAsync(components);
 const cborThing = await encode(components) // trying cborg library's encode
