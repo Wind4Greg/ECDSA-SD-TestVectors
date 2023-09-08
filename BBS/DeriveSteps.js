@@ -20,13 +20,16 @@ import {
 import jsonld from 'jsonld'
 import { klona } from 'klona'
 import { localLoader } from '../documentLoader.js'
-import { bytesToHex, concatBytes } from '@noble/hashes/utils'
+import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { encode } from 'cborg'
 import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
-import { messages_to_scalars as msgsToScalars, prepareGenerators, proofGen } from '@grottonetworking/bbs-signatures'
+import {
+  messages_to_scalars as msgsToScalars, prepareGenerators, proofGen,
+  seeded_random_scalars as seededRandScalars
+} from '@grottonetworking/bbs-signatures'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -185,8 +188,15 @@ let pbk = base58btc.decode(encodedPbk)
 pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 // console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const ph = new Uint8Array() // Not using presentation header currently
+// Note that BBS proofGen usually uses cryptographic random numbers on each run which doesn't
+// make for good test vectors instead with use the helper technique use in BBS to generate
+// its example proofs
+// Pseudo random (deterministic) scalar generation seed and function
+const seed = hexToBytes('332e313431353932363533353839373933323338343632363433333833323739')
+const hashType = 'SHA-256'
+const randScalarFunc = seededRandScalars.bind(null, seed, hashType)
 const bbsProof = await proofGen(pbk, bbsSignature, bbsHeader, ph, msgScalars,
-  adjSelectiveIndexes, gens)
+  adjSelectiveIndexes, gens, hashType, randScalarFunc)
 
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes
 

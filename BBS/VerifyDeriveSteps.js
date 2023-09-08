@@ -8,7 +8,7 @@ import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@dig
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
-import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
+import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
