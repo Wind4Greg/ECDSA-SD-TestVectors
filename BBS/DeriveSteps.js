@@ -23,7 +23,6 @@ import { localLoader } from '../documentLoader.js'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
-import { encode } from 'cborg'
 import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
 import {
@@ -219,9 +218,7 @@ verifierLabelMap.forEach(function (v, k) {
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
-// TODO: resolve CBOR encoding/decoding issue
-// let cborThing = await cbor.encodeAsync(components);
-const cborThing = await encode(components) // trying cborg library's encode
+const cborThing = await cbor.encodeAsync(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)
 console.log(derivedProofValueString)

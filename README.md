@@ -40,3 +40,29 @@ The code in [SDDeriveSteps.js](./SDDeriveSteps.js) produces a selective disclosu
 ## Verify Derived Proof Steps and Test Vectors
 
 The code in [SDVerifyDeriveSteps.js](./SDVerifyDeriveSteps.js) verifies a selective disclosure derived document, and generates test vectors for intermediate steps. The test vectors are contained in the directory `output/ecdsa-sd-2023` and have files names prefixed with `verify`. It starts with the file [deriveRevealDocument.json](output/ecdsa-sd-2023/derivedRevealDocument.json).
+
+# Test Vector Generation for SD-Primitives/BBS
+
+It turns out that the selective disclosure primitives developed for ECDSA-SD are also applicable for use with BBS signatures. Although this is not yet part of a draft specification they following modification to the steps used in ECDSA-SD can produce BBS (selective disclosure signatures):
+
+To come up with the BBS base proof we need:
+
+1. Unsigned Document
+2. HMAC Key
+3. Mandatory Pointers
+4. Use a concatenation of proofHash and mandatoryHash as input to the BBS *header*
+5. Use the list of non-mandatory nquads as the BBS *messages*
+6. Produce the BBS signature using the above *header* and *messages*
+7. serialize via CBOR etc the following: BBSSignature, hmacKey, mandatoryPointers
+
+To come up with the BBS Derived Proof we need:
+
+1. BBSSignature (BBS proof input)
+2. HMAC key
+3. List of non-mandatory messages (BBS proof input)
+4. Indexes of selective messages to be revealed (BBS proof input)
+5. Need to recreate the header via proofConfig and mandatory disclosure stuff
+6. Generate the BBSProofValue (output of BBS proof procedure)
+7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selective indexes
+
+See the directory `/BBS` for step by step code and test vectors.
