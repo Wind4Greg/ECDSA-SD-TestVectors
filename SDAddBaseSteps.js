@@ -30,7 +30,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 
 // Create output directory for the test vectors
 const baseDir = './output/ecdsa-sd-2023/'
-const status = await mkdir(baseDir, { recursive: true })
+await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 

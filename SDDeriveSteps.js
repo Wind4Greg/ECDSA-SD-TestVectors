@@ -19,7 +19,7 @@ import {
 } from '@digitalbazaar/di-sd-primitives'
 import jsonld from 'jsonld'
 import { localLoader } from './documentLoader.js'
-import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
+import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
@@ -37,7 +37,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 
 // Create output directory for the test vectors
 const baseDir = './output/ecdsa-sd-2023/'
-const status = await mkdir(baseDir, { recursive: true })
+await mkdir(baseDir, { recursive: true })
 
 // Chosen to be tricky as mandatory has "/boards/0/year" and we are going to
 // reveal all about board 0
@@ -85,7 +85,8 @@ if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [baseSignature, proofPublicKey, hmacKey, signatures, mandatoryPointers] = decodeThing
-const baseProofData = { baseSignature: bytesToHex(baseSignature),
+const baseProofData = {
+  baseSignature: bytesToHex(baseSignature),
   proofPublicKey: base58btc.encode(proofPublicKey),
   hmacKey: bytesToHex(hmacKey),
   signatures: signatures.map(sig => bytesToHex(sig)),
@@ -252,7 +253,7 @@ verifierLabelMap.forEach(function (v, k) {
 */
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
 const components = [baseSignature, proofPublicKey, filteredSignatures, compressLabelMap, adjMandatoryIndexes]
-const cborThing = await cbor.encodeAsync(components);
+const cborThing = await cbor.encodeAsync(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)
 // console.log(derivedProofValueString)

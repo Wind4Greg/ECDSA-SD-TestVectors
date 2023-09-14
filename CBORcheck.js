@@ -32,4 +32,3 @@ const decodeThing2 = cbor.decode(sample2Bytes.slice(3))
 console.log(decodeThing2)
 const decodeThing2b = decode(sample2Bytes.slice(3), options)
 console.log(decodeThing2b)
-
