@@ -4,8 +4,9 @@
 import { mkdir, readFile } from 'fs/promises'
 import { klona } from 'klona'
 import {
-  createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup
+  createHmac, canonicalizeAndGroup
 } from '@digitalbazaar/di-sd-primitives'
+import { createHmacIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { sha256 } from '@noble/hashes/sha256'
 import { localLoader } from '../documentLoader.js'

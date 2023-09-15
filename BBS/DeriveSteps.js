@@ -14,9 +14,10 @@ To come up with Derived Proof for BBS we need:
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import {
-  createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup, selectJsonLd,
+  createHmac, canonicalizeAndGroup, selectJsonLd,
   canonicalize, stripBlankNodePrefixes
 } from '@digitalbazaar/di-sd-primitives'
+import { createHmacIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { klona } from 'klona'
 import { localLoader } from '../documentLoader.js'
@@ -209,10 +210,11 @@ await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosur
 
 // Initialize newProof to a shallow copy of proof.
 const newProof = Object.assign({}, proof)
+// Modified for **BBS** unlinkable labeling
 const compressLabelMap = new Map()
 verifierLabelMap.forEach(function (v, k) {
   const key = parseInt(k.split('c14n')[1])
-  const value = base64url.decode(v)
+  const value = parseInt(v.split('b')[1])
   compressLabelMap.set(key, value)
 })
 

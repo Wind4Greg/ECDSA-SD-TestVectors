@@ -5,7 +5,8 @@
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
-import { createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
+import { createHmac, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
+import { createHmacIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'

@@ -63,8 +63,9 @@ const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes] = dec
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')
 }
+// Modified for **BBS** labeling, just an integer
 labelMapCompressed.forEach(function (value, key) {
-  if (!Number.isInteger(key) || value.length !== 32) {
+  if (!Number.isInteger(key) || !Number.isInteger(value)) {
     throw new Error('Bad key or value in compress label map in proofValue')
   }
 })
@@ -79,7 +80,7 @@ mandatoryIndexes.forEach(value => {
 const labelMap = new Map()
 labelMapCompressed.forEach(function (v, k) {
   const key = 'c14n' + k
-  const value = base64url.encode(v)
+  const value = 'b' + v
   labelMap.set(key, value)
 })
 // console.log(labelMap);
