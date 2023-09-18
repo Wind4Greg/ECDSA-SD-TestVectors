@@ -45,11 +45,11 @@ const keyMaterial = JSON.parse(
 const hmacKeyString = keyMaterial.hmacKeyString
 const hmacKey = hexToBytes(hmacKeyString)
 // proof specific key material. Used only for one proof, secret key is not kept
-const proofPrivateKey = base58btc.decode(keyMaterial.proofPrivateKeyMultibase).slice(2)
-const proofPublicKey = base58btc.decode(keyMaterial.proofPublicKeyMultibase) // Leave prefix on
+const proofsecretKey = base58btc.decode(keyMaterial.proofKeyPair.secretKeyMultibase).slice(2)
+const proofPublicKey = base58btc.decode(keyMaterial.proofKeyPair.publicKeyMultibase) // Leave prefix on
 // Sample long term issuer signing key
-const privateKey = base58btc.decode(keyMaterial.privateKeyMultibase).slice(2)
-const publicKeyMultibase = keyMaterial.publicKeyMultibase
+const secretKey = base58btc.decode(keyMaterial.baseKeyPair.secretKeyMultibase).slice(2)
+const publicKeyMultibase = keyMaterial.baseKeyPair.publicKeyMultibase
 
 const options = { documentLoader: localLoader }
 
@@ -148,7 +148,7 @@ writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
 const signatures = []
 nonMandatory.forEach(function (value, key) {
   const msgHash = sha256(value) // Hash is done outside of the algorithm in noble/curve case.
-  const signature = p256.sign(msgHash, proofPrivateKey)
+  const signature = p256.sign(msgHash, proofsecretKey)
   signatures.push(signature.toCompactRawBytes())
   // console.log(`value: ${value}, sig: ${signature.toCompactHex()}`);
 })
@@ -160,12 +160,12 @@ nonMandatory.forEach(function (value, key) {
 // A single sign data value, represented as series of bytes, is produced as output.
 // Return the concatenation of proofHash, publicKey, and mandatoryHash, in that order, as sign data.
 const signData = concatBytes(proofHash, proofPublicKey, mandatoryHash)
-const baseSignature = p256.sign(sha256(signData), privateKey).toCompactRawBytes()
+const baseSignature = p256.sign(sha256(signData), secretKey).toCompactRawBytes()
 // baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers are inputs to
 // 3.4.2 serializeBaseProofValue. This seems like a good test vector
 const rawBaseSignatureInfo = {
   baseSignature: bytesToHex(baseSignature),
-  publicKey: keyMaterial.proofPublicKeyMultibase,
+  publicKey: keyMaterial.proofKeyPair.publicKeyMultibase,
   signatures: signatures.map(sig => bytesToHex(sig)),
   mandatoryPointers
 }
