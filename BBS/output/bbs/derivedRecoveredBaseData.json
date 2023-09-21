@@ -1,10 +1,7 @@
 {
-  "bbsSignature": "a8a691f90ea8346260fee6704371fbc757f4a11145dd2e7e7446c3c46e5e1a3cb86acf58edf504395364d41b43cb85bb0bcede0a1cdd197d6d576c6206d2051057192a1c144cf3f8c49f5300760b8f2b",
+  "bbsSignature": "8855764f5dccfe890a23d410bca0c42df3e9aac130908fe9e5ef099bb86c9a25026f50385d1cfb4febbabb9fee0b7c4d55d70572f7069fd3b22ef9cff665570054bd02a747f92e0a8afef3e3af1c5878",
   "hmacKey": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
   "mandatoryPointers": [
-    "/sailNumber",
-    "/sails/1",
-    "/boards/0/year",
-    "/sails/2"
+    "/State"
   ]
 }

@@ -35,9 +35,9 @@ await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
-// Read input document from a file
+// Read input document from a file either treeDoc.json or windDoc.json
 const document = JSON.parse(
-  await readFile(new URL('../input/windDoc.json', import.meta.url)))
+  await readFile(new URL('../input/treeDoc.json', import.meta.url)))
 
 // Obtain key material and process into byte array format
 const keyMaterial = JSON.parse(
@@ -72,7 +72,7 @@ const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac: hmacFunc })
 
 const mandatoryPointers = JSON.parse(
   await readFile(
-    new URL('../input/windMandatory.json', import.meta.url)
+    new URL('../input/treeMandatory.json', import.meta.url)
   )
 )
 const groups = { mandatory: mandatoryPointers }

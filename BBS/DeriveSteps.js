@@ -46,10 +46,10 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 const baseDir = './output/bbs/'
 await mkdir(baseDir, { recursive: true })
 
-// Get the selective disclosure pointers
+// Get the selective disclosure pointers, either windSelective.json or treeSelective.json
 const selectivePointers = JSON.parse(
   await readFile(
-    new URL('../input/' + 'windSelective.json', import.meta.url)
+    new URL('../input/' + 'treeSelective.json', import.meta.url)
   )
 )
 jsonld.documentLoader = localLoader // Local loader for JSON-LD

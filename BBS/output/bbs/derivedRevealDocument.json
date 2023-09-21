@@ -8,37 +8,15 @@
   "type": [
     "VerifiableCredential"
   ],
-  "sailNumber": "Earth101",
-  "sails": [
-    {
-      "size": 6.1,
-      "sailName": "Lahaina",
-      "year": 2023
-    },
-    {
-      "size": 7,
-      "sailName": "Lahaina",
-      "year": 2020
-    }
-  ],
-  "boards": [
-    {
-      "year": 2022,
-      "boardName": "CompFoil170",
-      "brand": "Wailea"
-    },
-    {
-      "boardName": "Kanaha Custom",
-      "brand": "Wailea",
-      "year": 2019
-    }
-  ],
+  "State": "California",
+  "Over200Yrs": true,
+  "County": "Del Norte",
   "proof": {
     "type": "DataIntegrityProof",
     "cryptosuite": "ecdsa-sd-2023",
     "created": "2023-08-15T23:36:38Z",
     "verificationMethod": "did:key:zUC7DerdEmfZ8f4pFajXgGwJoMkV1ofMTmEG5UoNvnWiPiLuGKNeqgRpLH2TV4Xe5mJ2cXV76gRN7LFQwapF1VFu6x2yrr5ci1mXqC1WNUrnHnLgvfZfMH7h6xP6qsf9EKRQrPQ#zUC7DerdEmfZ8f4pFajXgGwJoMkV1ofMTmEG5UoNvnWiPiLuGKNeqgRpLH2TV4Xe5mJ2cXV76gRN7LFQwapF1VFu6x2yrr5ci1mXqC1WNUrnHnLgvfZfMH7h6xP6qsf9EKRQrPQ",
     "proofPurpose": "assertionMethod",
-    "proofValue": "u2V0BhNhAWQHAhpuKYbe2vt42zmnYx4QB5vVVbOU4dtf7riBNofbj6jGjsVwa7yfpWrCBY3z37hd4o18flNr8TWY0o5q3tzae6iTyTSbMDgwGglswFS7rtY-R-20McrtZUBitgyyILJpzMzQh_NQKe6My_-M3aWTlK207ccStJy-GqZTfu0eHdaVZk4t5w6Qg46nR8FS_29HCvFna-F-jFRTD2zcfl_m_YnBZajuPnfeAcSuP7pYhuAhwF9ZkI0Bik1FeuIDq379pEcdETrU_ADE1y_OmrU1WDpaeoJEYQp43zw_oBHeXjSAuTwZvKony_6yiYVx-4xQq5ynWtCvJQhfcKABUMmHWwWngO4ViAw5K2LhtJqAe2g3zW_uX5fB8SPeW_VUpM-mmbTrJ1875dug09xhEmddP4B0T5-4OuTtngjBS1MU98QBUk5ZBJpuoJ9wx8zvdauGXuQOaMI-7kdQhP9MSCzzUMgGZj7AhGmvr0uPZZ8h0a8H_ds8JGsMoJQ9Dbc2RWj1qFodKwcvyi5y6SFjS19mhOi3uxXcMg1HvCB1yJqOsJ0sWVpg_oi6ILpUTBAVQapE8XmXH5dj16bgPy92emRyMNqUAAQEFAgMDBgQCjAIDBAUJCgwNDg8QEYYDBAUGBws"
+    "proofValue": "u2V0BhNhAWQHAigZXkDzqfigseWq8P-vItduGV_B3Jg8xPwFLJxgZB_oE_6wDy1m-C-MGVv8-sX6kqUm6IlHMeY_swULSwwye7Fc38p7b46PRFfV353qRJHxQSDxmGRxLh7U5T5ERVDTuTYLC7fffLm2zWh5ab-6W61_l4Tz-nOvMgyuRomUli342MDbnSWKr4Mqe62ouLlevRqlC2nCHIAdLs-Darr-hgGj8IToQmTxpqf3rB7oLy3SY1FS1Y3EM3CCfH6TBoxy_An_BiuWn6exyn1Lnb0Ix4ay53Dpa-phsdo4WDzetNkUGyJMFcjBU03_1T9c3MRGqdOSCdj5whmbPk7k7n6TwDhMgjfhGWIP45FSIVpEG8iHfjN91eMcwSpDaLAnKeo3_BoqENM9edKVehNY7zK7lTrPFGJpAzuhtYpXdz9xyl30sasn-2xUAhmwW7OzB0j8uD2n1fKMwm1Dw3qqKDRYdeTfV_iuJf1a5gIpT_g2UCly5zNlUz7DxuEpslS6JIo4-NERf0qGCzZubNuAWxWrLdJlxY_OLFxvRaBfdTpog3FwQmcxxg8kJFyFhmilpBSAKK-61P7hL7VEKh6fYSQNH7aEAAIIAA4IBCA"
   }
 }
