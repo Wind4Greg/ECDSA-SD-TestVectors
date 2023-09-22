@@ -1,15 +1,18 @@
 {
   "combinedIndexes": [
-    0,
-    2,
-    9,
-    11
+    1,
+    8,
+    10,
+    11,
+    12
   ],
   "mandatoryIndexes": [
-    0,
-    11
+    10,
+    11,
+    12
   ],
   "nonMandatoryIndexes": [
+    0,
     1,
     2,
     3,
@@ -18,12 +21,12 @@
     6,
     7,
     8,
-    9,
-    10
+    9
   ],
   "selectiveIndexes": [
-    0,
-    2,
-    9
+    1,
+    8,
+    11,
+    12
   ]
 }

@@ -1,7 +1,7 @@
 {
-  "bbsSignature": "8855764f5dccfe890a23d410bca0c42df3e9aac130908fe9e5ef099bb86c9a25026f50385d1cfb4febbabb9fee0b7c4d55d70572f7069fd3b22ef9cff665570054bd02a747f92e0a8afef3e3af1c5878",
+  "bbsSignature": "8a1de0fb137d641e04636ae425c3525915416cf4cc2a95a050c1ea6bd56e4424f1f574b5027832a02b5d3efeb40da9246e186d7dfec6578ee17cd1cc3d2844974672857f314a925d7967df0e97874109",
   "hmacKey": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
   "mandatoryPointers": [
-    "/State"
+    "/credentialSubject/State"
   ]
 }

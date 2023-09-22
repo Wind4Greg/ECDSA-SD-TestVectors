@@ -8,23 +8,25 @@
   "type": [
     "VerifiableCredential"
   ],
-  "FirstName": "Sequoia",
-  "LastName": "Sempervirens",
-  "Coordinates": "(41.795621, -124.106312)",
-  "Park": "Jedediah Smith Redwoods State Park",
-  "County": "Del Norte",
-  "State": "California",
-  "DoB": "1200/03/21",
-  "Over200Yrs": true,
-  "Height": "296ft",
-  "Eyes": "None",
-  "Hair": "Brown bark, green needles",
+  "credentialSubject": {
+    "FirstName": "Sequoia",
+    "LastName": "Sempervirens",
+    "Coordinates": "(41.795621, -124.106312)",
+    "Park": "Jedediah Smith Redwoods State Park",
+    "County": "Del Norte",
+    "State": "California",
+    "DoB": "1200/03/21",
+    "Over200Yrs": true,
+    "Height": "296ft",
+    "Eyes": "None",
+    "Hair": "Brown bark, green needles"
+  },
   "proof": {
     "type": "DataIntegrityProof",
     "cryptosuite": "ecdsa-sd-2023",
     "created": "2023-08-15T23:36:38Z",
     "verificationMethod": "did:key:zUC7DerdEmfZ8f4pFajXgGwJoMkV1ofMTmEG5UoNvnWiPiLuGKNeqgRpLH2TV4Xe5mJ2cXV76gRN7LFQwapF1VFu6x2yrr5ci1mXqC1WNUrnHnLgvfZfMH7h6xP6qsf9EKRQrPQ#zUC7DerdEmfZ8f4pFajXgGwJoMkV1ofMTmEG5UoNvnWiPiLuGKNeqgRpLH2TV4Xe5mJ2cXV76gRN7LFQwapF1VFu6x2yrr5ci1mXqC1WNUrnHnLgvfZfMH7h6xP6qsf9EKRQrPQ",
     "proofPurpose": "assertionMethod",
-    "proofValue": "u2V0Ag9hAWFCIVXZPXcz-iQoj1BC8oMQt8-mqwTCQj-nl7wmbuGyaJQJvUDhdHPtP67q7n-4LfE1V1wVy9waf07Iu-c_2ZVcAVL0Cp0f5LgqK_vPjrxxYeNhAWCAAESIzRFVmd4iZqrvM3e7_ABEiM0RVZneImaq7zN3u_4FmL1N0YXRl"
+    "proofValue": "u2V0Ag9hAWFCKHeD7E31kHgRjauQlw1JZFUFs9MwqlaBQwepr1W5EJPH1dLUCeDKgK10-_rQNqSRuGG19_sZXjuF80cw9KESXRnKFfzFKkl15Z98Ol4dBCdhAWCAAESIzRFVmd4iZqrvM3e7_ABEiM0RVZneImaq7zN3u_4F4GC9jcmVkZW50aWFsU3ViamVjdC9TdGF0ZQ"
   }
 }

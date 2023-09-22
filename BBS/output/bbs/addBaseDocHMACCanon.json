@@ -1,14 +1,15 @@
 [
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n",
+  "_:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n",
   "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n",
-  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+  "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://www.w3.org/2018/credentials#credentialSubject> _:u3Lv2QpFgo-YAegc1cQQKWJFW2sEjQF6FfuZ0VEoMKHg .\n"
 ]

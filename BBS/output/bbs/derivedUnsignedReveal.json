@@ -8,7 +8,9 @@
   "type": [
     "VerifiableCredential"
   ],
-  "State": "California",
-  "Over200Yrs": true,
-  "County": "Del Norte"
+  "credentialSubject": {
+    "State": "California",
+    "Over200Yrs": true,
+    "County": "Del Norte"
+  }
 }

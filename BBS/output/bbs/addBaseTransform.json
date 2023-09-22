@@ -1,17 +1,21 @@
 {
   "mandatoryPointers": [
-    "/State"
+    "/credentialSubject/State"
   ],
   "mandatory": {
     "dataType": "Map",
     "value": [
       [
-        0,
-        "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+        10,
+        "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
       ],
       [
         11,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+        "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+      ],
+      [
+        12,
+        "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> _:b0 .\n"
       ]
     ]
   },
@@ -19,43 +23,43 @@
     "dataType": "Map",
     "value": [
       [
-        1,
+        0,
         "_:b0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n"
       ],
       [
-        2,
+        1,
         "_:b0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n"
       ],
       [
-        3,
+        2,
         "_:b0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n"
       ],
       [
-        4,
+        3,
         "_:b0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n"
       ],
       [
-        5,
+        4,
         "_:b0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n"
       ],
       [
-        6,
+        5,
         "_:b0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n"
       ],
       [
-        7,
+        6,
         "_:b0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n"
       ],
       [
-        8,
+        7,
         "_:b0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n"
       ],
       [
-        9,
+        8,
         "_:b0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n"
       ],
       [
-        10,
+        9,
         "_:b0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n"
       ]
     ]

@@ -5,12 +5,16 @@
         "dataType": "Map",
         "value": [
           [
-            0,
-            "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+            10,
+            "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
           ],
           [
             11,
-            "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+            "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+          ],
+          [
+            12,
+            "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> _:b0 .\n"
           ]
         ]
       },
@@ -18,50 +22,51 @@
         "dataType": "Map",
         "value": [
           [
-            1,
+            0,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n"
           ],
           [
-            2,
+            1,
             "_:b0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n"
           ],
           [
-            3,
+            2,
             "_:b0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n"
           ],
           [
-            4,
+            3,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n"
           ],
           [
-            5,
+            4,
             "_:b0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n"
           ],
           [
-            6,
+            5,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n"
           ],
           [
-            7,
+            6,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n"
           ],
           [
-            8,
+            7,
             "_:b0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n"
           ],
           [
-            9,
+            8,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n"
           ],
           [
-            10,
+            9,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n"
           ]
         ]
       },
       "deskolemizedNQuads": [
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <https://www.w3.org/2018/credentials#credentialSubject> _:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 .\n"
       ]
     },
     "selective": {
@@ -69,16 +74,20 @@
         "dataType": "Map",
         "value": [
           [
-            0,
-            "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
-          ],
-          [
-            2,
+            1,
             "_:b0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n"
           ],
           [
-            9,
+            8,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n"
+          ],
+          [
+            11,
+            "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+          ],
+          [
+            12,
+            "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> _:b0 .\n"
           ]
         ]
       },
@@ -86,47 +95,48 @@
         "dataType": "Map",
         "value": [
           [
-            1,
+            0,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n"
           ],
           [
-            3,
+            2,
             "_:b0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n"
           ],
           [
-            4,
+            3,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n"
           ],
           [
-            5,
+            4,
             "_:b0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n"
           ],
           [
-            6,
+            5,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n"
           ],
           [
-            7,
+            6,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n"
           ],
           [
-            8,
+            7,
             "_:b0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n"
           ],
           [
-            10,
+            9,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n"
           ],
           [
-            11,
+            10,
             "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
           ]
         ]
       },
       "deskolemizedNQuads": [
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n"
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <https://www.w3.org/2018/credentials#credentialSubject> _:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 .\n"
       ]
     },
     "combined": {
@@ -134,20 +144,24 @@
         "dataType": "Map",
         "value": [
           [
-            0,
-            "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
-          ],
-          [
-            2,
+            1,
             "_:b0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n"
           ],
           [
-            9,
+            8,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n"
           ],
           [
-            11,
+            10,
             "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+          ],
+          [
+            11,
+            "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+          ],
+          [
+            12,
+            "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> _:b0 .\n"
           ]
         ]
       },
@@ -155,109 +169,115 @@
         "dataType": "Map",
         "value": [
           [
-            1,
+            0,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n"
           ],
           [
-            3,
+            2,
             "_:b0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n"
           ],
           [
-            4,
+            3,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n"
           ],
           [
-            5,
+            4,
             "_:b0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n"
           ],
           [
-            6,
+            5,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n"
           ],
           [
-            7,
+            6,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n"
           ],
           [
-            8,
+            7,
             "_:b0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n"
           ],
           [
-            10,
+            9,
             "_:b0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n"
           ]
         ]
       },
       "deskolemizedNQuads": [
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
-        "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+        "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <https://www.w3.org/2018/credentials#credentialSubject> _:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 .\n"
       ]
     }
   },
   "skolemized": {
     "expanded": [
       {
-        "https://windsurf.grotto-networking.com/selective#Coordinates": [
+        "https://www.w3.org/2018/credentials#credentialSubject": [
           {
-            "@value": "(41.795621, -124.106312)"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#County": [
-          {
-            "@value": "Del Norte"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#DoB": [
-          {
-            "@value": "1200/03/21"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#Eyes": [
-          {
-            "@value": "None"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#FirstName": [
-          {
-            "@value": "Sequoia"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#Hair": [
-          {
-            "@value": "Brown bark, green needles"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#Height": [
-          {
-            "@value": "296ft"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#LastName": [
-          {
-            "@value": "Sempervirens"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#Over200Yrs": [
-          {
-            "@value": true
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#Park": [
-          {
-            "@value": "Jedediah Smith Redwoods State Park"
-          }
-        ],
-        "https://windsurf.grotto-networking.com/selective#State": [
-          {
-            "@value": "California"
+            "https://windsurf.grotto-networking.com/selective#Coordinates": [
+              {
+                "@value": "(41.795621, -124.106312)"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#County": [
+              {
+                "@value": "Del Norte"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#DoB": [
+              {
+                "@value": "1200/03/21"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#Eyes": [
+              {
+                "@value": "None"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#FirstName": [
+              {
+                "@value": "Sequoia"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#Hair": [
+              {
+                "@value": "Brown bark, green needles"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#Height": [
+              {
+                "@value": "296ft"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#LastName": [
+              {
+                "@value": "Sempervirens"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#Over200Yrs": [
+              {
+                "@value": true
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#Park": [
+              {
+                "@value": "Jedediah Smith Redwoods State Park"
+              }
+            ],
+            "https://windsurf.grotto-networking.com/selective#State": [
+              {
+                "@value": "California"
+              }
+            ],
+            "@id": "urn:bnid:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0"
           }
         ],
         "@type": [
           "https://www.w3.org/2018/credentials#VerifiableCredential"
         ],
-        "@id": "urn:bnid:_a2fcec02-6837-4218-a97b-2d1fc7908706_0"
+        "@id": "urn:bnid:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1"
       }
     ],
     "compact": {
@@ -267,46 +287,53 @@
           "@vocab": "https://windsurf.grotto-networking.com/selective#"
         }
       ],
-      "id": "urn:bnid:_a2fcec02-6837-4218-a97b-2d1fc7908706_0",
+      "id": "urn:bnid:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1",
       "type": "VerifiableCredential",
-      "Coordinates": "(41.795621, -124.106312)",
-      "County": "Del Norte",
-      "DoB": "1200/03/21",
-      "Eyes": "None",
-      "FirstName": "Sequoia",
-      "Hair": "Brown bark, green needles",
-      "Height": "296ft",
-      "LastName": "Sempervirens",
-      "Over200Yrs": true,
-      "Park": "Jedediah Smith Redwoods State Park",
-      "State": "California"
+      "credentialSubject": {
+        "id": "urn:bnid:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0",
+        "Coordinates": "(41.795621, -124.106312)",
+        "County": "Del Norte",
+        "DoB": "1200/03/21",
+        "Eyes": "None",
+        "FirstName": "Sequoia",
+        "Hair": "Brown bark, green needles",
+        "Height": "296ft",
+        "LastName": "Sempervirens",
+        "Over200Yrs": true,
+        "Park": "Jedediah Smith Redwoods State Park",
+        "State": "California"
+      }
     }
   },
   "deskolemizedNQuads": [
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n",
-    "_:_a2fcec02-6837-4218-a97b-2d1fc7908706_0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+    "_:_1a43c416-1257-4d86-a063-2c1fce4c8d28_1 <https://www.w3.org/2018/credentials#credentialSubject> _:_1a43c416-1257-4d86-a063-2c1fce4c8d28_0 .\n"
   ],
   "labelMap": {
     "dataType": "Map",
     "value": [
       [
-        "_a2fcec02-6837-4218-a97b-2d1fc7908706_0",
+        "_1a43c416-1257-4d86-a063-2c1fce4c8d28_1",
+        "b1"
+      ],
+      [
+        "_1a43c416-1257-4d86-a063-2c1fce4c8d28_0",
         "b0"
       ]
     ]
   },
   "nquads": [
-    "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
     "_:b0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n",
     "_:b0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n",
     "_:b0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n",
@@ -317,6 +344,8 @@
     "_:b0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n",
     "_:b0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n",
     "_:b0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n",
-    "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+    "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n",
+    "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+    "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> _:b0 .\n"
   ]
 }
