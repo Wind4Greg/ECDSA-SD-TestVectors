@@ -116,3 +116,8 @@ console.log(`Length of example P-384 key without prefix: ${ex384bytes.length - 2
 console.log('Multicodec leading bytes in hex for BLS12-381 G2 public key:')
 myBytes = new Uint8Array(varint.encode(0xeb))
 console.log(`BLS12-381 prefix bytes: ${bytesToHex(myBytes)}`)
+const blsPubHex = 'a6d86b68f57f73dafd380415e2e4acf1092a2d16872c15f8a6a20b94cf10e9898188b679e4d6973ca08ba56d0a97127916cfb3670c0366a12fba3c9a0aeb54f898af23bc25716b6ba2d2903d0f42411ac7164f83b824f2aa98076277e3f1200e'
+const blsPub = hexToBytes(blsPubHex)
+console.log(`BLS12-381 G2 pub key length: ${blsPub.length}`)
+const blsMultiPub = base58btc.encode(concatBytes(myBytes, blsPub))
+console.log(blsMultiPub)

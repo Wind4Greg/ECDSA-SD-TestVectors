@@ -6,7 +6,7 @@
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { createHmac, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
-import { createHmacIdLabelMapFunction } from './labelMap.js'
+import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
@@ -68,7 +68,7 @@ writeFile(baseDir + 'addProofConfigCanon.txt', proofCanon)
 
 // **Transformation Step**
 const hmacFunc = await createHmac({ key: hmacKey })
-const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac: hmacFunc })
+const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac: hmacFunc })
 
 const mandatoryPointers = JSON.parse(
   await readFile(
@@ -147,7 +147,7 @@ writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignat
 
 // CBOR-encode components and append it to proofValue.
 
-let proofValue = new Uint8Array([0xd9, 0x5d, 0x00]) // TODO: change to something BBS specific
+let proofValue = new Uint8Array([0xd9, 0x5d, 0x02])
 const components = [bbsSignature, hmacKey, mandatoryPointers]
 const cborThing = await cbor.encodeAsync(components)
 proofValue = concatBytes(proofValue, cborThing)

@@ -4,7 +4,7 @@ import { base64url } from 'multiformats/bases/base64'
   Shuffling blank node id label map function based on HMAC for potential
   use with BBS to avoid linkability.
 */
-export function createHmacIdLabelMapFunction ({ hmac } = {}) {
+export function createShuffledIdLabelMapFunction ({ hmac } = {}) {
   return async ({ canonicalIdMap }) => {
     const te = new TextEncoder()
     const bnodeIdMap = new Map()

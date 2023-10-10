@@ -6,7 +6,7 @@ import { klona } from 'klona'
 import {
   createHmac, canonicalizeAndGroup
 } from '@digitalbazaar/di-sd-primitives'
-import { createHmacIdLabelMapFunction } from './labelMap.js'
+import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { sha256 } from '@noble/hashes/sha256'
 import { localLoader } from '../documentLoader.js'
@@ -37,8 +37,8 @@ delete document.proof // IMPORTANT: all work uses document without proof
 const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x00
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x00) {
+// check header bytes are: 0xd9, 0x5d, and 0x02
+if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x02) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = cbor.decode(proofValueBytes.slice(3))
@@ -48,7 +48,7 @@ if (decodeThing.length !== 3) {
 const [bbsSignature, hmacKey, mandatoryPointers] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
-const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
+const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
 
 const groups = {
   mandatory: mandatoryPointers

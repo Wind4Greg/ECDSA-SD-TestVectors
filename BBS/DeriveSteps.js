@@ -17,7 +17,7 @@ import {
   createHmac, canonicalizeAndGroup, selectJsonLd,
   canonicalize, stripBlankNodePrefixes
 } from '@digitalbazaar/di-sd-primitives'
-import { createHmacIdLabelMapFunction } from './labelMap.js'
+import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { klona } from 'klona'
 import { localLoader } from '../documentLoader.js'
@@ -72,7 +72,7 @@ const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
 // check header bytes are: 0xd9, 0x5d, and 0x00
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x00) {
+if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x02) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = cbor.decode(proofValueBytes.slice(3))
@@ -94,7 +94,7 @@ const revealDocument = selectJsonLd({ document, pointers: combinedPointers })
 await writeFile(baseDir + 'derivedUnsignedReveal.json', JSON.stringify(revealDocument, replacerMap, 2))
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
-const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
+const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
 
 // Initialize group definition so we can figure out BBS messages and indexes
 const groups = {
@@ -112,7 +112,7 @@ const stuff = await canonicalizeAndGroup({
 await writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap, 2))
 const combinedMatch = stuff.groups.combined.matching
 const mandatoryMatch = stuff.groups.mandatory.matching
-const mandatoryNonMatch = stuff.groups.mandatory.nonMatching // For reverse engineering
+const mandatoryNonMatch = stuff.groups.mandatory.nonMatching
 const selectiveMatch = stuff.groups.selective.matching
 const combinedIndexes = [...combinedMatch.keys()]
 const nonMandatoryIndexes = [...mandatoryNonMatch.keys()]
@@ -218,7 +218,7 @@ verifierLabelMap.forEach(function (v, k) {
   compressLabelMap.set(key, value)
 })
 
-let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
+let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
 const cborThing = await cbor.encodeAsync(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
