@@ -7,7 +7,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises'
 import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
-import { sha256 } from '@noble/hashes/sha256'
+import { shake256 } from '@noble/hashes/sha3'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
@@ -42,7 +42,7 @@ delete proofConfig.proofValue
 proofConfig['@context'] = document['@context']
 delete document.proof // **IMPORTANT** from now on we work with the document without proof!!!!!!!
 const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
+const proofHash = shake256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
 // console.log(`proofHash: ${bytesToHex(proofHash)}`);
 // **Parse Derived Proof Value BBS** [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
@@ -116,7 +116,7 @@ nquads.forEach(function (value, index) {
     nonMandatory.push(value)
   }
 })
-const mandatoryHash = sha256(mandatory.join(''))
+const mandatoryHash = shake256(mandatory.join(''))
 
 // Get public key
 console.log(proof.verificationMethod.split('did:key:'))
@@ -128,13 +128,14 @@ pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 
 /* Verify BBS Proof */
+const hashType = 'SHAKE-256'
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages)
+const msgScalars = await msgsToScalars(bbsMessages, hashType)
 const L = numUndisclosed(bbsProof) + msgScalars.length
-const gens = await prepareGenerators(L) // Generate enough for all messages
+const gens = await prepareGenerators(L, hashType) // Generate enough for all messages
 const ph = new Uint8Array() // Not using presentation header currently
 const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
-  adjSelectedIndexes, gens)
+  adjSelectedIndexes, gens, hashType)
 console.log(`Derived proof verified: ${verified}`)

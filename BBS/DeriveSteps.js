@@ -24,7 +24,7 @@ import { localLoader } from '../documentLoader.js'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
-import { sha256 } from '@noble/hashes/sha256'
+import { shake256 } from '@noble/hashes/sha3'
 import { base64url } from 'multiformats/bases/base64'
 import {
   messages_to_scalars as msgsToScalars, prepareGenerators, proofGen,
@@ -172,16 +172,17 @@ const proofConfig = klona(proof)
 proofConfig['@context'] = document['@context']
 delete proofConfig.proofValue // Don't forget to remove this
 const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = sha256(proofCanon)
+const proofHash = shake256(proofCanon)
 const mandatoryCanon = [...mandatoryMatch.values()].join('')
-const mandatoryHash = sha256(mandatoryCanon)
+const mandatoryHash = shake256(mandatoryCanon)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 // Recreate BBS messages
+const hashType = 'SHAKE-256'
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages)
+const msgScalars = await msgsToScalars(bbsMessages, hashType)
 // calc generators -- note in production these values would be cached since they are reusable
-const gens = await prepareGenerators(bbsMessages.length)
+const gens = await prepareGenerators(bbsMessages.length, hashType)
 // Get issuer public key
 const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
 let pbk = base58btc.decode(encodedPbk)
@@ -193,7 +194,6 @@ const ph = new Uint8Array() // Not using presentation header currently
 // its example proofs
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes('332e313431353932363533353839373933323338343632363433333833323739')
-const hashType = 'SHA-256'
 const randScalarFunc = seededRandScalars.bind(null, seed, hashType)
 const bbsProof = await proofGen(pbk, bbsSignature, bbsHeader, ph, msgScalars,
   adjSelectiveIndexes, gens, hashType, randScalarFunc)

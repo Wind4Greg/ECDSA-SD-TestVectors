@@ -9,7 +9,7 @@ import { createHmac, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitive
 import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
-import { sha256 } from '@noble/hashes/sha256'
+import { shake256 } from '@noble/hashes/sha3'
 import { hmac } from '@noble/hashes/hmac'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { messages_to_scalars as msgsToScalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
@@ -100,7 +100,7 @@ function hmacID (bnode) {
     return bnodeIdMap.get(bnode)
   }
   // console.log(`bnode: ${bnode}`)
-  const hmacBytes = hmac(sha256, hmacKey, bnode.split('_:')[1]) // only use the c14nx part
+  const hmacBytes = hmac(shake256, hmacKey, bnode.split('_:')[1]) // only use the c14nx part
   const newId = '_:' + base64url.encode(hmacBytes)
   bnodeIdMap.set(bnode, newId)
   return newId
@@ -113,10 +113,10 @@ const sortedHMACQuads = hmacQuads.split('\n').slice(0, -1).map(q => q + '\n').so
 await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(sortedHMACQuads, null, 2))
 
 // **Hashing Step**
-const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
+const proofHash = shake256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
 // 3.3.17 hashMandatoryNQuads
-const mandatoryHash = sha256([...mandatory.values()].join(''))
+const mandatoryHash = shake256([...mandatory.values()].join(''))
 // Initialize hashData as a deep copy of transformedDocument and add proofHash as
 // "proofHash" and mandatoryHash as "mandatoryHash" to that object.
 const hashData = klona(transformed)
@@ -130,12 +130,13 @@ hashDataOutput.mandatoryHash = bytesToHex(mandatoryHash)
 writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
 
 /* Create BBS signature */
+const hashType = 'SHAKE-256'
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages)
-const gens = await prepareGenerators(bbsMessages.length)
-const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens)
+const msgScalars = await msgsToScalars(bbsMessages, hashType)
+const gens = await prepareGenerators(bbsMessages.length, hashType)
+const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, hashType)
 console.log(`BBS signature: ${bytesToHex(bbsSignature)}`)
 
 const rawBaseSignatureInfo = {

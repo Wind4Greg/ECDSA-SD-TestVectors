@@ -8,7 +8,7 @@ import {
 } from '@digitalbazaar/di-sd-primitives'
 import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
-import { sha256 } from '@noble/hashes/sha256'
+import { shake256 } from '@noble/hashes/sha3'
 import { localLoader } from '../documentLoader.js'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
@@ -67,10 +67,10 @@ const proofConfig = klona(proof)
 proofConfig['@context'] = document['@context']
 delete proofConfig.proofValue // Don't forget to remove this
 const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = sha256(proofCanon)
+const proofHash = shake256(proofCanon)
 console.log(`proofHash: ${bytesToHex(proofHash)}`)
 const mandatoryCanon = [...mandatoryMatch.values()].join('')
-const mandatoryHash = sha256(mandatoryCanon)
+const mandatoryHash = shake256(mandatoryCanon)
 console.log(`mandatory hash: ${bytesToHex(mandatoryHash)}`)
 
 // Get issuer public key
@@ -80,10 +80,11 @@ let pbk = base58btc.decode(encodedPbk)
 pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 // **Verify BBS signature**
+const hashType = 'SHAKE-256'
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages)
-const gens = await prepareGenerators(bbsMessages.length)
-const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens)
+const msgScalars = await msgsToScalars(bbsMessages, hashType)
+const gens = await prepareGenerators(bbsMessages.length, hashType)
+const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, hashType)
 console.log(`Base proof verified: ${verified}`)
