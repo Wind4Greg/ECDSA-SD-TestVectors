@@ -1,7 +1,10 @@
 {
-  "bbsSignature": "ae5f890589b61445cfd70f259205b7121bea7b01021615807797c4ba871f38062ba97bb27e474c3f68282eebe3e4ce8d31db8869c4ce69e2cc83e55329b15ac9a922d843271058dc6f0a9c48a9c92817",
+  "bbsSignature": "93c7abe23fdf4856654bc858e607b7659af82b564340731454884724ec01e25360ac49e39cf0df7631535373042caed256abed6e81884e71a21590fef8dbe07e177dcedd8cfe94e4574c4ab51a22bdf9",
   "hmacKey": "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff",
   "mandatoryPointers": [
-    "/credentialSubject/State"
+    "/credentialSubject/sailNumber",
+    "/credentialSubject/sails/1",
+    "/credentialSubject/boards/0/year",
+    "/credentialSubject/sails/2"
   ]
 }

@@ -37,7 +37,7 @@ jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
 // Read input document from a file either treeDoc.json or windDoc.json
 const document = JSON.parse(
-  await readFile(new URL('../input/treeDoc.json', import.meta.url)))
+  await readFile(new URL('../input/windDoc.json', import.meta.url)))
 
 // Obtain key material and process into byte array format
 const keyMaterial = JSON.parse(
@@ -57,7 +57,7 @@ const options = { documentLoader: localLoader }
 // Set proof options per draft
 const proofConfig = {}
 proofConfig.type = 'DataIntegrityProof'
-proofConfig.cryptosuite = 'ecdsa-sd-2023'
+proofConfig.cryptosuite = 'bbs-2023'
 proofConfig.created = '2023-08-15T23:36:38Z'
 proofConfig.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicKeyMultibase
 proofConfig.proofPurpose = 'assertionMethod'
@@ -72,7 +72,7 @@ const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac: hmacFun
 
 const mandatoryPointers = JSON.parse(
   await readFile(
-    new URL('../input/treeMandatory.json', import.meta.url)
+    new URL('../input/windMandatory.json', import.meta.url)
   )
 )
 const groups = { mandatory: mandatoryPointers }
@@ -93,24 +93,7 @@ await writeFile(baseDir + 'addBaseTransform.json', JSON.stringify(transformOutpu
 const documentCanonQuads = await jsonld.canonize(document) // block of text
 const documentCanon = documentCanonQuads.split('\n').slice(0, -1).map(q => q + '\n') // array
 await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, null, 2))
-// HMAC based bnode replacement function
-const bnodeIdMap = new Map() // Keeps track of old blank node ids and their replacements
-function hmacID (bnode) {
-  if (bnodeIdMap.has(bnode)) {
-    return bnodeIdMap.get(bnode)
-  }
-  // console.log(`bnode: ${bnode}`)
-  const hmacBytes = hmac(shake256, hmacKey, bnode.split('_:')[1]) // only use the c14nx part
-  const newId = '_:' + base64url.encode(hmacBytes)
-  bnodeIdMap.set(bnode, newId)
-  return newId
-}
-// Using JavaScripts string replace with global regex and above replacement function
-const hmacQuads = documentCanonQuads.replace(/(_:c14n[0-9]+)/g, hmacID)
-// console.log(hmacQuads)
-// console.log(bnodeIdMap)
-const sortedHMACQuads = hmacQuads.split('\n').slice(0, -1).map(q => q + '\n').sort()
-await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(sortedHMACQuads, null, 2))
+await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(stuff.nquads, null, 2))
 
 // **Hashing Step**
 const proofHash = shake256(proofCanon) // @noble/hash will convert string to bytes via UTF-8

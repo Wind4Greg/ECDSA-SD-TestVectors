@@ -1,21 +1,64 @@
 {
   "mandatoryPointers": [
-    "/credentialSubject/State"
+    "/credentialSubject/sailNumber",
+    "/credentialSubject/sails/1",
+    "/credentialSubject/boards/0/year",
+    "/credentialSubject/sails/2"
   ],
   "mandatory": {
     "dataType": "Map",
     "value": [
       [
-        10,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#State> \"California\" .\n"
+        0,
+        "_:b0 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"
       ],
       [
-        11,
-        "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+        1,
+        "_:b0 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
+      ],
+      [
+        2,
+        "_:b0 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
+      ],
+      [
+        8,
+        "_:b2 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ],
       [
         12,
-        "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> _:b0 .\n"
+        "_:b4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+      ],
+      [
+        13,
+        "_:b4 <https://www.w3.org/2018/credentials#credentialSubject> _:b6 .\n"
+      ],
+      [
+        14,
+        "_:b5 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"
+      ],
+      [
+        15,
+        "_:b5 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
+      ],
+      [
+        16,
+        "_:b5 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
+      ],
+      [
+        17,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#boards> _:b2 .\n"
+      ],
+      [
+        19,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n"
+      ],
+      [
+        20,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#sails> _:b0 .\n"
+      ],
+      [
+        23,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#sails> _:b5 .\n"
       ]
     ]
   },
@@ -23,44 +66,60 @@
     "dataType": "Map",
     "value": [
       [
-        0,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#Coordinates> \"(41.795621, -124.106312)\" .\n"
-      ],
-      [
-        1,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#County> \"Del Norte\" .\n"
-      ],
-      [
-        2,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#DoB> \"1200/03/21\" .\n"
-      ],
-      [
         3,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#Eyes> \"None\" .\n"
+        "_:b1 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"
       ],
       [
         4,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#FirstName> \"Sequoia\" .\n"
+        "_:b1 <https://windsurf.grotto-networking.com/selective#size> \"7.8E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
       ],
       [
         5,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#Hair> \"Brown bark, green needles\" .\n"
+        "_:b1 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ],
       [
         6,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#Height> \"296ft\" .\n"
+        "_:b2 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n"
       ],
       [
         7,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#LastName> \"Sempervirens\" .\n"
-      ],
-      [
-        8,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#Over200Yrs> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> .\n"
+        "_:b2 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n"
       ],
       [
         9,
-        "_:b0 <https://windsurf.grotto-networking.com/selective#Park> \"Jedediah Smith Redwoods State Park\" .\n"
+        "_:b3 <https://windsurf.grotto-networking.com/selective#sailName> \"Kihei\" .\n"
+      ],
+      [
+        10,
+        "_:b3 <https://windsurf.grotto-networking.com/selective#size> \"5.5E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
+      ],
+      [
+        11,
+        "_:b3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
+      ],
+      [
+        18,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#boards> _:b7 .\n"
+      ],
+      [
+        21,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#sails> _:b1 .\n"
+      ],
+      [
+        22,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#sails> _:b3 .\n"
+      ],
+      [
+        24,
+        "_:b7 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n"
+      ],
+      [
+        25,
+        "_:b7 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n"
+      ],
+      [
+        26,
+        "_:b7 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ]
     ]
   },

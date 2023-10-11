@@ -49,7 +49,7 @@ await mkdir(baseDir, { recursive: true })
 // Get the selective disclosure pointers, either windSelective.json or treeSelective.json
 const selectivePointers = JSON.parse(
   await readFile(
-    new URL('../input/' + 'treeSelective.json', import.meta.url)
+    new URL('../input/' + 'windSelective.json', import.meta.url)
   )
 )
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
@@ -133,7 +133,6 @@ const adjMandatoryIndexes = []
 mandatoryMatch.forEach((value, index) => {
   adjMandatoryIndexes.push(combinedIndexes.indexOf(index))
 })
-await writeFile(baseDir + 'derivedAdjMandatoryIndexes.json', JSON.stringify({ adjMandatoryIndexes }))
 /* Determine which non-mandatory nquad match a selectively disclosed nquad and
   get its index relative to place in the non-mandatory list.
   The non-mandatory nquads are the BBS messages and we need the selective indexes
@@ -148,8 +147,8 @@ selectiveMatch.forEach((value, index) => {
 })
 // console.log('adjust Signature Indexes:')
 // console.log(adjSignatureIndexes)
-await writeFile(baseDir + 'derivedAdjSelectiveIndexes.json',
-  JSON.stringify({ adjSignatureIndexes: adjSelectiveIndexes }))
+await writeFile(baseDir + 'derivedAdjIndexes.json',
+  JSON.stringify({ adjMandatoryIndexes, adjSelectiveIndexes }))
 
 // **Create Verifier Label Map**
 const deskolemizedNQuads = stuff.groups.combined.deskolemizedNQuads
@@ -206,7 +205,7 @@ const disclosureData = {
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes
 }
-await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap, 2))
+await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 
 // Initialize newProof to a shallow copy of proof.
 const newProof = Object.assign({}, proof)
