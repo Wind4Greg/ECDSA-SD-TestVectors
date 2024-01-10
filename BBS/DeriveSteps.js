@@ -27,8 +27,8 @@ import cbor from 'cbor'
 import { shake256 } from '@noble/hashes/sha3'
 import { base64url } from 'multiformats/bases/base64'
 import {
-  messages_to_scalars as msgsToScalars, prepareGenerators, proofGen,
-  seeded_random_scalars as seededRandScalars
+  API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars, prepareGenerators,
+  proofGen, seeded_random_scalars as seededRandScalars
 } from '@grottonetworking/bbs-signatures'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
@@ -176,12 +176,11 @@ const mandatoryCanon = [...mandatoryMatch.values()].join('')
 const mandatoryHash = shake256(mandatoryCanon)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 // Recreate BBS messages
-const hashType = 'SHAKE-256'
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, hashType)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
 // calc generators -- note in production these values would be cached since they are reusable
-const gens = await prepareGenerators(bbsMessages.length, hashType)
+const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
 // Get issuer public key
 const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
 let pbk = base58btc.decode(encodedPbk)
@@ -193,9 +192,9 @@ const ph = new Uint8Array() // Not using presentation header currently
 // its example proofs
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes('332e313431353932363533353839373933323338343632363433333833323739')
-const randScalarFunc = seededRandScalars.bind(null, seed, hashType)
+const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BBS_SHAKE)
 const bbsProof = await proofGen(pbk, bbsSignature, bbsHeader, ph, msgScalars,
-  adjSelectiveIndexes, gens, hashType, randScalarFunc)
+  adjSelectiveIndexes, gens, API_ID_BBS_SHAKE, randScalarFunc)
 
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes
 

@@ -14,7 +14,7 @@ import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
-import { messages_to_scalars as msgsToScalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
 
 // Create output directory for the test vectors
 const baseDir = './output/bbs/'
@@ -80,11 +80,10 @@ let pbk = base58btc.decode(encodedPbk)
 pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 // **Verify BBS signature**
-const hashType = 'SHAKE-256'
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, hashType)
-const gens = await prepareGenerators(bbsMessages.length, hashType)
-const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, hashType)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
+const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
+const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHAKE)
 console.log(`Base proof verified: ${verified}`)

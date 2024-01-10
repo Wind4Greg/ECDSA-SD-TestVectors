@@ -12,7 +12,7 @@ import { localLoader } from '../documentLoader.js'
 import { shake256 } from '@noble/hashes/sha3'
 import { hmac } from '@noble/hashes/hmac'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
-import { messages_to_scalars as msgsToScalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars, prepareGenerators, sign} from '@grottonetworking/bbs-signatures'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
@@ -113,13 +113,12 @@ hashDataOutput.mandatoryHash = bytesToHex(mandatoryHash)
 writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
 
 /* Create BBS signature */
-const hashType = 'SHAKE-256'
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, hashType)
-const gens = await prepareGenerators(bbsMessages.length, hashType)
-const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, hashType)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
+const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
+const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, API_ID_BBS_SHAKE)
 console.log(`BBS signature: ${bytesToHex(bbsSignature)}`)
 
 const rawBaseSignatureInfo = {

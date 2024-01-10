@@ -13,10 +13,8 @@ import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
-import {
-  messages_to_scalars as msgsToScalars, prepareGenerators, numUndisclosed,
-  proofVerify
-} from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars,
+  prepareGenerators, numUndisclosed, proofVerify } from '@grottonetworking/bbs-signatures'
 
 // Create output directory for the results
 const baseDir = './output/bbs/'
@@ -128,14 +126,13 @@ pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 
 /* Verify BBS Proof */
-const hashType = 'SHAKE-256'
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, hashType)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
 const L = numUndisclosed(bbsProof) + msgScalars.length
-const gens = await prepareGenerators(L, hashType) // Generate enough for all messages
+const gens = await prepareGenerators(L, API_ID_BBS_SHAKE) // Generate enough for all messages
 const ph = new Uint8Array() // Not using presentation header currently
 const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
-  adjSelectedIndexes, gens, hashType)
+  adjSelectedIndexes, gens, API_ID_BBS_SHAKE)
 console.log(`Derived proof verified: ${verified}`)
