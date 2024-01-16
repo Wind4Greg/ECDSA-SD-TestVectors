@@ -53,10 +53,10 @@ if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedPro
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = cbor.decode(decodedProofValue.slice(3))
-if (decodeThing.length !== 4) {
+if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes] = decodeThing
+const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes, presentationHeader] = decodeThing
 // console.log(baseSignature, typeof baseSignature);
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')
@@ -132,7 +132,7 @@ const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // mus
 const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
 const L = numUndisclosed(bbsProof) + msgScalars.length
 const gens = await prepareGenerators(L, API_ID_BBS_SHAKE) // Generate enough for all messages
-const ph = new Uint8Array() // Not using presentation header currently
+const ph = presentationHeader
 const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
   adjSelectedIndexes, gens, API_ID_BBS_SHAKE)
 console.log(`Derived proof verified: ${verified}`)

@@ -77,10 +77,10 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
 }
 const decodeThing = cbor.decode(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 3) {
+if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   hmacKey: bytesToHex(hmacKey),
@@ -175,6 +175,7 @@ const proofHash = shake256(proofCanon)
 const mandatoryCanon = [...mandatoryMatch.values()].join('')
 const mandatoryHash = shake256(mandatoryCanon)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
+
 // Recreate BBS messages
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
@@ -182,10 +183,10 @@ const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
 // calc generators -- note in production these values would be cached since they are reusable
 const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
 // Get issuer public key
-const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
-let pbk = base58btc.decode(encodedPbk)
-pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
-// console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
+// const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
+// let pbk = base58btc.decode(encodedPbk)
+// pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
+// // console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const ph = new Uint8Array() // Not using presentation header currently
 // Note that BBS proofGen usually uses cryptographic random numbers on each run which doesn't
 // make for good test vectors instead with use the helper technique use in BBS to generate
@@ -193,16 +194,17 @@ const ph = new Uint8Array() // Not using presentation header currently
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes('332e313431353932363533353839373933323338343632363433333833323739')
 const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BBS_SHAKE)
-const bbsProof = await proofGen(pbk, bbsSignature, bbsHeader, ph, msgScalars,
+const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
   adjSelectiveIndexes, gens, API_ID_BBS_SHAKE, randScalarFunc)
 
-// 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes
+// 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph
 
 const disclosureData = {
   bbsProof: bytesToHex(bbsProof),
   labelMap: verifierLabelMap,
   mandatoryIndexes: adjMandatoryIndexes,
-  adjSelectiveIndexes
+  adjSelectiveIndexes,
+  presentationHeader: ph
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 
@@ -217,7 +219,7 @@ verifierLabelMap.forEach(function (v, k) {
 })
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes, ph]
 const cborThing = await cbor.encodeAsync(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

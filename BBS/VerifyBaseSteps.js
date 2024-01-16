@@ -42,10 +42,10 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = cbor.decode(proofValueBytes.slice(3))
-if (decodeThing.length !== 3) {
+if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
@@ -81,6 +81,9 @@ pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 // **Verify BBS signature**
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
+if (bytesToHex(bbsHeader) !== bytesToHex(bbsHeaderBase)) {
+  console.log('computed bbsHeader and bbsHeader from base DO NOT match!')
+}
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
 const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
