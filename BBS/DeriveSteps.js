@@ -24,10 +24,10 @@ import { localLoader } from '../documentLoader.js'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
-import { shake256 } from '@noble/hashes/sha3'
+import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
 import {
-  API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars, prepareGenerators,
+  API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators,
   proofGen, seeded_random_scalars as seededRandScalars
 } from '@grottonetworking/bbs-signatures'
 // For serialization of JavaScript Map via JSON
@@ -41,6 +41,12 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
     return value
   }
 }
+
+// Obtain presentationHeader and process into byte array format
+const deriveOptions = JSON.parse(
+  await readFile(new URL('../input/BBSDeriveMaterial.json', import.meta.url)))
+const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
+
 
 // Create output directory for the test vectors
 const baseDir = './output/bbs/'
@@ -171,31 +177,31 @@ const proofConfig = klona(proof)
 proofConfig['@context'] = document['@context']
 delete proofConfig.proofValue // Don't forget to remove this
 const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = shake256(proofCanon)
+const proofHash = sha256(proofCanon)
 const mandatoryCanon = [...mandatoryMatch.values()].join('')
-const mandatoryHash = shake256(mandatoryCanon)
+const mandatoryHash = sha256(mandatoryCanon)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 
 // Recreate BBS messages
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 // calc generators -- note in production these values would be cached since they are reusable
-const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
+const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHA)
 // Get issuer public key
 // const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
 // let pbk = base58btc.decode(encodedPbk)
 // pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
 // // console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
-const ph = new Uint8Array() // Not using presentation header currently
+const ph = presentationHeader
 // Note that BBS proofGen usually uses cryptographic random numbers on each run which doesn't
 // make for good test vectors instead with use the helper technique use in BBS to generate
 // its example proofs
 // Pseudo random (deterministic) scalar generation seed and function
-const seed = hexToBytes('332e313431353932363533353839373933323338343632363433333833323739')
-const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BBS_SHAKE)
+const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
+const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BBS_SHA)
 const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
-  adjSelectiveIndexes, gens, API_ID_BBS_SHAKE, randScalarFunc)
+  adjSelectiveIndexes, gens, API_ID_BBS_SHA, randScalarFunc)
 
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph
 

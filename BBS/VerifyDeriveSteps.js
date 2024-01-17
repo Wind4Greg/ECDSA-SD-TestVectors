@@ -7,13 +7,13 @@ import { mkdir, readFile, writeFile } from 'fs/promises'
 import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
-import { shake256 } from '@noble/hashes/sha3'
+import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
-import { API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars,
+import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars,
   prepareGenerators, numUndisclosed, proofVerify } from '@grottonetworking/bbs-signatures'
 
 // Create output directory for the results
@@ -40,7 +40,7 @@ delete proofConfig.proofValue
 proofConfig['@context'] = document['@context']
 delete document.proof // **IMPORTANT** from now on we work with the document without proof!!!!!!!
 const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = shake256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
+const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
 // console.log(`proofHash: ${bytesToHex(proofHash)}`);
 // **Parse Derived Proof Value BBS** [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
@@ -114,7 +114,7 @@ nquads.forEach(function (value, index) {
     nonMandatory.push(value)
   }
 })
-const mandatoryHash = shake256(mandatory.join(''))
+const mandatoryHash = sha256(mandatory.join(''))
 
 // Get public key
 console.log(proof.verificationMethod.split('did:key:'))
@@ -129,10 +129,10 @@ console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 const L = numUndisclosed(bbsProof) + msgScalars.length
-const gens = await prepareGenerators(L, API_ID_BBS_SHAKE) // Generate enough for all messages
+const gens = await prepareGenerators(L, API_ID_BBS_SHA) // Generate enough for all messages
 const ph = presentationHeader
 const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
-  adjSelectedIndexes, gens, API_ID_BBS_SHAKE)
+  adjSelectedIndexes, gens, API_ID_BBS_SHA)
 console.log(`Derived proof verified: ${verified}`)

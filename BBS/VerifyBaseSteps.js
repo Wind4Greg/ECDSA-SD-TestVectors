@@ -8,13 +8,13 @@ import {
 } from '@digitalbazaar/di-sd-primitives'
 import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
-import { shake256 } from '@noble/hashes/sha3'
+import { sha256 } from '@noble/hashes/sha256'
 import { localLoader } from '../documentLoader.js'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
 import { base64url } from 'multiformats/bases/base64'
-import { API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
 
 // Create output directory for the test vectors
 const baseDir = './output/bbs/'
@@ -67,10 +67,10 @@ const proofConfig = klona(proof)
 proofConfig['@context'] = document['@context']
 delete proofConfig.proofValue // Don't forget to remove this
 const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = shake256(proofCanon)
+const proofHash = sha256(proofCanon)
 console.log(`proofHash: ${bytesToHex(proofHash)}`)
 const mandatoryCanon = [...mandatoryMatch.values()].join('')
-const mandatoryHash = shake256(mandatoryCanon)
+const mandatoryHash = sha256(mandatoryCanon)
 console.log(`mandatory hash: ${bytesToHex(mandatoryHash)}`)
 
 // Get issuer public key
@@ -86,7 +86,7 @@ if (bytesToHex(bbsHeader) !== bytesToHex(bbsHeaderBase)) {
 }
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
-const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
-const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHAKE)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
+const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHA)
+const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
 console.log(`Base proof verified: ${verified}`)

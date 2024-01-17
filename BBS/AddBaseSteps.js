@@ -9,10 +9,9 @@ import { createHmac, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitive
 import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
-import { shake256 } from '@noble/hashes/sha3'
-import { hmac } from '@noble/hashes/hmac'
+import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
-import { API_ID_BBS_SHAKE, messages_to_scalars as msgsToScalars, prepareGenerators, sign} from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import cbor from 'cbor'
@@ -96,10 +95,10 @@ await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, 
 await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(stuff.nquads, null, 2))
 
 // **Hashing Step**
-const proofHash = shake256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
+const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
 // 3.3.17 hashMandatoryNQuads
-const mandatoryHash = shake256([...mandatory.values()].join(''))
+const mandatoryHash = sha256([...mandatory.values()].join(''))
 // Initialize hashData as a deep copy of transformedDocument and add proofHash as
 // "proofHash" and mandatoryHash as "mandatoryHash" to that object.
 const hashData = klona(transformed)
@@ -116,9 +115,9 @@ writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHAKE)
-const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHAKE)
-const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, API_ID_BBS_SHAKE)
+const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
+const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHA)
+const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
 console.log(`BBS signature: ${bytesToHex(bbsSignature)}`)
 
 const rawBaseSignatureInfo = {
