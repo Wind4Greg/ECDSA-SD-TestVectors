@@ -129,7 +129,7 @@ const groupIndexes = {
   nonMandatoryIndexes,
   selectiveIndexes
 }
-await writeFile(baseDir + 'derivedGroupIndexes.json', JSON.stringify(groupIndexes, replacerMap, 2))
+await writeFile(baseDir + 'derivedGroupIndexes.json', JSON.stringify(groupIndexes, replacerMap))
 /*
   Compute the "adjusted mandatory indexes" relative to their
   positions in the combined statement list, i.e., find at what position a mandatory
