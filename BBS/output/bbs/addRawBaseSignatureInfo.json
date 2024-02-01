@@ -1,5 +1,5 @@
 {
-  "bbsSignature": "8a9f8765418f41dd831a02654c4e60fc6c0724b0d2b259c1c0505dce87972181d5b004b7a13fb8d7320ca29cee61d07e03decd11c7380392c0d3ab25da23707c068a87b14429ed9f858e2b36c48a7f0e",
+  "bbsSignature": "820919c997ac05c9202fe268e3c423d18d53e9111670a9c8aecb40deee1465a828762259f00e32e0e982949109a03ed86f423cfcd5d33d198fa4a07bcad48c468a745669181d485727524d4fb7da9e3a",
   "mandatoryPointers": [
     "/credentialSubject/sailNumber",
     "/credentialSubject/sails/1",
