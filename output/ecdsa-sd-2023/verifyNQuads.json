@@ -1,6 +1,7 @@
 [
   "_:u2IE-HtO6PyHQsGnuqhO1mX6V7RkRREhF0d0sWZlxNOY <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
   "_:u2IE-HtO6PyHQsGnuqhO1mX6V7RkRREhF0d0sWZlxNOY <https://www.w3.org/2018/credentials#credentialSubject> _:uQ-qOZUDlozRsGk46ux9gp9fjT28Fy3g3nctmMoqi_U0 .\n",
+  "_:u2IE-HtO6PyHQsGnuqhO1mX6V7RkRREhF0d0sWZlxNOY <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n",
   "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
   "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
   "_:u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",

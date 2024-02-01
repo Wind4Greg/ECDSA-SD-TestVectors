@@ -121,7 +121,7 @@ const stuff = await canonicalizeAndGroup({
   options
 })
 // console.log(JSON.stringify(stuff, replacerMap, 2))
-await writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap, 2))
+await writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap))
 const combinedMatch = stuff.groups.combined.matching
 const mandatoryMatch = stuff.groups.mandatory.matching
 const mandatoryNonMatch = stuff.groups.mandatory.nonMatching // For reverse engineering
@@ -143,7 +143,7 @@ const groupIndexes = {
   nonMandatoryIndexes,
   selectiveIndexes
 }
-await writeFile(baseDir + 'derivedGroupIndexes.json', JSON.stringify(groupIndexes, replacerMap, 2))
+await writeFile(baseDir + 'derivedGroupIndexes.json', JSON.stringify(groupIndexes, replacerMap))
 /*
   My simplification. Compute the "adjusted mandatory indexes" relative to their
   positions in the combined statement list, i.e., find at what position a mandatory

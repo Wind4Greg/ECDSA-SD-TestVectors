@@ -1,5 +1,5 @@
 {
-  "baseSignature": "16f6280966dff3f50b467b026d6eae34b06c922efcbbbe3341d4b282726695f1d1b2ac5b00ca611df05cd495e3ce1231ed3b45c10608efbcc188a038a2e983e1",
+  "baseSignature": "91628c3bcce94667dc50c92c1d432d64cedc26df0f98d2ec9632936214a2f2067bc005a72b806b39992b1f7759bf1296967c461bfd319455e6539b1ae7e8fbd5",
   "publicKey": "zDnaeTHfhmSaQKBc7CmdL3K7oYg3D6SC7yowe2eBeVd2DH32r",
   "signatures": [
     "6d030c724a5c300128d79582e82f0ca376c2116146b4e4e4331343f8b24c75f9024a8bc1ed19c247b497ce4e7ed1856282d27917383bd400286f9ca0d5634d93",
@@ -18,39 +18,40 @@
       ],
       [
         "c14n1",
-        "u2IE-HtO6PyHQsGnuqhO1mX6V7RkRREhF0d0sWZlxNOY"
-      ],
-      [
-        "c14n2",
         "uVkUuBrlOaELGVQWJD4M_qW5bcKEHWGNbOrPA_qAOKKw"
       ],
       [
-        "c14n3",
+        "c14n2",
         "uQ-qOZUDlozRsGk46ux9gp9fjT28Fy3g3nctmMoqi_U0"
       ],
       [
-        "c14n4",
+        "c14n3",
         "ukR2991GJuy_Tkjem_x7pLVpS4C4GkZAcuGtiPhBfSSc"
       ],
       [
-        "c14n5",
+        "c14n4",
         "uk0AeXgJ4e6m1XsV5-xFud0L_1mUjZ9Mffhg5aZGTyDk"
+      ],
+      [
+        "c14n5",
+        "u2IE-HtO6PyHQsGnuqhO1mX6V7RkRREhF0d0sWZlxNOY"
       ]
     ]
   },
   "mandatoryIndexes": [
     0,
     1,
-    4,
+    2,
     5,
-    7,
+    6,
     8,
     9,
-    13,
+    10,
     14,
     15,
     16,
     17,
-    18
+    18,
+    19
   ]
 }

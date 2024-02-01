@@ -1,5 +1,6 @@
 {
   "mandatoryPointers": [
+    "/issuer",
     "/credentialSubject/sailNumber",
     "/credentialSubject/sails/1",
     "/credentialSubject/boards/0/year",
@@ -15,6 +16,10 @@
       [
         1,
         "_:b0 <https://www.w3.org/2018/credentials#credentialSubject> _:b3 .\n"
+      ],
+      [
+        2,
+        "_:b0 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
       ],
       [
         8,
@@ -65,10 +70,6 @@
   "nonMandatory": {
     "dataType": "Map",
     "value": [
-      [
-        2,
-        "_:b0 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
-      ],
       [
         3,
         "_:b1 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"

@@ -1,6 +1,7 @@
 [
   "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
   "_:b0 <https://www.w3.org/2018/credentials#credentialSubject> _:b3 .\n",
+  "_:b0 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n",
   "_:b2 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
   "_:b2 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
   "_:b2 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
