@@ -34,3 +34,25 @@ console.log(cborxThingHex)
 
 console.log(`cborx == cborg? ${cborgThingHex === cborxThingHex}`)
 console.log(`cbor == cborg? ${cborThingHex === cborxThingHex}`)
+
+const byteData = [new Uint8Array([0,1,2,3]), new Uint8Array([4, 5, 6, 7])]
+const textData = ["hello", "world"]
+const combination = [byteData, textData]
+
+const cborThing2 = await cbor.encodeAsync(combination)
+console.log('Ex 2 CBOR library encoding hex:')
+const cborThingHex2 = bytesToHex(cborThing2)
+console.log(cborThingHex2)
+
+const cborgThing2 = await encode(combination)
+console.log('Ex 2 CBORG library encoding hex:')
+const cborgThingHex2 = bytesToHex(cborgThing2)
+console.log(cborgThingHex2)
+
+const cborXEncoder2 = new Encoder({ tagUint8Array: false })
+const cborxThing2 = cborXEncoder2.encode(combination)
+console.log('Ex 2 CBOR-X library encoding hex:')
+const cborxThingHex2 = bytesToHex(cborxThing2)
+console.log(cborxThingHex2)
+
+
