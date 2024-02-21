@@ -1,0 +1,13 @@
+{
+  "baseSignature": "91628c3bcce94667dc50c92c1d432d64cedc26df0f98d2ec9632936214a2f2067bc005a72b806b39992b1f7759bf1296967c461bfd319455e6539b1ae7e8fbd5",
+  "hmacKeyString": "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF",
+  "signatures": [
+   "766d87b78b2ffde737b351d1a9eba5fbec841b1e12ae9c3235045d2dae592b224382aaf887e12d54dcdcf89f95965bcaac737cc012ad52a6aba88e0da67af1ed",
+    "39130b5d8cf7979f4ecdced20e4d9e8fb725adeafd067e9e6815101bbef702a439e9b73ea065de7a67a4c1908d1e314b38448da0dabba9eb4ef0545b8851dbe0",
+    "5bea2d48556550f166835d7d9f74de484eeea798414b7e00a8fd93194400e690c6c8e4deb6b7fcaaaddb5a3d65a42bb567ac84649950ea7acb882a1a3558692f"
+   ],
+  "mandatoryPointers": [
+    "/issuer",
+    "/credentialSubject/sailNumber"
+  ]
+}
