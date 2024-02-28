@@ -21,7 +21,7 @@ import jsonld from 'jsonld'
 import { localLoader } from './documentLoader.js'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { decode as decodeCbor, encode as encodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
@@ -80,7 +80,7 @@ const proofValueBytes = base64url.decode(proofValue)
 if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x00) {
   throw new Error('Invalid proofValue header')
 }
-const decodeThing = cbor.decode(proofValueBytes.slice(3))
+const decodeThing = decodeCbor(proofValueBytes.slice(3))
 if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
@@ -253,7 +253,7 @@ verifierLabelMap.forEach(function (v, k) {
 */
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
 const components = [baseSignature, proofPublicKey, filteredSignatures, compressLabelMap, adjMandatoryIndexes]
-const cborThing = await cbor.encodeAsync(components)
+const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)
 // console.log(derivedProofValueString)

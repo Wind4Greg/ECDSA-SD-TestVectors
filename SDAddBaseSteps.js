@@ -14,7 +14,7 @@ import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { p256 } from '@noble/curves/p256'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { encode as encodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
@@ -191,7 +191,7 @@ Return baseProof as base proof.
 */
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x00])
 const components = [baseSignature, proofPublicKey, hmacKey, signatures, mandatoryPointers]
-const cborThing = await cbor.encodeAsync(components)
+const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)
 // console.log(baseProof)

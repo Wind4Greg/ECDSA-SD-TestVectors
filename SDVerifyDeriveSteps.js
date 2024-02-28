@@ -18,7 +18,7 @@ import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { p256 } from '@noble/curves/p256'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { decode as decodeCbor} from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 
 // Create output directory for the results
@@ -88,7 +88,7 @@ const decodedProofValue = base64url.decode(proofValue)
 if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedProofValue[2] !== 0x01) {
   throw new Error('Invalid proofValue header')
 }
-const decodeThing = cbor.decode(decodedProofValue.slice(3))
+const decodeThing = decodeCbor(decodedProofValue.slice(3))
 /* Ensure the result is an array of five elements.
       Ensure the result is an array of five elements: a byte array of length 64, a byte array of
       length 36, an array of byte arrays, each of length 64, a map of integers to byte arrays of

@@ -18,6 +18,7 @@
     "base58-universal": "^2.0.0",
     "cbor": "^9.0.1",
     "cbor-x": "^1.5.8",
+    "cbor2": "^1.2.2",
     "cborg": "^2.0.5",
     "json-pointer": "^0.6.2",
     "jsonld": "^8.2.0",

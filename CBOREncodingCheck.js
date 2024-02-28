@@ -5,8 +5,9 @@
 import { readFile } from 'fs/promises'
 import cbor from 'cbor'
 import { encode } from 'cborg'
-import { Encoder } from 'cbor-x';
+import { Encoder } from 'cbor-x'
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils'
+import { encode as encode2 } from 'cbor2'
 
 const data = JSON.parse(
   await readFile(new URL('./input/cborCheckInput.json', import.meta.url)))
@@ -55,4 +56,7 @@ console.log('Ex 2 CBOR-X library encoding hex:')
 const cborxThingHex2 = bytesToHex(cborxThing2)
 console.log(cborxThingHex2)
 
-
+const cbor2Thing2 = encode2(combination)
+console.log('Ex 2 CBOR2 library encoding hex:')
+const cbor2ThingHex2 = bytesToHex(cbor2Thing2)
+console.log(cbor2ThingHex2)

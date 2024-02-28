@@ -12,7 +12,7 @@ import { p256 } from '@noble/curves/p256'
 import { localLoader } from './documentLoader.js'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 
 // Create output directory for the test vectors
@@ -40,7 +40,7 @@ const proofValueBytes = base64url.decode(proofValue)
 if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x00) {
   throw new Error('Invalid proofValue header')
 }
-const decodeThing = cbor.decode(proofValueBytes.slice(3))
+const decodeThing = decodeCbor(proofValueBytes.slice(3))
 if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
