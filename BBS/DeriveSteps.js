@@ -23,7 +23,7 @@ import { klona } from 'klona'
 import { localLoader } from '../documentLoader.js'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { decode as decodeCbor, encode as encodeCbor } from 'cbor2'
 import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
 import {
@@ -81,7 +81,7 @@ const proofValueBytes = base64url.decode(proofValue)
 if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x02) {
   throw new Error('Invalid proofValue header')
 }
-const decodeThing = cbor.decode(proofValueBytes.slice(3))
+const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
 if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
@@ -226,7 +226,7 @@ verifierLabelMap.forEach(function (v, k) {
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes, ph]
-const cborThing = await cbor.encodeAsync(components)
+const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)
 console.log(derivedProofValueString)

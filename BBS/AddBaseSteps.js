@@ -14,7 +14,7 @@ import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { encode as encodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
@@ -132,7 +132,7 @@ writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignat
 
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x02])
 const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers]
-const cborThing = await cbor.encodeAsync(components)
+const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)
 console.log(baseProof)

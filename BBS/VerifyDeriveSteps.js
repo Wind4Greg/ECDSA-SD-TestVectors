@@ -11,7 +11,7 @@ import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
-import cbor from 'cbor'
+import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars,
   prepareGenerators, numUndisclosed, proofVerify } from '@grottonetworking/bbs-signatures'
@@ -52,7 +52,7 @@ const decodedProofValue = base64url.decode(proofValue)
 if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedProofValue[2] !== 0x03) {
   throw new Error('Invalid proofValue header')
 }
-const decodeThing = cbor.decode(decodedProofValue.slice(3))
+const decodeThing = decodeCbor(decodedProofValue.slice(3))
 if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
