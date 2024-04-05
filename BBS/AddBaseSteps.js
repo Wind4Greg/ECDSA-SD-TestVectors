@@ -11,7 +11,7 @@ import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
-import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, sign } from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, sign } from './lib/BBS.js'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import { encode as encodeCbor } from 'cbor2'
@@ -116,7 +116,7 @@ const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
 const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
-const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHA)
+const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
 console.log(`BBS signature: ${bytesToHex(bbsSignature)}`)
 

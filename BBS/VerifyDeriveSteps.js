@@ -14,7 +14,7 @@ import { base58btc } from 'multiformats/bases/base58'
 import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars,
-  prepareGenerators, numUndisclosed, proofVerify } from '@grottonetworking/bbs-signatures'
+  prepareGenerators, numUndisclosed, proofVerify } from './lib/BBS.js'
 
 // Create output directory for the results
 const baseDir = './output/bbs/'
@@ -131,7 +131,7 @@ const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
 const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 const L = numUndisclosed(bbsProof) + msgScalars.length
-const gens = await prepareGenerators(L, API_ID_BBS_SHA) // Generate enough for all messages
+const gens = await prepareGenerators(L + 1, API_ID_BBS_SHA) // Generate enough for all messages
 const ph = presentationHeader
 const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
   adjSelectedIndexes, gens, API_ID_BBS_SHA)

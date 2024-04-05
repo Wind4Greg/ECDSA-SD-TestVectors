@@ -29,7 +29,7 @@ import { base64url } from 'multiformats/bases/base64'
 import {
   API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators,
   proofGen, seeded_random_scalars as seededRandScalars
-} from '@grottonetworking/bbs-signatures'
+} from './lib/BBS.js'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -187,7 +187,7 @@ const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
 const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 // calc generators -- note in production these values would be cached since they are reusable
-const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHA)
+const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 // Get issuer public key
 // const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
 // let pbk = base58btc.decode(encodedPbk)

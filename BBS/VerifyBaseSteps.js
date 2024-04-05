@@ -14,7 +14,7 @@ import { bytesToHex, concatBytes } from '@noble/hashes/utils'
 import { base58btc } from 'multiformats/bases/base58'
 import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
-import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, verify } from '@grottonetworking/bbs-signatures'
+import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, verify } from './lib/BBS.js'
 
 // Create output directory for the test vectors
 const baseDir = './output/bbs/'
@@ -87,6 +87,6 @@ if (bytesToHex(bbsHeader) !== bytesToHex(bbsHeaderBase)) {
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
 const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
-const gens = await prepareGenerators(bbsMessages.length, API_ID_BBS_SHA)
+const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
 console.log(`Base proof verified: ${verified}`)
