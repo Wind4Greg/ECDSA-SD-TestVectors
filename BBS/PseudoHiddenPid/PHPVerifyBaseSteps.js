@@ -1,6 +1,6 @@
 /*
-    Walking through the steps for verifying a base BBS proof with Anonymous
-    Holder Binding.
+    Walking through the steps for verifying a base BBS proof with Pseudonyms with
+    Hidden Pid.
 */
 import { mkdir, readFile } from 'fs/promises'
 import { klona } from 'klona'

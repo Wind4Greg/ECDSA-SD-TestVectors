@@ -1,6 +1,8 @@
 /*
     Walking through my steps and generating test vectors for  creating
-    a base BBS proof with the Anonymous Holder Binding feature.
+    a base BBS proof for the Pseudonym with Hidden Pid feature.
+    **Note**: a different BBS API ID is used compared to the anonymous holder
+    binding feature.
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises'

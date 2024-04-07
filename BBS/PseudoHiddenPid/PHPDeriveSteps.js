@@ -1,5 +1,6 @@
 /*
-    Steps for creating a derived proof with Anonymous Holder Binding feature.
+    Steps for creating a derived proof under the Pseudonym with Hidden Pid
+    feature.
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
@@ -17,10 +18,9 @@ import { decode as decodeCbor, encode as encodeCbor } from 'cbor2'
 import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
 import {
-  API_ID_BLIND_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators,
-  seeded_random_scalars as seededRandScalars
+  API_ID_PSEUDONYM_BBS_SHA, seeded_random_scalars as seededRandScalars
 } from '../lib/BBS.js'
-import { BlindProofGen } from '../lib/BlindBBS.js'
+import { CalculatePseudonym, HiddenPidProofGen } from '../lib/PseudonymBBS.js'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -34,7 +34,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 }
 
 // Create output directory for the test vectors
-const baseDir = '../output/bbs/HolderBinding/'
+const baseDir = '../output/bbs/PseudoHiddenPid/'
 const inputDir = '../../input/'
 await mkdir(baseDir, { recursive: true })
 
@@ -51,6 +51,16 @@ const pidMaterial = hexToBytes(holderSecret.pidHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
+
+// Get verifier identifier and generate pseudonym here
+const verifierInfo = JSON.parse(
+  await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
+const te = new TextEncoder()
+const verifierId = te.encode(verifierInfo.verifierId) // need as byte array
+const pseudonymPt = await CalculatePseudonym(verifierId, pidMaterial, API_ID_PSEUDONYM_BBS_SHA)
+const pseudonym = pseudonymPt.toRawBytes(true) // we need raw bytes for api
+const pseudonymInfo = { pseudonymHex: bytesToHex(pseudonym) }
+await writeFile(baseDir + 'pseudonymInfo.json', JSON.stringify(pseudonymInfo, null, 2))
 
 // Get the selective disclosure pointers
 const selectivePointers = JSON.parse(
@@ -183,7 +193,6 @@ const mandatoryHash = sha256(mandatoryCanon)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 
 // Recreate BBS messages
-const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
 // Get issuer public key
 // const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
@@ -196,15 +205,15 @@ const ph = presentationHeader
 // its example proofs
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
-const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BLIND_BBS_SHA)
-// const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
-//   adjSelectiveIndexes, gens, API_ID_BBS_SHA, randScalarFunc)
+const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_PSEUDONYM_BBS_SHA)
 const signerBlind = 0n
-const committedMessages = [pidMaterial] // the pid is the only committed msg
-const disclosedCommitmentIndexes = [] // we never disclose the pid
-const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
-  bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
-  secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA, randScalarFunc)
+
+// const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
+//   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
+//   secretProverBlind, signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
+const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await HiddenPidProofGen(publicKey, bbsSignature,
+  pseudonym, verifierId, pidMaterial, bbsHeader, ph, bbsMessages, adjSelectiveIndexes, secretProverBlind,
+  signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph
 
 const disclosureData = {
