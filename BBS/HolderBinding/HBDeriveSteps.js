@@ -8,7 +8,7 @@ import {
   createHmac, canonicalizeAndGroup, selectJsonLd,
   canonicalize, stripBlankNodePrefixes
 } from '@digitalbazaar/di-sd-primitives'
-import { createShuffledIdLabelMapFunction } from './labelMap.js'
+import { createShuffledIdLabelMapFunction } from '../labelMap.js'
 import jsonld from 'jsonld'
 import { klona } from 'klona'
 import { localLoader } from '../../documentLoader.js'
@@ -53,8 +53,7 @@ const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
 
-
-// Get the selective disclosure pointers, either windSelective.json or treeSelective.json
+// Get the selective disclosure pointers
 const selectivePointers = JSON.parse(
   await readFile(
     new URL(inputDir + 'licenseSelective.json', import.meta.url)
@@ -187,9 +186,6 @@ const bbsHeader = concatBytes(proofHash, mandatoryHash)
 // Recreate BBS messages
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
-// calc generators -- note in production these values would be cached since they are reusable
-const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 // Get issuer public key
 // const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
 // let pbk = base58btc.decode(encodedPbk)
@@ -201,14 +197,15 @@ const ph = presentationHeader
 // its example proofs
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
-const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BBS_SHA)
+const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BLIND_BBS_SHA)
 // const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
 //   adjSelectiveIndexes, gens, API_ID_BBS_SHA, randScalarFunc)
 const signerBlind = 0n
-const [bbsProof, disclosed_msgs, disclosed_idxs] = await BlindProofGen(publicKey, bbsSignature,
-  bbsHeader, ph, bbsMessages, [pidMaterial], adjSelectiveIndexes, [],
+const committedMessages = [pidMaterial] // the pid is the only committed msg
+const disclosedCommitmentIndexes = [] // we never disclose the pid
+const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
+  bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
   secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA, randScalarFunc)
-// **STOPPED_HERE**
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph
 
 const disclosureData = {
@@ -216,6 +213,7 @@ const disclosureData = {
   labelMap: verifierLabelMap,
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
+  blindAdjDisclosedIdxs,
   presentationHeader: ph
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
@@ -231,7 +229,8 @@ verifierLabelMap.forEach(function (v, k) {
 })
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes, ph]
+// Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, blindAdjDisclosedIdxs, ph]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

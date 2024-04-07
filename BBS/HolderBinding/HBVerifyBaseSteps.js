@@ -25,13 +25,14 @@ await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
+// Get holder secret information
 const holderSecret = JSON.parse(
   await readFile(new URL(inputDir + 'holderSecret.json', import.meta.url)))
 console.log(holderSecret.pidHex)
 const pidMaterial = hexToBytes(holderSecret.pidHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
-const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind);
+const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
 
 // Read base signed document from a file
 const document = JSON.parse(
