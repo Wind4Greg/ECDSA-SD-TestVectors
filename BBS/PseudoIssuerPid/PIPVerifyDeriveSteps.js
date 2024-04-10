@@ -28,9 +28,6 @@ const verifierInfo = JSON.parse(
   await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
 const te = new TextEncoder()
 const verifierId = te.encode(verifierInfo.verifierId) // need as byte array
-const pseudonymInfo = JSON.parse(
-  await readFile(new URL(baseDir + 'pseudonymInfo.json', import.meta.url)))
-const pseudonym = hexToBytes(pseudonymInfo.pseudonymHex)
 // Read base signed document from a file 'revealDocument.json', 'DBderivedCredential.json'
 const document = JSON.parse(
   await readFile(
@@ -61,10 +58,10 @@ if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedPro
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(decodedProofValue.slice(3))
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes, presentationHeader] = decodeThing
+const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes, presentationHeader, pseudonym] = decodeThing
 // console.log(baseSignature, typeof baseSignature);
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')

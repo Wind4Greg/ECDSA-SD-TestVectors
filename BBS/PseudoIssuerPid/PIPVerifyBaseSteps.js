@@ -25,12 +25,6 @@ await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
-// Get pid from issuer
-const pidInfo = JSON.parse(
-  await readFile(new URL(inputDir + 'issuerPid.json', import.meta.url)))
-console.log(pidInfo.pidHex)
-const pidMaterial = hexToBytes(pidInfo.pidHex)
-
 // Read base signed document from a file
 const document = JSON.parse(
   await readFile(
@@ -51,10 +45,11 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers,
+  pidMaterial, signerBlind] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })

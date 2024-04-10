@@ -135,10 +135,11 @@ const rawBaseSignatureInfo = {
 writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))
 
 // CBOR-encode components and append it to proofValue.
-// bbsSignature, bbsHeader, publicKey, hmacKey, and mandatoryPointers
+// bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers, pid, and signerBlind
+const signerBlind = new Uint8Array() // empty array since signerBlind is not used in this case
 
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x02])
-const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers]
+const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers, pidMaterial, signerBlind]
 const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)

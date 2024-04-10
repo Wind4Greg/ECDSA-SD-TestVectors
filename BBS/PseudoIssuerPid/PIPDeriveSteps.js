@@ -42,21 +42,7 @@ const deriveOptions = JSON.parse(
   await readFile(new URL(inputDir + 'BBSDeriveMaterial.json', import.meta.url)))
 const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
 
-// Get pid from issuer
-const pidInfo = JSON.parse(
-  await readFile(new URL(inputDir + 'issuerPid.json', import.meta.url)))
-console.log(pidInfo.pidHex)
-const pidMaterial = hexToBytes(pidInfo.pidHex)
 
-// Get verifier identifier and generate pseudonym here
-const verifierInfo = JSON.parse(
-  await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
-const te = new TextEncoder()
-const verifierId = te.encode(verifierInfo.verifierId) // need as byte array
-const pseudonymPt = await CalculatePseudonym(verifierId, pidMaterial, API_ID_PSEUDONYM_BBS_SHA)
-const pseudonym = pseudonymPt.toRawBytes(true) // we need raw bytes for api
-const pseudonymInfo = { pseudonymHex: bytesToHex(pseudonym) }
-await writeFile(baseDir + 'pseudonymInfo.json', JSON.stringify(pseudonymInfo, null, 2))
 
 // Get the selective disclosure pointers
 const selectivePointers = JSON.parse(
@@ -89,10 +75,11 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers,
+  pidMaterial, signerBlind] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   hmacKey: bytesToHex(hmacKey),
@@ -177,6 +164,16 @@ canonicalIdMap.forEach(function (value, key) {
   verifierLabelMap.set(value, labelMap.get(key))
 })
 
+// Get verifier identifier and generate pseudonym here
+const verifierInfo = JSON.parse(
+  await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
+const te = new TextEncoder()
+const verifierId = te.encode(verifierInfo.verifierId) // need as byte array
+const pseudonymPt = await CalculatePseudonym(verifierId, pidMaterial, API_ID_PSEUDONYM_BBS_SHA)
+const pseudonym = pseudonymPt.toRawBytes(true) // we need raw bytes for api
+const pseudonymInfo = { pseudonymHex: bytesToHex(pseudonym) }
+await writeFile(baseDir + 'pseudonymInfo.json', JSON.stringify(pseudonymInfo, null, 2))
+
 // 6. Generate the BBSProofValue (output of BBS proof procedure)
 // Recreate BBS header
 const proofConfig = klona(proof)
@@ -224,7 +221,8 @@ verifierLabelMap.forEach(function (v, k) {
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
 // Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes, ph]
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes,
+  adjSelectiveIndexes, ph, pseudonym]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)
