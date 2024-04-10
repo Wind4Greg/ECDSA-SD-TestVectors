@@ -131,11 +131,11 @@ writeFile(baseDir + 'addHashData.json', JSON.stringify(hashDataOutput, null, 2))
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
-// const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
-// const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 
-// const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
-const signerBlind = 0n
+// Read signer blind info from a file
+const signerBlindInfo = JSON.parse(
+  await readFile(new URL(inputDir + 'signerBlind.json', import.meta.url)))
+const signerBlind = BigInt('0x' + signerBlindInfo.signerBlindHex)
 const bbsSignature = await BlindSign(privateKey, publicKey, commitmentWithProof,
   bbsHeader, bbsMessages, signerBlind, API_ID_PSEUDONYM_BBS_SHA)
 console.log(`Blind BBS signature: ${bytesToHex(bbsSignature)}`)
@@ -151,7 +151,9 @@ writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignat
 // bbsSignature, bbsHeader, publicKey, hmacKey, and mandatoryPointers
 
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x02])
-const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers]
+const pid = new Uint8Array() // empty since holder generates its own
+const components = [bbsSignature, bbsHeader, publicKey, hmacKey,
+  mandatoryPointers, pid, signerBlind]
 const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)

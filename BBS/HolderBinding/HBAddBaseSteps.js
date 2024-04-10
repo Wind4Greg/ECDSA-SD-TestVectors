@@ -132,7 +132,7 @@ const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // mus
 // const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 // const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 
-// Read input document from a file
+// Read signer blind info from a file
 const signerBlindInfo = JSON.parse(
   await readFile(new URL(inputDir + 'signerBlind.json', import.meta.url)))
 const signerBlind = BigInt('0x' + signerBlindInfo.signerBlindHex)

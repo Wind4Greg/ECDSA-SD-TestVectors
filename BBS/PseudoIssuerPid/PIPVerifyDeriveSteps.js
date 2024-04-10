@@ -23,7 +23,7 @@ await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
-// Get verifier identifier and generate pseudonym here
+// Get verifier identifier
 const verifierInfo = JSON.parse(
   await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
 const te = new TextEncoder()

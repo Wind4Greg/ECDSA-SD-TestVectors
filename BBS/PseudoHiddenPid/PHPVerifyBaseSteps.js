@@ -54,10 +54,11 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers,
+  pidPlaceholder, signerBlind] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
@@ -98,10 +99,6 @@ if (bytesToHex(bbsHeader) !== bytesToHex(bbsHeaderBase)) {
 }
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-// const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
-// const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
-// const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
-const signerBlind = 0n
 const verified = await BlindVerify(pbk, bbsSignature, bbsHeader, bbsMessages, [pidMaterial],
   secretProverBlind, signerBlind, API_ID_PSEUDONYM_BBS_SHA)
 

@@ -93,10 +93,11 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers,
+  pidPlaceHolder, signerBlind] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   hmacKey: bytesToHex(hmacKey),
@@ -206,7 +207,6 @@ const ph = presentationHeader
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
 const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_PSEUDONYM_BBS_SHA)
-const signerBlind = 0n
 
 // const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
 //   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
@@ -214,7 +214,7 @@ const signerBlind = 0n
 const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await HiddenPidProofGen(publicKey, bbsSignature,
   pseudonym, verifierId, pidMaterial, bbsHeader, ph, bbsMessages, adjSelectiveIndexes, secretProverBlind,
   signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
-// 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph
+// 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph, pseudonym
 
 const disclosureData = {
   bbsProof: bytesToHex(bbsProof),
@@ -238,7 +238,7 @@ verifierLabelMap.forEach(function (v, k) {
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
 // Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, blindAdjDisclosedIdxs, ph]
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, blindAdjDisclosedIdxs, ph, pseudonym]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)
