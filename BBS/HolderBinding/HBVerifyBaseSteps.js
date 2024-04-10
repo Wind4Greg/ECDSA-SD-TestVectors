@@ -17,6 +17,7 @@ import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 import { API_ID_BLIND_BBS_SHA } from '../lib/BBS.js'
 import { BlindVerify } from '../lib/BlindBBS.js'
+import { bytesToNumberBE } from '@noble/curves/abstract/utils'
 
 // Create output directory for the test vectors
 const baseDir = '../output/bbs/HolderBinding/'
@@ -54,10 +55,10 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers, pid, signerBlindBytes] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
@@ -101,7 +102,7 @@ const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) /
 // const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 // const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 // const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
-const signerBlind = 0n
+const signerBlind = bytesToNumberBE(signerBlindBytes)
 const verified = await BlindVerify(pbk, bbsSignature, bbsHeader, bbsMessages, [pidMaterial],
   secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA)
 

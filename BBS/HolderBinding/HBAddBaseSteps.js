@@ -10,7 +10,7 @@ import jsonld from 'jsonld'
 import { localLoader } from '../../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
-import { API_ID_BLIND_BBS_SHA, prepareGenerators } from '../lib/BBS.js'
+import { API_ID_BLIND_BBS_SHA, numberToBytesBE, prepareGenerators } from '../lib/BBS.js'
 import { BlindSign, deserialize_and_validate_commit } from '../lib/BlindBBS.js'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
@@ -132,8 +132,10 @@ const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // mus
 // const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
 // const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 
-// const bbsSignature = await sign(privateKey, publicKey, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
-const signerBlind = 0n
+// Read input document from a file
+const signerBlindInfo = JSON.parse(
+  await readFile(new URL(inputDir + 'signerBlind.json', import.meta.url)))
+const signerBlind = BigInt('0x' + signerBlindInfo.signerBlindHex)
 const bbsSignature = await BlindSign(privateKey, publicKey, commitmentWithProof,
   bbsHeader, bbsMessages, signerBlind, API_ID_BLIND_BBS_SHA)
 console.log(`Blind BBS signature: ${bytesToHex(bbsSignature)}`)
@@ -146,10 +148,13 @@ const rawBaseSignatureInfo = {
 writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))
 
 // CBOR-encode components and append it to proofValue.
-// bbsSignature, bbsHeader, publicKey, hmacKey, and mandatoryPointers
+// bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers, pid, and signerBlind
+const pid = new Uint8Array() // empty array since pid is not used
+const signerBlindBytes = numberToBytesBE(signerBlind, 32)
 
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x02])
-const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers]
+const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers,
+  pid, signerBlindBytes]
 const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)

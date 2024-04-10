@@ -21,6 +21,7 @@ import {
   seeded_random_scalars as seededRandScalars
 } from '../lib/BBS.js'
 import { BlindProofGen } from '../lib/BlindBBS.js'
+import { bytesToNumberBE } from '@noble/curves/abstract/utils'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -83,10 +84,10 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers, pid, signerBlindBytes] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   hmacKey: bytesToHex(hmacKey),
@@ -199,7 +200,7 @@ const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
 const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BLIND_BBS_SHA)
 // const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
 //   adjSelectiveIndexes, gens, API_ID_BBS_SHA, randScalarFunc)
-const signerBlind = 0n
+const signerBlind = bytesToNumberBE(signerBlindBytes)
 const committedMessages = [pidMaterial] // the pid is the only committed msg
 const disclosedCommitmentIndexes = [] // we never disclose the pid
 const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
