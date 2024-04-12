@@ -150,10 +150,10 @@ writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignat
 // CBOR-encode components and append it to proofValue.
 // bbsSignature, bbsHeader, publicKey, hmacKey, and mandatoryPointers
 
-let proofValue = new Uint8Array([0xd9, 0x5d, 0x02])
-const pid = new Uint8Array() // empty since holder generates its own
+// Pseudonym with Hidden Pid header bytes:
+let proofValue = new Uint8Array([0xd9, 0x5d, 0x08])
 const components = [bbsSignature, bbsHeader, publicKey, hmacKey,
-  mandatoryPointers, pid, signerBlind]
+  mandatoryPointers, signerBlind]
 const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)

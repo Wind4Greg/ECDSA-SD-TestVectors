@@ -56,8 +56,8 @@ if (!proofValue.startsWith('u')) {
   throw new Error('proofValue not a valid multibase-64-url encoding')
 }
 const decodedProofValue = base64url.decode(proofValue)
-// check header bytes
-if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedProofValue[2] !== 0x03) {
+// check Pseudonym with Hidden Pid header bytes
+if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedProofValue[2] !== 0x09) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(decodedProofValue.slice(3))

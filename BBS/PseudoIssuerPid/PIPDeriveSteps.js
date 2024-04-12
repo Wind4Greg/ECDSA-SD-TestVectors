@@ -70,16 +70,16 @@ const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
 // check header bytes are: 0xd9, 0x5d, and 0x00
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x02) {
+if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x06) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 7) {
+if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers,
-  pidMaterial, signerBlind] = decodeThing
+  pidMaterial] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   hmacKey: bytesToHex(hmacKey),
@@ -219,7 +219,8 @@ verifierLabelMap.forEach(function (v, k) {
   compressLabelMap.set(key, value)
 })
 
-let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
+// Pseudonym with issuer pid header bytes:
+let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x07])
 // Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes,
   adjSelectiveIndexes, ph, pseudonym]

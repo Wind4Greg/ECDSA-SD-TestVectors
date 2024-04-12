@@ -17,7 +17,6 @@
   },
   "expirationDate": "2028-11-15T12:00:00-06:00",
   "credentialSubject": {
-    "id": "did:example:12347abcd",
     "type": "LicensedDriver",
     "driversLicense": {
       "type": "Iso18013DriversLicense",

@@ -78,16 +78,16 @@ delete document.proof // IMPORTANT: all work uses document without proof
 const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x00
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x02) {
+// check header bytes are: 0xd9, 0x5d, and 0x04
+if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x04) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 7) {
+if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers, pid, signerBlindBytes] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers, signerBlindBytes] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   hmacKey: bytesToHex(hmacKey),
@@ -228,7 +228,7 @@ verifierLabelMap.forEach(function (v, k) {
   compressLabelMap.set(key, value)
 })
 
-let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x03])
+let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x05])
 // Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, blindAdjDisclosedIdxs, ph]
 const cborThing = encodeCbor(components)

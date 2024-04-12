@@ -40,16 +40,16 @@ delete document.proof // IMPORTANT: all work uses document without proof
 const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x02
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x02) {
+// Pseudonym issuer known pid header bytes are: 0xd9, 0x5d, and 0x06
+if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x06) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
-if (decodeThing.length !== 7) {
+if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers,
-  pidMaterial, signerBlind] = decodeThing
+  pidMaterial] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
