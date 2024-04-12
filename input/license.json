@@ -21,7 +21,6 @@
     "image": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUg...kSuQmCC",
     "description": "A license granting driving privileges in Utopia.",
     "credentialSubject": {
-        "id": "did:example:12347abcd",
         "type": "LicensedDriver",
         "driversLicense": {
             "type": "Iso18013DriversLicense",
