@@ -90,8 +90,12 @@ if (decodeThing.length !== 6) {
 const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers, signerBlindBytes] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
+  bbsHeader: bytesToHex(bbsHeaderBase),
+  publicKey: bytesToHex(publicKey),
   hmacKey: bytesToHex(hmacKey),
-  mandatoryPointers
+  mandatoryPointers,
+  signerBlind: bytesToHex(signerBlindBytes),
+  featureOption: 'anonymous_holder_binding'
 }
 await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))
 // Combine pointers
@@ -214,7 +218,8 @@ const disclosureData = {
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
   blindAdjDisclosedIdxs,
-  presentationHeader: ph
+  presentationHeader: ph,
+  featureOption: 'anonymous_holder_binding'
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 

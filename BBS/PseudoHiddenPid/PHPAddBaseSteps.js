@@ -142,7 +142,12 @@ console.log(`Blind BBS signature: ${bytesToHex(bbsSignature)}`)
 
 const rawBaseSignatureInfo = {
   bbsSignature: bytesToHex(bbsSignature),
-  mandatoryPointers
+  bbsHeader: bytesToHex(bbsHeader),
+  publicKey: bytesToHex(publicKey),
+  hmacKey: bytesToHex(hmacKey),
+  mandatoryPointers,
+  signerBlind: signerBlindInfo.signerBlindHex,
+  featureOption: 'pseudonym_hidden_pid'
 }
 // console.log(rawBaseSignatureInfo);
 writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))

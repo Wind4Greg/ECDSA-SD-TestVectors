@@ -139,17 +139,22 @@ const signerBlind = BigInt('0x' + signerBlindInfo.signerBlindHex)
 const bbsSignature = await BlindSign(privateKey, publicKey, commitmentWithProof,
   bbsHeader, bbsMessages, signerBlind, API_ID_BLIND_BBS_SHA)
 console.log(`Blind BBS signature: ${bytesToHex(bbsSignature)}`)
+const signerBlindBytes = numberToBytesBE(signerBlind, 32)
 
 const rawBaseSignatureInfo = {
   bbsSignature: bytesToHex(bbsSignature),
-  mandatoryPointers
+  bbsHeader: bytesToHex(bbsHeader),
+  publicKey: bytesToHex(publicKey),
+  hmacKey: bytesToHex(hmacKey),
+  mandatoryPointers,
+  signerBlind: bytesToHex(signerBlindBytes),
+  featureOption: 'anonymous_holder_binding'
 }
 // console.log(rawBaseSignatureInfo);
 writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))
 
 // CBOR-encode components and append it to proofValue.
 // bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers, and signerBlind
-const signerBlindBytes = numberToBytesBE(signerBlind, 32)
 
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x04])
 const components = [bbsSignature, bbsHeader, publicKey, hmacKey, mandatoryPointers,

@@ -82,8 +82,12 @@ const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers,
   pidMaterial] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
+  bbsHeader: bytesToHex(bbsHeaderBase),
+  publicKey: bytesToHex(publicKey),
   hmacKey: bytesToHex(hmacKey),
-  mandatoryPointers
+  mandatoryPointers,
+  pidHex: bytesToHex(pidMaterial),
+  featureOption: 'pseudonym_issuer_pid'
 }
 await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))
 // Combine pointers
@@ -205,7 +209,8 @@ const disclosureData = {
   labelMap: verifierLabelMap,
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
-  presentationHeader: ph
+  presentationHeader: ph,
+  pseudonym: bytesToHex(pseudonym)
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 

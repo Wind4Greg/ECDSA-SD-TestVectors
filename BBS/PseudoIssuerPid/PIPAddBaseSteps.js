@@ -129,7 +129,12 @@ console.log(`Pseudonym BBS signature: ${bytesToHex(bbsSignature)}`)
 
 const rawBaseSignatureInfo = {
   bbsSignature: bytesToHex(bbsSignature),
-  mandatoryPointers
+  bbsHeader: bytesToHex(bbsHeader),
+  publicKey: bytesToHex(publicKey),
+  hmacKey: bytesToHex(hmacKey),
+  mandatoryPointers,
+  pidHex: bytesToHex(pidMaterial),
+  featureOption: 'pseudonym_issuer_pid'
 }
 // console.log(rawBaseSignatureInfo);
 writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))
