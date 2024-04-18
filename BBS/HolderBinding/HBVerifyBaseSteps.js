@@ -29,8 +29,8 @@ jsonld.documentLoader = localLoader // Local loader for JSON-LD
 // Get holder secret information
 const holderSecret = JSON.parse(
   await readFile(new URL(inputDir + 'holderSecret.json', import.meta.url)))
-console.log(holderSecret.pidHex)
-const pidMaterial = hexToBytes(holderSecret.pidHex)
+console.log(holderSecret.holderSecretHex)
+const holderSecretMaterial = hexToBytes(holderSecret.holderSecretHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
@@ -103,7 +103,7 @@ const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) /
 // const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
 // const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
 const signerBlind = bytesToNumberBE(signerBlindBytes)
-const verified = await BlindVerify(pbk, bbsSignature, bbsHeader, bbsMessages, [pidMaterial],
+const verified = await BlindVerify(pbk, bbsSignature, bbsHeader, bbsMessages, [holderSecretMaterial],
   secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA)
 
 console.log(`Base proof verified: ${verified}`)

@@ -11,10 +11,10 @@ import {commit} from '../lib/BlindBBS.js'
 // Create output directory for the test vectors
 const baseDir = '../output/bbs/PseudoHiddenPid/'
 await mkdir(baseDir, { recursive: true })
-const holderSecret = JSON.parse(
-  await readFile(new URL('../../input/holderSecret.json', import.meta.url)))
-console.log(holderSecret.pidHex)
-const pidMaterial = hexToBytes(holderSecret.pidHex)
+const hiddenPidInfo = JSON.parse(
+  await readFile(new URL('../../input/hiddenPid.json', import.meta.url)))
+console.log(hiddenPidInfo.pidHex)
+const pidMaterial = hexToBytes(hiddenPidInfo.pidHex)
 const [commitWithProofOcts, secretProverBlind] = await commit([pidMaterial], API_ID_PSEUDONYM_BBS_SHA);
 const commitInfo = {
   secretProverBlind: numberToHex(secretProverBlind, 32),

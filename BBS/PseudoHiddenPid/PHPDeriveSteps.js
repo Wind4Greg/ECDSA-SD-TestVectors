@@ -18,7 +18,7 @@ import { decode as decodeCbor, encode as encodeCbor } from 'cbor2'
 import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
 import {
-  API_ID_PSEUDONYM_BBS_SHA, seeded_random_scalars as seededRandScalars
+  API_ID_PSEUDONYM_BBS_SHA, numberToBytesBE, seeded_random_scalars as seededRandScalars
 } from '../lib/BBS.js'
 import { CalculatePseudonym, HiddenPidProofGen } from '../lib/PseudonymBBS.js'
 // For serialization of JavaScript Map via JSON
@@ -44,10 +44,10 @@ const deriveOptions = JSON.parse(
 const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
 
 // Get holder secret information
-const holderSecret = JSON.parse(
-  await readFile(new URL(inputDir + 'holderSecret.json', import.meta.url)))
-console.log(holderSecret.pidHex)
-const pidMaterial = hexToBytes(holderSecret.pidHex)
+const hiddenPidInfo = JSON.parse(
+  await readFile(new URL(inputDir + 'hiddenPid.json', import.meta.url)))
+console.log(hiddenPidInfo.pidHex)
+const pidMaterial = hexToBytes(hiddenPidInfo.pidHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
@@ -98,13 +98,14 @@ if (decodeThing.length !== 6) {
 }
 const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers,
   signerBlind] = decodeThing
+console.log(signerBlind)
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   bbsHeader: bytesToHex(bbsHeaderBase),
   publicKey: bytesToHex(publicKey),
   hmacKey: bytesToHex(hmacKey),
   mandatoryPointers,
-  signerBlind: bytesToHex(signerBlind),
+  signerBlind: bytesToHex(numberToBytesBE(signerBlind, 32)),
   featureOption: 'pseudonym_hidden_pid'
 }
 await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))

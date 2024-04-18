@@ -47,8 +47,8 @@ const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
 // Get holder secret information
 const holderSecret = JSON.parse(
   await readFile(new URL(inputDir + 'holderSecret.json', import.meta.url)))
-console.log(holderSecret.pidHex)
-const pidMaterial = hexToBytes(holderSecret.pidHex)
+console.log(holderSecret.holderSecretHex)
+const holderSecretMaterial = hexToBytes(holderSecret.holderSecretHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
@@ -205,7 +205,7 @@ const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BLIND_BBS_SHA)
 // const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
 //   adjSelectiveIndexes, gens, API_ID_BBS_SHA, randScalarFunc)
 const signerBlind = bytesToNumberBE(signerBlindBytes)
-const committedMessages = [pidMaterial] // the pid is the only committed msg
+const committedMessages = [holderSecretMaterial] // the pid is the only committed msg
 const disclosedCommitmentIndexes = [] // we never disclose the pid
 const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,

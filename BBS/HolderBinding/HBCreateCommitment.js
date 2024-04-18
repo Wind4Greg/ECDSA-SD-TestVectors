@@ -13,7 +13,7 @@ await mkdir(baseDir, { recursive: true })
 const holderSecret = JSON.parse(
   await readFile(new URL('../../input/holderSecret.json', import.meta.url)))
 console.log(holderSecret.pidHex)
-const pidMaterial = hexToBytes(holderSecret.pidHex)
+const pidMaterial = hexToBytes(holderSecret.holderSecretHex)
 const [commitWithProofOcts, secretProverBlind] = await commit([pidMaterial], API_ID_BLIND_BBS_SHA);
 const commitInfo = {
   secretProverBlind: numberToHex(secretProverBlind, 32),
