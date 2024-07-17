@@ -17,8 +17,7 @@ import { decode as decodeCbor, encode as encodeCbor } from 'cbor2'
 import { sha256 } from '@noble/hashes/sha256'
 import { base64url } from 'multiformats/bases/base64'
 import {
-  API_ID_BLIND_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators,
-  seeded_random_scalars as seededRandScalars
+  API_ID_BLIND_BBS_SHA, seeded_random_scalars as seededRandScalars
 } from '../lib/BBS.js'
 import { BlindProofGen } from '../lib/BlindBBS.js'
 import { bytesToNumberBE } from '@noble/curves/abstract/utils'
@@ -207,19 +206,21 @@ const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BLIND_BBS_SHA)
 const signerBlind = bytesToNumberBE(signerBlindBytes)
 const committedMessages = [holderSecretMaterial] // the pid is the only committed msg
 const disclosedCommitmentIndexes = [] // we never disclose the pid
-const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
+// BlindProofGen(PK, signature, header, ph, messages,committed_messages, disclosed_indexes, disclosed_commitment_indexes,
+// secret_prover_blind, signer_blind, api_id, rand_scalars = calculate_random_scalars)
+const bbsProof = await BlindProofGen(publicKey, bbsSignature,
   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
   secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA, randScalarFunc)
-// 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph
+// 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph, lengthBBSMessages
 
 const disclosureData = {
   bbsProof: bytesToHex(bbsProof),
   labelMap: verifierLabelMap,
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
-  blindAdjDisclosedIdxs,
   presentationHeader: ph,
-  featureOption: 'anonymous_holder_binding'
+  featureOption: 'anonymous_holder_binding',
+  lengthBBSMessages: bbsMessages.length
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 
@@ -235,7 +236,8 @@ verifierLabelMap.forEach(function (v, k) {
 
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x05])
 // Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, blindAdjDisclosedIdxs, ph]
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes,
+  adjSelectiveIndexes, ph, bbsMessages.length]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

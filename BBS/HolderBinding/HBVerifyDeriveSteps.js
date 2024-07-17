@@ -18,6 +18,7 @@ import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 import { API_ID_BLIND_BBS_SHA, messages_to_scalars as msgsToScalars,
   prepareGenerators, numUndisclosed, proofVerify } from '../lib/BBS.js'
+import { BlindProofVerify } from '../lib/BlindBBS.js'
 
 // Create output directory for the results
 const baseDir = '../output/bbs/HolderBinding/'
@@ -47,7 +48,7 @@ const proofCanon = await jsonld.canonize(proofConfig)
 const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
 // console.log(`proofHash: ${bytesToHex(proofHash)}`);
-// **Parse Derived Proof Value BBS** [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
+// **Parse Derived Proof Value BBS** [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes, lengthBBSMessages]
 if (!proofValue.startsWith('u')) {
   throw new Error('proofValue not a valid multibase-64-url encoding')
 }
@@ -57,10 +58,11 @@ if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedPro
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(decodedProofValue.slice(3))
-if (decodeThing.length !== 5) {
+if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes, presentationHeader] = decodeThing
+const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes,
+  presentationHeader, lengthBBSMessages] = decodeThing
 // console.log(baseSignature, typeof baseSignature);
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')
@@ -137,6 +139,11 @@ const msgScalars = await msgsToScalars(bbsMessages, API_ID_BLIND_BBS_SHA)
 const L = numUndisclosed(bbsProof) + msgScalars.length
 const gens = await prepareGenerators(L + 1, API_ID_BLIND_BBS_SHA) // Generate enough for all messages
 const ph = presentationHeader
-const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
-  adjSelectedIndexes, gens, API_ID_BLIND_BBS_SHA)
+// BlindProofVerify(PK, proof, header, ph, L,
+// disclosed_messages, disclosed_committed_messages, disclosed_indexes,
+// disclosed_committed_indexes, api_id)
+// const verified = await proofVerify(pbk, bbsProof, bbsHeader, ph, msgScalars,
+//   adjSelectedIndexes, gens, API_ID_BLIND_BBS_SHA)
+const verified = await BlindProofVerify(pbk, bbsProof, bbsHeader, ph, lengthBBSMessages,
+  bbsMessages, [], adjSelectedIndexes, [], API_ID_BLIND_BBS_SHA)
 console.log(`Derived proof verified: ${verified}`)
