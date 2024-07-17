@@ -1,38 +1,69 @@
 {
   "mandatoryPointers": [
     "/issuer",
-    "/expirationDate"
+    "/credentialSubject/sailNumber",
+    "/credentialSubject/sails/1",
+    "/credentialSubject/boards/0/year",
+    "/credentialSubject/sails/2"
   ],
   "mandatory": {
     "dataType": "Map",
     "value": [
       [
+        0,
+        "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+      ],
+      [
+        1,
+        "_:b0 <https://www.w3.org/2018/credentials#credentialSubject> _:b3 .\n"
+      ],
+      [
         2,
-        "<did:key:z6MkjxvA4FNrQUhr8f7xhdQuP1VPzErkcnfxsRaU5oFgy2E5> <https://schema.org/image> <https://dmv.utopia.example/logo.png> .\n"
+        "_:b0 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
       ],
       [
-        3,
-        "<did:key:z6MkjxvA4FNrQUhr8f7xhdQuP1VPzErkcnfxsRaU5oFgy2E5> <https://schema.org/name> \"Utopia Department of Motor Vehicles\" .\n"
+        8,
+        "_:b2 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ],
       [
-        4,
-        "<did:key:z6MkjxvA4FNrQUhr8f7xhdQuP1VPzErkcnfxsRaU5oFgy2E5> <https://schema.org/url> <https://dmv.utopia.example/> .\n"
+        9,
+        "_:b3 <https://windsurf.grotto-networking.com/selective#boards> _:b2 .\n"
       ],
       [
-        21,
-        "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/vdl#Iso18013DriversLicenseCredential> .\n"
+        11,
+        "_:b3 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n"
+      ],
+      [
+        14,
+        "_:b3 <https://windsurf.grotto-networking.com/selective#sails> _:b6 .\n"
+      ],
+      [
+        15,
+        "_:b3 <https://windsurf.grotto-networking.com/selective#sails> _:b7 .\n"
       ],
       [
         22,
-        "_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n"
+        "_:b6 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"
+      ],
+      [
+        23,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
+      ],
+      [
+        24,
+        "_:b6 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
+      ],
+      [
+        25,
+        "_:b7 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"
+      ],
+      [
+        26,
+        "_:b7 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ],
       [
         27,
-        "_:b1 <https://www.w3.org/2018/credentials#expirationDate> \"2028-11-15T12:00:00-06:00\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n"
-      ],
-      [
-        29,
-        "_:b1 <https://www.w3.org/2018/credentials#issuer> <did:key:z6MkjxvA4FNrQUhr8f7xhdQuP1VPzErkcnfxsRaU5oFgy2E5> .\n"
+        "_:b7 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ]
     ]
   },
@@ -40,96 +71,60 @@
     "dataType": "Map",
     "value": [
       [
-        0,
-        "<did:example:12347abcd> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/vdl#LicensedDriver> .\n"
+        3,
+        "_:b1 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n"
       ],
       [
-        1,
-        "<did:example:12347abcd> <https://w3id.org/vdl#license> _:b0 .\n"
+        4,
+        "_:b1 <https://windsurf.grotto-networking.com/selective#size> \"7.8E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
       ],
       [
         5,
-        "_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/vdl#Iso18013DriversLicense> .\n"
+        "_:b1 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ],
       [
         6,
-        "_:b0 <https://w3id.org/vdl#birthDate> \"1998-08-28\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n"
+        "_:b2 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n"
       ],
       [
         7,
-        "_:b0 <https://w3id.org/vdl#documentNumber> \"542426814\" .\n"
-      ],
-      [
-        8,
-        "_:b0 <https://w3id.org/vdl#drivingPrivileges> \"[{\\\"codes\\\":[{\\\"code\\\":\\\"D\\\"}],\\\"expiry_date\\\":\\\"2027-01-01\\\",\\\"issue_date\\\":\\\"2019-01-01\\\",\\\"vehicle_category_code\\\":\\\"D\\\"},{\\\"codes\\\":[{\\\"code\\\":\\\"C\\\"}],\\\"expiry_date\\\":\\\"2017-01-01\\\",\\\"issue_date\\\":\\\"2019-01-01\\\",\\\"vehicle_category_code\\\":\\\"C\\\"}]\"^^<http://www.w3.org/1999/02/22-rdf-syntax-ns#JSON> .\n"
-      ],
-      [
-        9,
-        "_:b0 <https://w3id.org/vdl#expiryDate> \"2028-08-27T12:00:00-06:00\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n"
+        "_:b2 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n"
       ],
       [
         10,
-        "_:b0 <https://w3id.org/vdl#familyName> \"TURNER\" .\n"
-      ],
-      [
-        11,
-        "_:b0 <https://w3id.org/vdl#givenName> \"SUSAN\" .\n"
+        "_:b3 <https://windsurf.grotto-networking.com/selective#boards> _:b4 .\n"
       ],
       [
         12,
-        "_:b0 <https://w3id.org/vdl#issueDate> \"2023-01-15T10:00:00-07:00\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n"
+        "_:b3 <https://windsurf.grotto-networking.com/selective#sails> _:b1 .\n"
       ],
       [
         13,
-        "_:b0 <https://w3id.org/vdl#issuingAuthority> \"UADMV\" .\n"
-      ],
-      [
-        14,
-        "_:b0 <https://w3id.org/vdl#issuingCountry> \"UA\" .\n"
-      ],
-      [
-        15,
-        "_:b0 <https://w3id.org/vdl#portrait> <data:image/jpeg;base64,/9j/4AAQSkZJR...RSClooooP/2Q==> .\n"
+        "_:b3 <https://windsurf.grotto-networking.com/selective#sails> _:b5 .\n"
       ],
       [
         16,
-        "_:b0 <https://w3id.org/vdl#sex> \"2\"^^<http://www.w3.org/2001/XMLSchema#unsignedInt> .\n"
+        "_:b4 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n"
       ],
       [
         17,
-        "_:b0 <https://w3id.org/vdl#unDistinguishingSign> \"UTA\" .\n"
+        "_:b4 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n"
       ],
       [
         18,
-        "_:b0 <https://w3id.org/vdl/aamva#akaSuffix> \"1ST\" .\n"
+        "_:b4 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ],
       [
         19,
-        "_:b0 <https://w3id.org/vdl/aamva#familyNameTruncation> \"N\" .\n"
+        "_:b5 <https://windsurf.grotto-networking.com/selective#sailName> \"Kihei\" .\n"
       ],
       [
         20,
-        "_:b0 <https://w3id.org/vdl/aamva#givenNameTruncation> \"N\" .\n"
+        "_:b5 <https://windsurf.grotto-networking.com/selective#size> \"5.5E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n"
       ],
       [
-        23,
-        "_:b1 <https://schema.org/description> \"A license granting driving privileges in Utopia.\" .\n"
-      ],
-      [
-        24,
-        "_:b1 <https://schema.org/image> <data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUg...kSuQmCC> .\n"
-      ],
-      [
-        25,
-        "_:b1 <https://schema.org/name> \"Utopia Driver's License\" .\n"
-      ],
-      [
-        26,
-        "_:b1 <https://www.w3.org/2018/credentials#credentialSubject> <did:example:12347abcd> .\n"
-      ],
-      [
-        28,
-        "_:b1 <https://www.w3.org/2018/credentials#issuanceDate> \"2023-11-15T10:00:00-07:00\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .\n"
+        21,
+        "_:b5 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n"
       ]
     ]
   },

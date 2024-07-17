@@ -55,7 +55,7 @@ await mkdir(baseDir, { recursive: true })
 // Get the selective disclosure pointers, either windSelective.json or treeSelective.json
 const selectivePointers = JSON.parse(
   await readFile(
-    new URL('../input/' + 'licenseSelective.json', import.meta.url)
+    new URL('../input/' + 'windSelective.json', import.meta.url)
   )
 )
 jsonld.documentLoader = localLoader // Local loader for JSON-LD

@@ -28,7 +28,7 @@ const EXPAND_LEN = 48;
 const POINT_LENGTH = 48;
 const rPrimeOrder = bls.fields.Fr.ORDER; // prime order of the subgroups G1, G2
 
-const GEN_TRACE_INFO = false;
+const GEN_TRACE_INFO = false; // Set to true to send trace info to console
 
 /**
  * Produces an appropriate secret key starting from initial key material. This
@@ -95,14 +95,15 @@ export async function sign(SK, PK, header, messages, gen, api_id) {
   const dst = new TextEncoder().encode(api_id + 'H2S_');
   const [Q1, ...H] = gen.generators;
   const domain = await calculate_domain(PK, L, Q1, H, header, api_id);
-  // e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
+  // e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L))) VERSION-FIVE
+  // e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)), VERSION-SIX
   const valArray = [
-    {type: 'Scalar', value: SK},
-    {type: 'Scalar', value: domain},
+    {type: 'Scalar', value: SK}
   ];
   for(let i = 0; i < L; i++) {
     valArray.push({type: 'Scalar', value: messages[i]});
   }
+  valArray.push({type: 'Scalar', value: domain});
   const e_serial_octs = serialize(valArray);
   const e = await hash_to_scalar(e_serial_octs, dst, api_id);
   // B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
@@ -171,6 +172,20 @@ export async function verify(PK, signature, header, messages, gens,
   const ptGT2 = bls.pairing(B, temp2G2);
   let result = bls.fields.Fp12.mul(ptGT1, ptGT2);
   result = bls.fields.Fp12.finalExponentiate(result); // See noble BLS12-381
+  if(GEN_TRACE_INFO) {
+    const info = {
+      info: 'from BBS verify',
+      domain: numberToHex(domain, SCALAR_LENGTH),
+      L,
+      B: bytesToHex(B.toRawBytes(true)),
+      A: bytesToHex(A.toRawBytes(true)),
+      e: numberToHex(e, SCALAR_LENGTH),
+      msg_scalars: messages.map(m => numberToHex(m, SCALAR_LENGTH)),
+      H: H.map(Hi => bytesToHex(Hi.toRawBytes(true))),
+      Q1: bytesToHex(Q1.toRawBytes(true))
+    };
+    console.log(JSON.stringify(info, null, 2));
+  }
   return bls.fields.Fp12.eql(result, bls.fields.Fp12.ONE);
 }
 
@@ -568,32 +583,47 @@ async function calculate_domain(PK, L, Q_1, H_Points, header, api_id) {
   const dom_for_hash = serialize(dom_array);
   const dst = new TextEncoder().encode(api_id + 'H2S_');
   const domain = await hash_to_scalar(dom_for_hash, dst, api_id);
+  if(GEN_TRACE_INFO) { //PK, L, Q_1, H_Points, header, api_id
+    const info = {
+      info: 'from BBS calculate domain',
+      domain: numberToHex(domain, SCALAR_LENGTH),
+      PK: bytesToHex(PK),
+      L,
+      Q_1: bytesToHex(Q_1.toRawBytes(true)),
+      H: H_Points.map(Hi => bytesToHex(Hi.toRawBytes(true))),
+      header: bytesToHex(header),
+      api_id
+    };
+    console.log(JSON.stringify(info, null, 2));
+  }
   return domain;
 }
 
-// (Abar, Bbar, D, T1, T2, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
+// (Abar, Bbar, D, T1, T2, R, i1, ..., iR, msg_i1, ..., msg_iR, domain) Ver-5
+// (R, i1, msg_i1, ..., iR, msg_iR, Abar, Bbar, D, T1, T2, domain) Version-6
+
 async function calculate_challenge(Abar, Bbar, D, T1, T2, i_array, msg_array,
   domain, ph, api_id
 ) {
   const dst = new TextEncoder().encode(api_id + 'H2S_');
   const c_array = [
-    {type: 'GPoint', value: Abar},
-    {type: 'GPoint', value: Bbar},
-    {type: 'GPoint', value: D},
-    {type: 'GPoint', value: T1},
-    {type: 'GPoint', value: T2},
-    {type: 'NonNegInt', value: i_array.length},
+    {type: 'NonNegInt', value: i_array.length}, // R
   ];
-  for(const iR of i_array) {
-    c_array.push({type: 'NonNegInt', value: iR});
+  for(let i = 0; i < i_array.length; i++) { // i_j, msg_j
+    c_array.push({type: 'NonNegInt', value: i_array[i]});
+    c_array.push({type: 'Scalar', value: msg_array[i]});
   }
-  for(const msg of msg_array) {
-    c_array.push({type: 'Scalar', value: msg});
-  }
+  c_array.push({type: 'GPoint', value: Abar});
+  c_array.push({type: 'GPoint', value: Bbar});
+  c_array.push({type: 'GPoint', value: D});
+  c_array.push({type: 'GPoint', value: T1});
+  c_array.push({type: 'GPoint', value: T2});
   c_array.push({type: 'Scalar', value: domain});
   c_array.push({type: 'PlainOctets', value: ph});
   // c_for_hash = encode_for_hash(c_array)
   // if c_for_hash is INVALID, return INVALID
+  // console.log('c_array from calc challenge:');
+  // console.log(c_array);
   const c_for_hash = serialize(c_array);
   const c = await hash_to_scalar(c_for_hash, dst, api_id);
   return c;

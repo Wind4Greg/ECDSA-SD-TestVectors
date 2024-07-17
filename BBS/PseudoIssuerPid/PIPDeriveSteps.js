@@ -210,7 +210,8 @@ const disclosureData = {
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
   presentationHeader: ph,
-  pseudonym: bytesToHex(pseudonym)
+  pseudonym: bytesToHex(pseudonym),
+  featureOption: 'pseudonym_issuer_pid'
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 

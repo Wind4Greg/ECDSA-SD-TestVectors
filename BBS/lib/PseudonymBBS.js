@@ -1,18 +1,17 @@
-/* Functions used in Blind BBS signature operations */
+/* Functions used in BBS Per Verifier Id (pseudonym) operations
+   API subject to change!
+*/
 /*global TextEncoder, console*/
 /* eslint-disable max-len */
+import {BlindSign, BlindVerify} from './BlindBBS.js';
 import {bytesToHex, calculate_random_scalars, concat, hash_to_scalar, messages_to_scalars,
   octets_to_sig, octets_to_proof, os2ip, prepareGenerators, ProofInit, ProofFinalize,
-  ProofVerifyInit, serialize, sign, verify, numberToHex}
+  ProofVerifyInit, serialize, numberToHex}
   from './BBS.js';
-import {get_disclosed_data} from './BlindBBS.js';
 import {bls12_381 as bls} from '@noble/curves/bls12-381';
-// import {expand_message_xmd} from '@noble/curves/abstract/hash-to-curve';
-// import {randomBytes} from './randomBytes.js';
-// import {sha256} from '@noble/hashes/sha256';
 import {shake256} from '@noble/hashes/sha3';
 
-const GEN_TRACE_INFO = false;
+const GEN_TRACE_INFO = false; // set to true to send trace info to console.
 
 const SCALAR_LENGTH = 32;
 // const EXPAND_LEN = 48;
@@ -34,11 +33,15 @@ const POINT_LENGTH = 48;
 export async function PseudonymSign(SK, PK, header, messages, pid, api_id) {
   const dup_messages = messages.slice(); // make a copy so not to mess with messages
   dup_messages.push(pid);
-  const gen = await prepareGenerators(dup_messages.length + 1, api_id);
+  // const gen = await prepareGenerators(dup_messages.length + 1, api_id);
   // console.log(dup_messages.map(m => bytesToHex(m)));
   // console.log(`Generators length: ${gen.generators.length}`);
-  const msg_scalars = await messages_to_scalars(dup_messages, api_id);
-  const signature = await sign(SK, PK, header, msg_scalars, gen, api_id);
+  // const msg_scalars = await messages_to_scalars(dup_messages, api_id);
+  const commitment_with_proof = null;
+  const signer_blind = 0n;
+  const signature = await BlindSign(SK, PK, commitment_with_proof, header, dup_messages,
+    signer_blind, api_id);
+  // const signature = await sign(SK, PK, header, msg_scalars, gen, api_id);
   return signature;
 }
 
@@ -59,7 +62,12 @@ export async function PseudonymVerify(PK, signature, header, messages, pid, api_
   dup_messages.push(pid);
   const gens = await prepareGenerators(dup_messages.length + 1, api_id);
   const msg_scalars = await messages_to_scalars(dup_messages, api_id);
-  const result = await verify(PK, signature, header, msg_scalars, gens, api_id);
+  // const result = await verify(PK, signature, header, msg_scalars, gens, api_id);
+  const committed_messages = [];
+  const secret_prover_blind = 0n;
+  const signer_blind = 0n;
+  const result = await BlindVerify(PK, signature, header, dup_messages, committed_messages,
+    secret_prover_blind, signer_blind, api_id);
   return result;
 }
 
@@ -125,23 +133,25 @@ export async function ProofGenWithPseudonym(PK, signature, pseudonym_bytes, veri
   //   generators, header, ph, message_scalars, disclosed_indexes, api_id, rand_scalars)
   // 5. if proof is INVALID, return INVALID
   // 6. return proof
+  msg_scalars.push(pid_scalar);
   const proof = await CoreProofGenWithPseudonym(PK, signature, pseudonym, verifier_id,
-    pid_scalar, gens, header, ph, msg_scalars, disclosed_indexes, api_id, rand_scalars);
+    gens, header, ph, msg_scalars, disclosed_indexes, api_id, rand_scalars);
   return proof;
 }
 
+// taking out pid_scalar as parameter and putting it as last msg_scalars
 async function CoreProofGenWithPseudonym(PK, signature, pseudonym, verifier_id,
-  pid_scalar, gens, header, ph, msg_scalars, disclosed_indexes, api_id, rand_scalars) {
+  gens, header, ph, msg_scalars, disclosed_indexes, api_id, rand_scalars) {
   // Deserialization:
   // 1.  signature_result = octets_to_signature(signature)
   // 2.  if signature_result is INVALID, return INVALID
   // 3.  (A, e) = signature_result
   const {A, e} = octets_to_sig(signature); // Get curve point and scalar
   // 4.  messages = messages.push(pid_scalar)
-  const dup_msg_scalars = msg_scalars.slice(); // Make copy
-  dup_msg_scalars.push(pid_scalar);
+  // const dup_msg_scalars = msg_scalars.slice(); // Make copy
+  // dup_msg_scalars.push(pid_scalar);
   // 5.  L = length(messages)
-  const L = dup_msg_scalars.length; // Includes pid_scalar
+  const L = msg_scalars.length; // Includes pid_scalar
   // 6.  R = length(disclosed_indexes)
   const R = disclosed_indexes.length;
   // 7.  (i1, ..., iR) = disclosed_indexes
@@ -167,20 +177,37 @@ async function CoreProofGenWithPseudonym(PK, signature, pseudonym, verifier_id,
   // console.log(disclosed_indexes);
   // 11. disclosed_messages = (messages[i1], ..., messages[iR])
   // ABORT if: for i in disclosed_indexes, i < 1 or i > L - 1
+  console.log(`dislosed indexes: ${disclosed_indexes}`);
   for(const i of disclosed_indexes) {
     if(i < 0 || i > L - 2) {
       throw new TypeError('CoreProofGenWithPseudonym: disclosed index out of bounds');
     }
   }
-  const disclosed_scalars = dup_msg_scalars.filter((msg, i) => disclosed_indexes.includes(i));
+  const disclosed_scalars = msg_scalars.filter((msg, i) => disclosed_indexes.includes(i));
   // 1.  random_scalars = calculate_random_scalars(5+U+1)
   const randScalars = await rand_scalars(5 + U); // last one is for pid~
   // 2.  init_res = ProofInit(PK, signature_res, header, random_scalars, generators,messages,undisclosed_indexes,api_id)
   // 3.  if init_res is INVALID, return INVALID
   // ProofInit(PK, signature, gens, randScalars, header,
   // messages, undisclosed_indexes, api_id)
+  if(GEN_TRACE_INFO) {
+    // PK, signature, pseudonym, verifier_id,
+    // pid_scalar, gens, header, ph, msg_scalars, disclosed_indexes, api_id, rand_scalars
+    const info = {
+      info: 'from CoreProofGenWithPseudonym',
+      PK: bytesToHex(PK),
+      signature: bytesToHex(signature),
+      A: bytesToHex(A.toRawBytes(true)),
+      e: numberToHex(e, SCALAR_LENGTH),
+      H: gens.generators.map(h => bytesToHex(h.toRawBytes(true))),
+      ph: bytesToHex(ph),
+      msg_scalars: msg_scalars.map(ms => numberToHex(ms, SCALAR_LENGTH)),
+      disclosed_indexes
+    };
+    console.log(JSON.stringify(info, null, 2));
+  }
   const init_res = await ProofInit(PK, [A, e], gens, randScalars, header,
-    dup_msg_scalars, undisclosed_indexes, api_id);
+    msg_scalars, undisclosed_indexes, api_id);
   // 4.  OP = hash_to_curve_g1(verifier_id, api_id)
   const OP = await hash_to_curve_g1(verifier_id, api_id);
   // 5.  pid~ = random_scalars[5 + U + 1] // last element of random_scalars
@@ -194,7 +221,7 @@ async function CoreProofGenWithPseudonym(PK, signature, pseudonym, verifier_id,
   const challenge = await ProofWithPseudonymChallengeCalculate(init_res, pseudonym_init_res,
     disclosed_indexes, disclosed_scalars, ph, api_id);
   // 9.  proof = ProofFinalize(challenge, e, random_scalars, messages, undisclosed_indexes)
-  const proof = await ProofFinalize(init_res, challenge, e, randScalars, dup_msg_scalars,
+  const proof = await ProofFinalize(init_res, challenge, e, randScalars, msg_scalars,
     undisclosed_indexes, PK);
   if(GEN_TRACE_INFO) {
     console.log('Checking ProofVerifyInit in ProofGen:');
@@ -207,29 +234,29 @@ async function CoreProofGenWithPseudonym(PK, signature, pseudonym, verifier_id,
 
 async function ProofWithPseudonymChallengeCalculate(init_res, pseudonym_init_res,
   i_array, msg_array, ph, api_id) {
-  // 1. c_arr = (Abar, Bbar, D, T1, T2, Pseudonym, OP, Ut, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
+  // Old: 1. c_arr = (Abar, Bbar, D, T1, T2, Pseudonym, OP, Ut, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
+  // Update for BBS-v06:
+  // 1. c_arr = (R, i1, msg_i1, i2, msg_i2, ..., iR, msg_iR, Abar, Bbar, D, T1, T2, Pseudonym, OP, Ut, domain)
   // 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
   // 3. return hash_to_scalar(c_octs, challenge_dst)
   const [Abar, Bbar, D, T1, T2, domain] = init_res;
   const [pseudonym, OP, Ut] = pseudonym_init_res;
   const dst = new TextEncoder().encode(api_id + 'H2S_');
   const c_array = [
-    {type: 'GPoint', value: Abar},
-    {type: 'GPoint', value: Bbar},
-    {type: 'GPoint', value: D},
-    {type: 'GPoint', value: T1},
-    {type: 'GPoint', value: T2},
-    {type: 'GPoint', value: pseudonym},
-    {type: 'GPoint', value: OP},
-    {type: 'GPoint', value: Ut},
-    {type: 'NonNegInt', value: i_array.length}, //R
+    {type: 'NonNegInt', value: i_array.length}, // R
   ];
-  for(const iR of i_array) {
-    c_array.push({type: 'NonNegInt', value: iR});
+  for(let i = 0; i < i_array.length; i++) { // i_j, msg_j
+    c_array.push({type: 'NonNegInt', value: i_array[i]});
+    c_array.push({type: 'Scalar', value: msg_array[i]});
   }
-  for(const msg of msg_array) {
-    c_array.push({type: 'Scalar', value: msg});
-  }
+  c_array.push({type: 'GPoint', value: Abar});
+  c_array.push({type: 'GPoint', value: Bbar});
+  c_array.push({type: 'GPoint', value: D});
+  c_array.push({type: 'GPoint', value: T1});
+  c_array.push({type: 'GPoint', value: T2});
+  c_array.push({type: 'GPoint', value: pseudonym});
+  c_array.push({type: 'GPoint', value: OP});
+  c_array.push({type: 'GPoint', value: Ut});
   c_array.push({type: 'Scalar', value: domain});
   c_array.push({type: 'PlainOctets', value: ph});
   // c_for_hash = encode_for_hash(c_array)
@@ -280,6 +307,8 @@ async function ProofWithPseudonymChallengeCalculate(init_res, pseudonym_init_res
  * @async
  * @param {Uint8Array} PK - Public key as a compressed G2 point raw bytes.
  * @param {Uint8Array} proof - The proof as a byte array.
+ * @param {integer} L - the total number of signer messages (may include
+ * the pid).
  * @param {Uint8Array} pseudonym_bytes - The Pseudonym as a byte array.
  * @param {Uint8Array} verifier_id - The verifier id as a byte array.
  * @param {Uint8Array} header - Header used when original signature was created.
@@ -294,13 +323,30 @@ async function ProofWithPseudonymChallengeCalculate(init_res, pseudonym_init_res
  * @param {string} api_id - The API id for the signature suite.
  * @returns {boolean} - True or False depending on whether the proof is valid.
  */
-export async function ProofVerifyWithPseudonym(PK, proof, pseudonym_bytes,
+export async function ProofVerifyWithPseudonym(PK, proof, L, pseudonym_bytes,
   verifier_id, header, ph, disclosed_messages, disclosed_indexes, api_id) {
   // 1. proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
   // 2. if length(proof) < proof_len_floor, return INVALID
   // 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
   // 4. R = length(disclosed_indexes)
   // 5. L = U + R
+  // proof: (Abar, Bbar, D, e^, r1^, r3^, (m^_j1, ..., m^_jU), challenge)
+  //     Deserialization:
+  // 1. proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length
+  const proofLenFloor = 3 * POINT_LENGTH + 4 * SCALAR_LENGTH;
+  // 2. if length(proof) < proof_len_floor, return INVALID
+  if(proof.length < proofLenFloor) {
+    if(GEN_TRACE_INFO) {
+      console.log('from ProofVerifyWithPseudonym: proof is too short.');
+    }
+    return false;
+  }
+  // 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
+  const U = Math.floor((proof.length - proofLenFloor) / SCALAR_LENGTH);
+  // 4. total_no_messages = length(disclosed_indexes) + length(disclosed_committed_indexes) + U
+  const totalNumMessages = disclosed_indexes.length + U - 1;
+  // 5. M = total_no_messages - L
+  const M = totalNumMessages - L;
   let proof_result;
   try {
     proof_result = octets_to_proof(proof);
@@ -310,12 +356,12 @@ export async function ProofVerifyWithPseudonym(PK, proof, pseudonym_bytes,
   }
   const {mHatU} = proof_result;
   const R = disclosed_indexes.length;
-  const U = mHatU.length;
-  const L = R + U;
+  // const U = mHatU.length;
+  // const L = R + U;
   // console.log(`L = ${L}, R = ${R}, U = ${U}`);
   // Check disclosed indexes length same as disclosed messages length
   if(disclosed_messages.length !== R) {
-    // console.log('disclosed messages not the same as length of disclosed indexes');
+    console.log('disclosed messages not the same as length of disclosed indexes');
     return false;
   }
   const pseudonym = bls.G1.ProjectivePoint.fromHex(pseudonym_bytes);
@@ -323,10 +369,27 @@ export async function ProofVerifyWithPseudonym(PK, proof, pseudonym_bytes,
   const msg_scalars = await messages_to_scalars(disclosed_messages, api_id);
   // 2. generators = create_generators(L + 1, PK, api_id)
   const gens = await prepareGenerators(L + 1, api_id);
+  let blindGens;
+  if(M === -1) { // No commitments are used!
+    blindGens = {generators: []};
+  } else {
+    blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
+  }
+  const combinedGens = {
+    P1: gens.P1,
+    generators: [...gens.generators, ...blindGens.generators]
+  };
+  if(GEN_TRACE_INFO) {
+    const info = {
+      info: 'from ProofVerifyWithPseudonym',
+      L, U, M,
+    };
+    console.log(JSON.stringify(info, null, 2));
+  }
   // 3. result = CoreProofVerifyWithPseudonym(...)
   // 4. return result
   const result = await CoreProofVerifyWithPseudonym(PK, proof_result, pseudonym, verifier_id,
-    gens, header, ph, msg_scalars, disclosed_indexes, api_id);
+    combinedGens, header, ph, msg_scalars, disclosed_indexes, api_id);
   return result;
 }
 
@@ -388,7 +451,7 @@ async function CoreProofVerifyWithPseudonym(PK, proof_result, pseudonym, verifie
     pseudonym_init_res, disclosed_indexes, disclosed_messages, ph, api_id);
   // console.log(`challenge: ${numberToHex(challenge, SCALAR_LENGTH)}`);
   if(c !== challenge) {
-    // console.log('challenge failed');
+    console.log('challenge failed');
     return false;
   }
   // 9.  if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
@@ -401,7 +464,7 @@ async function CoreProofVerifyWithPseudonym(PK, proof_result, pseudonym, verifie
   let result = bls.fields.Fp12.mul(ptGT1, ptGT2);
   result = bls.fields.Fp12.finalExponentiate(result); // See noble BLS12-381
   const valid = await bls.fields.Fp12.eql(result, bls.fields.Fp12.ONE);
-  // console.log(`equality test: ${valid}`);
+  console.log(`equality test: ${valid}`);
   return valid;
 }
 
@@ -439,7 +502,7 @@ export async function HiddenPidProofGen(PK, signature, pseudonym_bytes, verifier
   const pseudonym = bls.G1.ProjectivePoint.fromHex(pseudonym_bytes);
   // single pid value takes place of committed messages
   // disclosed_commitment_indexes = [] since we never reveal pid
-  let L = messages.length;
+  const L = messages.length;
   if(disclosed_indexes.length > L) {
     throw TypeError('HiddenPidProofGen: to many disclosed indexes');
   }
@@ -448,167 +511,34 @@ export async function HiddenPidProofGen(PK, signature, pseudonym_bytes, verifier
       throw TypeError('HiddenPidProofGen: disclosed index out of bounds');
     }
   }
-  // Puts the sum of the prover blind and signer_blind as the first message scalar
-  let message_scalars = [];
-  if(secret_prover_blind !== 0n) {
-    message_scalars.push(bls.fields.Fr.add(secret_prover_blind, signer_blind));
-  }
-  // Put hidden message scalars onto list, only the pid in our case
-  const prover_message_scalars = await messages_to_scalars([pid], api_id);
-  message_scalars = message_scalars.concat(prover_message_scalars);
-  // Put message scalars from signer onto the list
-  const signer_message_scalars = await messages_to_scalars(messages, api_id);
-  message_scalars = message_scalars.concat(signer_message_scalars);
-  // Create the generators
-  const gens = await prepareGenerators(message_scalars.length + 1, api_id);
-  // Get the complete list of disclosed messages, and adjusted list of disclosed indexes
-  //  get_disclosed_data(messages, committed_messages, disclosed_indexes, disclosed_commitment_indexes, secret_prover_blind)
-  const [disclosed_msgs, adjDisclosedIdxs] = get_disclosed_data(messages,
-    [pid], disclosed_indexes, [], secret_prover_blind);
-  // From this point on use message_scalars, adjDisclosedIdxs in proof generation
-  // Give the verifier disclosed_messages and adjDisclosedIdxs.
-
-  L = message_scalars.length; // longer now includes pid scalar
-  const R = adjDisclosedIdxs.length;
-  const U = L - R;
-  const allIndexes = [];
-  for(let i = 0; i < L; i++) {
-    allIndexes[i] = i;
-  }
-  const tempSet = new Set(allIndexes);
-  for(const dis of adjDisclosedIdxs) {
-    tempSet.delete(dis);
-  }
-  const undisclosedIndexes = Array.from(tempSet);
-  const {A, e} = octets_to_sig(signature); // Get curve point and scalars
-  // check that we have enough generators for the messages
-  if(messages.length > gens.generators.length + 1) {
-    throw new TypeError('Sign: not enough generators! string');
-  }
-  const randScalars = await rand_scalars(5 + U);
-  const init_res = await ProofInit(PK, [A, e], gens,
-    randScalars, header, message_scalars, undisclosedIndexes, api_id);
-  // Now special pseudonym stuff
-  const OP = await hash_to_curve_g1(verifier_id, api_id);
-  // We want the mTilde[1] so 5 rand scalars then the mTilde
-  const pidTilde = randScalars[6]; // since pid is second message, i.e., after prover blind
-  const Ut = OP.multiply(pidTilde);
-  const pseudonym_init_res = [pseudonym, OP, Ut];
-  const disclosed_scalars = adjDisclosedIdxs.map(i => message_scalars[i]);
-  const challenge = await ProofWithPseudonymChallengeCalculate(init_res, pseudonym_init_res,
-    adjDisclosedIdxs, disclosed_scalars, ph, api_id);
-  const proof = await ProofFinalize(init_res, challenge, e, randScalars, message_scalars,
-    undisclosedIndexes, PK);
-  return [proof, disclosed_msgs, adjDisclosedIdxs];
-}
-
-/**
- * Verifies a previously generated proof with pseudonym against original signers
- * public key, pseudonym, and additional information.
- *
- * @async
- * @param {Uint8Array} PK - Public key as a compressed G2 point raw bytes.
- * @param {Uint8Array} proof - The proof as a byte array.
- * @param {Uint8Array} pseudonym_bytes - The Pseudonym as a byte array.
- * @param {Uint8Array} verifier_id - The verifier id as a byte array.
- * @param {Uint8Array} header - Header used when original signature was created.
- * @param {Uint8Array} ph - Presentation header that was used during proof
- * creation.
- * @param {Array} disclosed_messages - Array of scalars (bigint) derived from
- *  actual  disclosed messages. Computed by {@link messages_to_scalars}.
- * @param {Array} disclosed_indexes - Array of sorted (non-repeating) zero
- * based indices corresponding to the disclosed messages.
- * @param {Array} gens - Contains an array of group G1 generators created by the
- *  {@link prepareGenerators} function and the point P1.
- * @param {string} api_id - The API id for the signature suite.
- * @returns {boolean} - True or False depending on whether the proof is valid.
- */
-export async function HiddenPidProofVerifyWithPseudonym(PK, proof, pseudonym_bytes,
-  verifier_id, header, ph, disclosed_messages, disclosed_indexes, api_id) {
-
-  let proof_result;
-  try {
-    proof_result = octets_to_proof(proof);
-  } catch{
-    // console.log('Problem with octets_to_proof');
-    return false;
-  }
-  const {mHatU} = proof_result;
-  const R = disclosed_indexes.length;
-  const U = mHatU.length;
-  const L = R + U;
-  // console.log(`L = ${L}, R = ${R}, U = ${U}`);
-  // Check disclosed indexes length same as disclosed messages length
-  if(disclosed_messages.length !== R) {
-    // console.log('disclosed messages not the same as length of disclosed indexes');
-    return false;
-  }
-  const pseudonym = bls.G1.ProjectivePoint.fromHex(pseudonym_bytes);
-  const msg_scalars = await messages_to_scalars(disclosed_messages, api_id);
+  const committed_messages = [pid];
+  const M = 1; // the pid is our only committed message
+  // From Blind BBS ProofGen
+  // 1.  generators = BBS.create_generators(L + 1, api_id)
   const gens = await prepareGenerators(L + 1, api_id);
-  const result = await HiddenPidCoreProofVerifyWithPseudonym(PK, proof_result, pseudonym, verifier_id,
-    gens, header, ph, msg_scalars, disclosed_indexes, api_id);
-  return result;
-}
-
-async function HiddenPidCoreProofVerifyWithPseudonym(PK, proof_result, pseudonym, verifier_id,
-  gens, header, ph, disclosed_messages, disclosed_indexes, api_id) {
-
-  const {Abar, Bbar, D, eHat, r1Hat, r3Hat, mHatU, c} = proof_result;
-  if(GEN_TRACE_INFO) {
-    const info = {
-      info: 'from HiddenPidCoreProofVerifyWithPseudonym',
-      PK: bytesToHex(PK),
-      Abar: bytesToHex(Abar.toRawBytes(true)),
-      Bbar: bytesToHex(Bbar.toRawBytes(true)),
-      eHat: numberToHex(eHat, SCALAR_LENGTH),
-      r1Hat: numberToHex(r1Hat, SCALAR_LENGTH),
-      r3Hat: numberToHex(r3Hat, SCALAR_LENGTH),
-      mHatU: mHatU.map(mHat => numberToHex(mHat, SCALAR_LENGTH)),
-      challenge: numberToHex(c, SCALAR_LENGTH),
-      disclosed_indexes
-    };
-    console.log(JSON.stringify(info, null, 2));
+  // 2.  blind_generators = BBS.create_generators(M + 1, "BLIND_" || api_id)
+  let blindGens;
+  // 4.  committed_message_scalars = ()
+  let committed_message_scalars = [];
+  if(secret_prover_blind == 0n) {
+    blindGens = {generators: []}; // no commitments, no blind generators
+  } else {
+    blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
+    // 5.  if secret_prover_blind != 0, committed_message_scalars.append(secret_prover_blind + signer_blind)
+    committed_message_scalars.push(bls.fields.Fr.add(secret_prover_blind, signer_blind));
   }
-  const W = bls.G2.ProjectivePoint.fromHex(PK); //W = octets_to_pubkey(PK)
-  const R = disclosed_indexes.length;
-  const U = mHatU.length;
-  for(const i of disclosed_indexes) {
-    if(i < 0 || i > U + R - 1) {
-      // console.log('Something weird with disclosed indexes');
-      return false;
-    }
-  }
-
-  const init_res = await ProofVerifyInit(PK, proof_result, gens, header,
-    disclosed_messages, disclosed_indexes, api_id);
-  // ProofVerifyInit(PK, proof_result, gens, header, disclosed_messages, disclosed_indexes, api_id)
-  const OP = await hash_to_curve_g1(verifier_id, api_id);
-  const pidHat = mHatU[1]; // must use same element as in proof gen
-  // 5.  Uv = OP * pid^ - Pseudonym * cp
-  let Uv = OP.multiply(pidHat);
-  console.log(`verify pidHat: ${numberToHex(pidHat, SCALAR_LENGTH)}`);
-  Uv = Uv.subtract(pseudonym.multiply(c));
-  // 6.  pseudonym_init_res = (Pseudonym, OP, Uv)
-  const pseudonym_init_res = [pseudonym, OP, Uv];
-  const challenge = await ProofWithPseudonymChallengeCalculate(init_res,
-    pseudonym_init_res, disclosed_indexes, disclosed_messages, ph, api_id);
-  // console.log(`challenge: ${numberToHex(challenge, SCALAR_LENGTH)}`);
-  let challenge_test = true;
-  if(c !== challenge) {
-    console.log('challenge failed');
-    challenge_test = false;
-  }
-  // 9.  if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
-  // 10. return VALID
-  // Compute item in G2
-  const negP2 = bls.G2.ProjectivePoint.BASE.negate();
-  // Compute items in GT, i.e., Fp12
-  const ptGT1 = bls.pairing(Abar, W);
-  const ptGT2 = bls.pairing(Bbar, negP2);
-  let result = bls.fields.Fp12.mul(ptGT1, ptGT2);
-  result = bls.fields.Fp12.finalExponentiate(result); // See noble BLS12-381
-  const valid = await bls.fields.Fp12.eql(result, bls.fields.Fp12.ONE);
-  console.log(`equality test: ${valid}`);
-  return valid && challenge_test;
+  const combinedGens = {
+    P1: gens.P1,
+    generators: [...gens.generators, ...blindGens.generators]
+  };
+  // 3.  message_scalars = BBS.messages_to_scalars(messages, api_id)
+  const signer_message_scalars = await messages_to_scalars(messages, api_id);
+  // 6.  committed_message_scalars.append(BBS.messages_to_scalars(committed_messages, api_id))
+  const prover_message_scalars = await messages_to_scalars(committed_messages, api_id);
+  committed_message_scalars = committed_message_scalars.concat(prover_message_scalars);
+  // 7.  message_scalars.append(committed_message_scalars)
+  const message_scalars = signer_message_scalars.concat(committed_message_scalars);
+  const proof = await CoreProofGenWithPseudonym(PK, signature, pseudonym, verifier_id,
+    combinedGens, header, ph, message_scalars, disclosed_indexes, api_id, rand_scalars);
+  return proof;
 }

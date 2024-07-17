@@ -36,7 +36,7 @@ jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
 // Read input document from a file either treeDoc.json or windDoc.json
 const document = JSON.parse(
-  await readFile(new URL('../input/license.json', import.meta.url)))
+  await readFile(new URL('../input/windDoc.json', import.meta.url)))
 
 // Obtain key material and process into byte array format
 const keyMaterial = JSON.parse(
@@ -71,7 +71,7 @@ const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac: hmacFun
 
 const mandatoryPointers = JSON.parse(
   await readFile(
-    new URL('../input/licenseMandatory.json', import.meta.url)
+    new URL('../input/windMandatory.json', import.meta.url)
   )
 )
 const groups = { mandatory: mandatoryPointers }
