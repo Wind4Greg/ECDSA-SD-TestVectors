@@ -216,7 +216,7 @@ const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_PSEUDONYM_BBS_S
 // const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
 //   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
 //   secretProverBlind, signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
-const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await HiddenPidProofGen(publicKey, bbsSignature,
+const bbsProof = await HiddenPidProofGen(publicKey, bbsSignature,
   pseudonym, verifierId, pidMaterial, bbsHeader, ph, bbsMessages, adjSelectiveIndexes, secretProverBlind,
   signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph, pseudonym
@@ -226,10 +226,10 @@ const disclosureData = {
   labelMap: verifierLabelMap,
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
-  blindAdjDisclosedIdxs,
   presentationHeader: ph,
   pseudonym: bytesToHex(pseudonym),
-  featureOption: 'pseudonym_hidden_pid'
+  featureOption: 'pseudonym_hidden_pid',
+  lengthBBSMessages: bbsMessages.length
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
 
@@ -245,8 +245,8 @@ verifierLabelMap.forEach(function (v, k) {
 
 // Pseudonym with Hidden Pid header bytes (may change)
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x09])
-// Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
-const components = [bbsProof, compressLabelMap, adjMandatoryIndexes, blindAdjDisclosedIdxs, ph, pseudonym]
+const components = [bbsProof, compressLabelMap, adjMandatoryIndexes,
+  adjSelectiveIndexes, ph, pseudonym, bbsMessages.length]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

@@ -42,8 +42,6 @@ const deriveOptions = JSON.parse(
   await readFile(new URL(inputDir + 'BBSDeriveMaterial.json', import.meta.url)))
 const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
 
-
-
 // Get the selective disclosure pointers
 const selectivePointers = JSON.parse(
   await readFile(
@@ -211,6 +209,7 @@ const disclosureData = {
   adjSelectiveIndexes,
   presentationHeader: ph,
   pseudonym: bytesToHex(pseudonym),
+  lengthBBSMessages: bbsMessages.length + 1, // The PID is also a message from issuer!!!!!!!
   featureOption: 'pseudonym_issuer_pid'
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
@@ -229,7 +228,7 @@ verifierLabelMap.forEach(function (v, k) {
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x07])
 // Change here to use blindAdjDisclosedIdxs rather than adjSelectiveIndexes
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes,
-  adjSelectiveIndexes, ph, pseudonym]
+  adjSelectiveIndexes, ph, pseudonym, bbsMessages.length + 1]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

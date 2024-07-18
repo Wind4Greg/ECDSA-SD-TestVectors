@@ -14,9 +14,8 @@ import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
-import { API_ID_PSEUDONYM_BBS_SHA, messages_to_scalars as msgsToScalars,
-  prepareGenerators, numUndisclosed } from '../lib/BBS.js'
-import { HiddenPidProofVerifyWithPseudonym } from '../lib/PseudonymBBS.js'
+import { API_ID_PSEUDONYM_BBS_SHA } from '../lib/BBS.js'
+import { ProofVerifyWithPseudonym } from '../lib/PseudonymBBS.js'
 
 // Create output directory for the results
 const baseDir = '../output/bbs/PseudoHiddenPid/'
@@ -61,11 +60,11 @@ if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedPro
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(decodedProofValue.slice(3))
-if (decodeThing.length !== 6) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes,
-  presentationHeader, pseudonym] = decodeThing
+  presentationHeader, pseudonym, lengthBBSMessages] = decodeThing
 // console.log(baseSignature, typeof baseSignature);
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')
@@ -138,6 +137,8 @@ console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
 const ph = presentationHeader
-const verified = await HiddenPidProofVerifyWithPseudonym(pbk, bbsProof, pseudonym,
+// ProofVerifyWithPseudonym(PK, proof, L, pseudonym_bytes,
+//  verifier_id, header, ph, disclosed_messages, disclosed_indexes, api_id)
+const verified = await ProofVerifyWithPseudonym(pbk, bbsProof, lengthBBSMessages, pseudonym,
   verifierId, bbsHeader, ph, bbsMessages, adjSelectedIndexes, API_ID_PSEUDONYM_BBS_SHA)
 console.log(`Derived proof verified: ${verified}`)

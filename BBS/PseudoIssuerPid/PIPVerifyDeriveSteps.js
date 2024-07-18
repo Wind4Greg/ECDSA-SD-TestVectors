@@ -58,10 +58,11 @@ if (decodedProofValue[0] !== 0xd9 || decodedProofValue[1] !== 0x5d || decodedPro
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(decodedProofValue.slice(3))
-if (decodeThing.length !== 6) {
+if (decodeThing.length !== 7) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes, presentationHeader, pseudonym] = decodeThing
+const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes,
+  presentationHeader, pseudonym, lengthBBSMessages] = decodeThing
 // console.log(baseSignature, typeof baseSignature);
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')
@@ -92,7 +93,9 @@ const derivedProofValue = {
   bbsProof: bytesToHex(bbsProof),
   labelMap: [...labelMap],
   mandatoryIndexes,
-  adjSelectedIndexes
+  adjSelectedIndexes,
+  pseudonym: bytesToHex(pseudonym),
+  lengthBBSMessages
 }
 // console.log(labelMap);
 writeFile(baseDir + 'verifyDerivedProofValue.json', JSON.stringify(derivedProofValue, null, 2))
@@ -134,8 +137,8 @@ console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
 const ph = presentationHeader
-// const verified = await HiddenPidProofVerifyWithPseudonym(pbk, bbsProof, pseudonym,
-//   verifierId, bbsHeader, ph, bbsMessages, adjSelectedIndexes, API_ID_PSEUDONYM_BBS_SHA)
-const verified = await ProofVerifyWithPseudonym(pbk, bbsProof, pseudonym,
+// ProofVerifyWithPseudonym(PK, proof, L, pseudonym_bytes,
+//  verifier_id, header, ph, disclosed_messages, disclosed_indexes, api_id)
+const verified = await ProofVerifyWithPseudonym(pbk, bbsProof, lengthBBSMessages, pseudonym,
   verifierId, bbsHeader, ph, bbsMessages, adjSelectedIndexes, API_ID_PSEUDONYM_BBS_SHA)
 console.log(`Derived proof verified: ${verified}`)
