@@ -191,8 +191,6 @@ export async function deserialize_and_validate_commit(commitment_with_proof,
   const com_res = octets_to_commitment_with_proof(commitment_with_proof);
   // 4.  (commit, commit_proof) = com_res
   const [commit, ...commit_proof] = com_res;
-  console.log('Commit and commit proof:');
-  console.log(commit, commit_proof);
   // 5. if length(commit_proof[1]) + 1 != length(blind_generators), return INVALID
   const M = commit_proof[1].length;
   if(blindGens.generators.length < M + 1) {
@@ -292,15 +290,15 @@ export async function BlindSign(SK, PK, commitment_with_proof, header, messages,
   // 4. M = M / octet_scalar_length
   // 5. if M < 0, return INVALID
   const M = calcM(commitment_with_proof);
-  console.log(`blind sign M: ${M}`);
   // Procedure:
   // 1. generators = BBS.create_generators(L + 1, api_id)
   // 2. blind_generators = BBS.create_generators(M + 1, "BLIND_" || api_id)
   const gens = await prepareGenerators(L + 1, api_id);
-  let blindGens = null; // In case of no commitment with proof, this is different from M = 0!
-  if(commitment_with_proof) {
-    blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
-  }
+  // let blindGens = null; // In case of no commitment with proof, this is different from M = 0!
+  // if(commitment_with_proof) {
+  console.log(`BlindSign M = ${M}`);
+  const blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
+  // }
   // console.log('Generators:');
   // console.log(gens);
   // 3. message_scalars = BBS.messages_to_scalars(messages, api_id)
@@ -353,7 +351,9 @@ async function CoreBlindSign(SK, PK, commitment_with_proof, gens, blindGens,
   const valArray = [
     {type: 'Scalar', value: SK},
   ];
-  valArray.push({type: 'GPoint', value: commit}); // C
+  if(commitment_with_proof) {
+    valArray.push({type: 'GPoint', value: commit}); // C
+  }
   if(stuff) {
     valArray.push({type:'Scalar', value: stuff[1]}); // scalars[0] = s_hat
     let mHats = stuff[2];
@@ -388,7 +388,7 @@ async function CoreBlindSign(SK, PK, commitment_with_proof, gens, blindGens,
   for(let i = 0; i < message_scalars.length; i++) {
     B = B.add(H[i].multiply(message_scalars[i]));
   }
-  console.log(commit);
+  // console.log(commit);
   B = B.add(commit);
   // console.log(`B: ${bytesToHex(B.toRawBytes(true))}`);
   // 6. A = B * (1 / (SK + e))
@@ -400,6 +400,7 @@ async function CoreBlindSign(SK, PK, commitment_with_proof, gens, blindGens,
     const info = {
       info: 'from CoreBlindSign',
       allGenLen: allGens.length,
+      blindGenLen:  blindGens.generators.length,
       domain: numberToHex(domain, SCALAR_LENGTH),
       B: bytesToHex(B.toRawBytes(true)),
       A: bytesToHex(A.toRawBytes(true)),
@@ -486,34 +487,26 @@ async function calculate_domain(PK, L, Q_1, H_Points, header, api_id) {
  */
 export async function BlindVerify(PK, signature, header, messages, committed_messages,
   secret_prover_blind, signer_blind, api_id) {
-  // Deserialization:
-  // 1. L = length(messages)
-  // 2. M = length(committed_messages)
+
   const L = messages.length;
   const M = committed_messages.length;
   // Procedure:
   // 1. generators = BBS.create_generators(L + 1, api_id)
   const gens = await prepareGenerators(L + 1, api_id);
+  // 2. blind_generators = BBS.create_generators(M + 1, "BLIND_" || api_id)
+  const blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
   // 3. message_scalars = BBS.messages_to_scalars(messages, api_id)
   const message_scalars = await messages_to_scalars(messages, api_id);
-  // 4. blind_message_scalars = ()
+  // 4. committed_message_scalars = ()
   let blind_message_scalars = [];
-  // Check if no committed messages, i.e., secret_prover_blind = 0n
-  let blindGens;
-  if(secret_prover_blind == 0n) { // No commitment
-    blindGens = {generators: []};
-  } else {
-    // 2. blind_generators = BBS.create_generators(M + 1, "BLIND_" || api_id)
-    blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
-    // 5. if secret_prover_blind != 0, blind_message_scalars.append(secret_prover_blind + signer_blind)
-    // **NOTE** the above addition MUST be in the field!!!
-    blind_message_scalars.push(bls.fields.Fr.add(secret_prover_blind, signer_blind));
-  }
-
-  // 6. blind_message_scalars.append(BBS.messages_to_scalars(committed_messages, api_id))
+  // 5. blind_factor = secret_prover_blind + signer_blind
+  // 6. committed_message_scalars.append(blind_factor)
+  blind_message_scalars.push(bls.fields.Fr.add(secret_prover_blind, signer_blind));
+  // 7. committed_message_scalars.append(BBS.messages_to_scalars(committed_messages, api_id))
   const tempScalars = await messages_to_scalars(committed_messages, api_id);
   blind_message_scalars = blind_message_scalars.concat(tempScalars);
-  // 7. res = BBS.CoreVerify(PK, signature, generators.append(blind_generators), header, message_scalars.append(blind_message_scalars), api_id)
+
+  // 8. res = BBS.CoreVerify(PK, signature, generators.append(blind_generators), header, message_scalars.append(blind_message_scalars), api_id)
   const allScalars = [...message_scalars, ...blind_message_scalars];
   const combinedGens = {
     P1: gens.P1,
@@ -559,7 +552,7 @@ export async function BlindVerify(PK, signature, header, messages, committed_mes
  * @param {string} api_id - The API id for the signature suite.
  * @param {Function} rand_scalars - A function for generating cryptographically
  *  secure random or pseudo random scalars.
- * @returns {Array} proof - an octet string or will throw an exception.
+ * @returns {Array} {Array} proof - an octet string or will throw an exception.
  */
 export async function BlindProofGen(PK, signature, header, ph, messages,
   committed_messages, disclosed_indexes, disclosed_commitment_indexes,
@@ -590,34 +583,24 @@ export async function BlindProofGen(PK, signature, header, ph, messages,
       throw TypeError('BlindProofGen: disclosed commitment index out of bounds');
     }
   }
-  // 1.  generators = BBS.create_generators(L + 1, api_id)
   const gens = await prepareGenerators(L + 1, api_id);
-  // 2.  blind_generators = BBS.create_generators(M + 1, "BLIND_" || api_id)
-  let blindGens;
-  // 4.  committed_message_scalars = ()
-  let committed_message_scalars = [];
-  if(secret_prover_blind == 0n) {
-    blindGens = {generators: []}; // no commitments, no blind generators
-  } else {
-    blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
-    // 5.  if secret_prover_blind != 0, committed_message_scalars.append(secret_prover_blind + signer_blind)
-    committed_message_scalars.push(bls.fields.Fr.add(secret_prover_blind, signer_blind));
-  }
+  let blindGens = await prepareGenerators(M + 1, 'BLIND_' + api_id);
   const combinedGens = {
     P1: gens.P1,
     generators: [...gens.generators, ...blindGens.generators]
   };
-  // 3.  message_scalars = BBS.messages_to_scalars(messages, api_id)
-  const signer_message_scalars = await messages_to_scalars(messages, api_id);
-  // 6.  committed_message_scalars.append(BBS.messages_to_scalars(committed_messages, api_id))
+  
+  let committed_message_scalars = [];
+  committed_message_scalars.push(bls.fields.Fr.add(secret_prover_blind, signer_blind));
   const prover_message_scalars = await messages_to_scalars(committed_messages, api_id);
   committed_message_scalars = committed_message_scalars.concat(prover_message_scalars);
-  // 7.  message_scalars.append(committed_message_scalars)
+  
+  const signer_message_scalars = await messages_to_scalars(messages, api_id);
   const message_scalars = signer_message_scalars.concat(committed_message_scalars);
-  // 8.  combined_disclosed_idxs = get_combined_idxs(L, disclosed_indexes, disclosed_commitment_indexes)
+
   const combined_disclosed_idxs = get_combined_idxs(L, disclosed_indexes,
     disclosed_commitment_indexes);
-  // 9. proof = BBS.CoreProofGen(PK, signature, generators, header, ph, message_scalars, disclosed_idxs, api_id)
+
   const proof = await proofGen(PK, signature, header, ph, message_scalars,
     combined_disclosed_idxs, combinedGens, api_id, rand_scalars);
   return proof;
@@ -704,6 +687,5 @@ export async function BlindProofVerify(PK, proof, header, ph, L,
     console.log(JSON.stringify(info, null, 2));
   }
   return result;
-
 }
 
