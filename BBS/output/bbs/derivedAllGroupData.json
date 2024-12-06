@@ -124,16 +124,16 @@
         ]
       },
       "deskolemizedNQuads": [
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_0 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_1 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_b317687c-23d0-4d41-8bed-e75334bb6968_6 .\n"
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 .\n"
       ]
     },
     "mandatory": {
@@ -260,20 +260,20 @@
         ]
       },
       "deskolemizedNQuads": [
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_0 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_3 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_4 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_b317687c-23d0-4d41-8bed-e75334bb6968_6 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
       ]
     },
     "combined": {
@@ -400,26 +400,26 @@
         ]
       },
       "deskolemizedNQuads": [
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_0 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_1 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_3 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_4 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_b317687c-23d0-4d41-8bed-e75334bb6968_6 .\n",
-        "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 .\n",
+        "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
       ]
     }
   },
@@ -445,7 +445,7 @@
                     "@value": 2022
                   }
                 ],
-                "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_0"
+                "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_0"
               },
               {
                 "https://windsurf.grotto-networking.com/selective#boardName": [
@@ -463,7 +463,7 @@
                     "@value": 2019
                   }
                 ],
-                "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_1"
+                "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_1"
               }
             ],
             "https://windsurf.grotto-networking.com/selective#sailNumber": [
@@ -488,7 +488,7 @@
                     "@value": 2023
                   }
                 ],
-                "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_2"
+                "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_2"
               },
               {
                 "https://windsurf.grotto-networking.com/selective#sailName": [
@@ -506,7 +506,7 @@
                     "@value": 2023
                   }
                 ],
-                "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_3"
+                "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_3"
               },
               {
                 "https://windsurf.grotto-networking.com/selective#sailName": [
@@ -524,7 +524,7 @@
                     "@value": 2020
                   }
                 ],
-                "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_4"
+                "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_4"
               },
               {
                 "https://windsurf.grotto-networking.com/selective#sailName": [
@@ -542,10 +542,10 @@
                     "@value": 2023
                   }
                 ],
-                "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_5"
+                "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_5"
               }
             ],
-            "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_6"
+            "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_6"
           }
         ],
         "https://www.w3.org/2018/credentials#issuer": [
@@ -556,7 +556,7 @@
         "@type": [
           "https://www.w3.org/2018/credentials#VerifiableCredential"
         ],
-        "@id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_7"
+        "@id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_7"
       }
     ],
     "compact": {
@@ -566,19 +566,19 @@
           "@vocab": "https://windsurf.grotto-networking.com/selective#"
         }
       ],
-      "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_7",
+      "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_7",
       "type": "VerifiableCredential",
       "credentialSubject": {
-        "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_6",
+        "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_6",
         "boards": [
           {
-            "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_0",
+            "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_0",
             "boardName": "CompFoil170",
             "brand": "Wailea",
             "year": 2022
           },
           {
-            "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_1",
+            "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_1",
             "boardName": "Kanaha Custom",
             "brand": "Wailea",
             "year": 2019
@@ -587,25 +587,25 @@
         "sailNumber": "Earth101",
         "sails": [
           {
-            "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_2",
+            "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_2",
             "sailName": "Kihei",
             "size": 5.5,
             "year": 2023
           },
           {
-            "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_3",
+            "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_3",
             "sailName": "Lahaina",
             "size": 6.1,
             "year": 2023
           },
           {
-            "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_4",
+            "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_4",
             "sailName": "Lahaina",
             "size": 7,
             "year": 2020
           },
           {
-            "id": "urn:bnid:_b317687c-23d0-4d41-8bed-e75334bb6968_5",
+            "id": "urn:bnid:_add92b79-61ba-4bf2-8295-289fbfbf7248_5",
             "sailName": "Lahaina",
             "size": 7.8,
             "year": 2023
@@ -616,68 +616,68 @@
     }
   },
   "deskolemizedNQuads": [
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_1 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_2 <https://windsurf.grotto-networking.com/selective#sailName> \"Kihei\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_2 <https://windsurf.grotto-networking.com/selective#size> \"5.5E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_2 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_4 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_5 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_5 <https://windsurf.grotto-networking.com/selective#size> \"7.8E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_5 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_0 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#boards> _:_b317687c-23d0-4d41-8bed-e75334bb6968_1 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_2 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_3 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_4 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_6 <https://windsurf.grotto-networking.com/selective#sails> _:_b317687c-23d0-4d41-8bed-e75334bb6968_5 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_b317687c-23d0-4d41-8bed-e75334bb6968_6 .\n",
-    "_:_b317687c-23d0-4d41-8bed-e75334bb6968_7 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#boardName> \"CompFoil170\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 <https://windsurf.grotto-networking.com/selective#year> \"2022\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#boardName> \"Kanaha Custom\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#brand> \"Wailea\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 <https://windsurf.grotto-networking.com/selective#year> \"2019\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_2 <https://windsurf.grotto-networking.com/selective#sailName> \"Kihei\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_2 <https://windsurf.grotto-networking.com/selective#size> \"5.5E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_2 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#size> \"6.1E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#size> \"7\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 <https://windsurf.grotto-networking.com/selective#year> \"2020\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_5 <https://windsurf.grotto-networking.com/selective#sailName> \"Lahaina\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_5 <https://windsurf.grotto-networking.com/selective#size> \"7.8E0\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_5 <https://windsurf.grotto-networking.com/selective#year> \"2023\"^^<http://www.w3.org/2001/XMLSchema#integer> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_0 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#boards> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_1 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sailNumber> \"Earth101\" .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_2 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_3 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_4 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 <https://windsurf.grotto-networking.com/selective#sails> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_5 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.w3.org/2018/credentials#VerifiableCredential> .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#credentialSubject> _:_add92b79-61ba-4bf2-8295-289fbfbf7248_6 .\n",
+    "_:_add92b79-61ba-4bf2-8295-289fbfbf7248_7 <https://www.w3.org/2018/credentials#issuer> <https://vc.example/windsurf/racecommittee> .\n"
   ],
   "labelMap": {
     "dataType": "Map",
     "value": [
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_0",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_0",
         "b2"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_5",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_5",
         "b1"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_1",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_1",
         "b4"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_4",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_4",
         "b7"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_2",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_2",
         "b5"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_6",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_6",
         "b3"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_3",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_3",
         "b6"
       ],
       [
-        "_b317687c-23d0-4d41-8bed-e75334bb6968_7",
+        "_add92b79-61ba-4bf2-8295-289fbfbf7248_7",
         "b0"
       ]
     ]

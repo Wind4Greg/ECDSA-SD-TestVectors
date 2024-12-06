@@ -9,7 +9,7 @@ import { API_ID_PSEUDONYM_BBS_SHA, hexToBytes, bytesToHex, numberToHex } from '.
 import {commit} from '../lib/BlindBBS.js'
 
 // Create output directory for the test vectors
-const baseDir = '../output/bbs/PseudoHiddenPid/'
+const baseDir = '../output/bbs/Pseudonym/'
 await mkdir(baseDir, { recursive: true })
 const hiddenPidInfo = JSON.parse(
   await readFile(new URL('../../input/hiddenPid.json', import.meta.url)))
