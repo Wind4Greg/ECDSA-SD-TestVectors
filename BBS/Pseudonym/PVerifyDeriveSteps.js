@@ -1,4 +1,4 @@
-/*
+/* **TODO**: UPDATE THIS
     Walking through the steps and generating test vectors for verifying a derived
     BBS selective disclosure proof with Pseudonym Hidden Pid feature.
 

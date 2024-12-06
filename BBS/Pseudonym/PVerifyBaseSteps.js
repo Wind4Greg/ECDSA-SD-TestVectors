@@ -1,6 +1,5 @@
 /*
-    Walking through the steps for verifying a base BBS proof with Pseudonyms with
-    Hidden Pid.
+    Walking through the steps for verifying a base BBS proof with Pseudonyms.
 */
 import { mkdir, readFile } from 'fs/promises'
 import { klona } from 'klona'
@@ -16,20 +15,20 @@ import { base58btc } from 'multiformats/bases/base58'
 import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 import { API_ID_PSEUDONYM_BBS_SHA } from '../lib/BBS.js'
-import { BlindVerify } from '../lib/BlindBBS.js'
+import { BlindVerifyWithNym } from '../lib/PseudonymBBS.js'
 
 // Create output directory for the test vectors
-const baseDir = '../output/bbs/PseudoHiddenPid/'
+const baseDir = '../output/bbs/Pseudonym/'
 const inputDir = '../../input/'
 await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
-// Get holder secret information
-const hiddenPidInfo = JSON.parse(
-  await readFile(new URL(inputDir + 'hiddenPid.json', import.meta.url)))
-console.log(hiddenPidInfo.pidHex)
-const pidMaterial = hexToBytes(hiddenPidInfo.pidHex)
+// Get holder/prover nym information
+const proverInfo = JSON.parse(
+  await readFile(new URL('../../input/proverNym.json', import.meta.url)))
+console.log(proverInfo.proverNymHex)
+const proverNym = BigInt('0x' + proverInfo.proverNymHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
@@ -58,7 +57,7 @@ if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers,
-  signerBlind] = decodeThing
+  signerNymEntropy] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
@@ -99,7 +98,10 @@ if (bytesToHex(bbsHeader) !== bytesToHex(bbsHeaderBase)) {
 }
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-const verified = await BlindVerify(pbk, bbsSignature, bbsHeader, bbsMessages, [pidMaterial],
-  secretProverBlind, signerBlind, API_ID_PSEUDONYM_BBS_SHA)
+// BlindVerifyWithNym(PK, signature, header, messages, committed_messages,
+//  prover_nym, signer_nym_entropy, secret_prover_blind, api_id)
+const [verified, nymSecret] = await BlindVerifyWithNym(pbk, bbsSignature, bbsHeader, bbsMessages, [],
+  proverNym, signerNymEntropy, secretProverBlind, API_ID_PSEUDONYM_BBS_SHA)
 
 console.log(`Base proof verified: ${verified}`)
+console.log(`Nym Secret: ${nymSecret}`)

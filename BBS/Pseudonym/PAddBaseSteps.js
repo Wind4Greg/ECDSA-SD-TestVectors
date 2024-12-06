@@ -1,8 +1,6 @@
 /*
     Walking through my steps and generating test vectors for  creating
-    a base BBS proof for the Pseudonym with Hidden Pid feature.
-    **Note**: a different BBS API ID is used compared to the anonymous holder
-    binding feature.
+    a base BBS proof for the Pseudonym feature.
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
@@ -13,7 +11,7 @@ import { localLoader } from '../../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex, concatBytes, hexToBytes } from '@noble/hashes/utils'
 import { API_ID_PSEUDONYM_BBS_SHA, prepareGenerators } from '../lib/BBS.js'
-import { BlindSign, deserialize_and_validate_commit } from '../lib/BlindBBS.js'
+import { BlindSignWithNym } from '../lib/PseudonymBBS.js'
 import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import { encode as encodeCbor } from 'cbor2'
@@ -31,7 +29,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 }
 
 // Create output directory for the test vectors
-const baseDir = '../output/bbs/PseudoHiddenPid/'
+const baseDir = '../output/bbs/Pseudonym/'
 const inputDir = '../../input/'
 await mkdir(baseDir, { recursive: true })
 
@@ -44,15 +42,6 @@ const document = JSON.parse(
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const commitmentWithProof = hexToBytes(commitInfo.commitmentWithProof)
-
-// Zeroth step validate the commitment with proof...
-const numCommittedMsgs = 1
-const gens = await prepareGenerators(numCommittedMsgs + 2, API_ID_PSEUDONYM_BBS_SHA)
-try {
-  await deserialize_and_validate_commit(commitmentWithProof, gens, API_ID_PSEUDONYM_BBS_SHA)
-} catch (e) {
-  console.log(`Commitment with proof not valid: ${e}`)
-}
 
 // Obtain key material and process into byte array format
 const keyMaterial = JSON.parse(
@@ -132,12 +121,13 @@ const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const te = new TextEncoder()
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
 
-// Read signer blind info from a file
-const signerBlindInfo = JSON.parse(
-  await readFile(new URL(inputDir + 'signerBlindHP.json', import.meta.url)))
-const signerBlind = BigInt('0x' + signerBlindInfo.signerBlindHex)
-const bbsSignature = await BlindSign(privateKey, publicKey, commitmentWithProof,
-  bbsHeader, bbsMessages, signerBlind, API_ID_PSEUDONYM_BBS_SHA)
+// Read signer nym entropy info from a file
+const signerInfo = JSON.parse(
+  await readFile(new URL(inputDir + 'signerNymEntropy.json', import.meta.url)))
+const signerNymEntropy = BigInt('0x' + signerInfo.signerNymEntropyHex)
+// BlindSignWithNym(SK, PK, commitment_with_proof, header, messages, signer_nym_entropy, api_id)
+const [bbsSignature, temp] = await BlindSignWithNym(privateKey, publicKey, commitmentWithProof,
+  bbsHeader, bbsMessages, signerNymEntropy, API_ID_PSEUDONYM_BBS_SHA)
 console.log(`Blind BBS signature: ${bytesToHex(bbsSignature)}`)
 
 const rawBaseSignatureInfo = {
@@ -146,8 +136,8 @@ const rawBaseSignatureInfo = {
   publicKey: bytesToHex(publicKey),
   hmacKey: bytesToHex(hmacKey),
   mandatoryPointers,
-  signerBlind: signerBlindInfo.signerBlindHex,
-  featureOption: 'pseudonym_hidden_pid'
+  signerNymEntropyHex: signerInfo.signerNymEntropyHex,
+  featureOption: 'pseudonym'
 }
 // console.log(rawBaseSignatureInfo);
 writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))
@@ -158,7 +148,7 @@ writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignat
 // Pseudonym with Hidden Pid header bytes:
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x08])
 const components = [bbsSignature, bbsHeader, publicKey, hmacKey,
-  mandatoryPointers, signerBlind]
+  mandatoryPointers, signerNymEntropy]
 const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
 const baseProof = base64url.encode(proofValue)

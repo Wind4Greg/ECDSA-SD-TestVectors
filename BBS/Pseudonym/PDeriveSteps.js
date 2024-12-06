@@ -1,4 +1,4 @@
-/*
+/* **TODO**: UPDATE THIS
     Steps for creating a derived proof under the Pseudonym with Hidden Pid
     feature.
 */
