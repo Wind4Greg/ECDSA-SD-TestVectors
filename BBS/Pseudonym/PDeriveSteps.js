@@ -1,6 +1,5 @@
-/* **TODO**: UPDATE THIS
-    Steps for creating a derived proof under the Pseudonym with Hidden Pid
-    feature.
+/*
+    Steps for creating a derived proof for the Pseudonym feature.
 */
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
@@ -20,7 +19,7 @@ import { base64url } from 'multiformats/bases/base64'
 import {
   API_ID_PSEUDONYM_BBS_SHA, numberToBytesBE, seeded_random_scalars as seededRandScalars
 } from '../lib/BBS.js'
-import { CalculatePseudonym, HiddenPidProofGen } from '../lib/PseudonymBBS.js'
+import { BlindVerifyWithNym, ProofGenWithNym } from '../lib/PseudonymBBS.js'
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -34,7 +33,7 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 }
 
 // Create output directory for the test vectors
-const baseDir = '../output/bbs/PseudoHiddenPid/'
+const baseDir = '../output/bbs/Pseudonym/'
 const inputDir = '../../input/'
 await mkdir(baseDir, { recursive: true })
 
@@ -43,11 +42,12 @@ const deriveOptions = JSON.parse(
   await readFile(new URL(inputDir + 'BBSDeriveMaterial.json', import.meta.url)))
 const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
 
-// Get holder secret information
-const hiddenPidInfo = JSON.parse(
-  await readFile(new URL(inputDir + 'hiddenPid.json', import.meta.url)))
-console.log(hiddenPidInfo.pidHex)
-const pidMaterial = hexToBytes(hiddenPidInfo.pidHex)
+// Get prover(holder) nym information
+const proverInfo = JSON.parse(
+  await readFile(new URL('../../input/proverNym.json', import.meta.url)))
+console.log(proverInfo.proverNymHex)
+const proverNym = BigInt('0x' + proverInfo.proverNymHex)
+console.log(proverInfo.proverNymHex)
 const commitInfo = JSON.parse(
   await readFile(new URL(baseDir + 'commitmentInfo.json', import.meta.url)))
 const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
@@ -56,11 +56,7 @@ const secretProverBlind = BigInt('0x' + commitInfo.secretProverBlind)
 const verifierInfo = JSON.parse(
   await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
 const te = new TextEncoder()
-const verifierId = te.encode(verifierInfo.verifierId) // need as byte array
-const pseudonymPt = await CalculatePseudonym(verifierId, pidMaterial, API_ID_PSEUDONYM_BBS_SHA)
-const pseudonym = pseudonymPt.toRawBytes(true) // we need raw bytes for api
-const pseudonymInfo = { pseudonymHex: bytesToHex(pseudonym) }
-await writeFile(baseDir + 'pseudonymInfo.json', JSON.stringify(pseudonymInfo, null, 2))
+const nymDomain = te.encode(verifierInfo.nymDomainString) // need as byte array
 
 // Get the selective disclosure pointers
 const selectivePointers = JSON.parse(
@@ -97,16 +93,16 @@ if (decodeThing.length !== 6) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers,
-  signerBlind] = decodeThing
-console.log(signerBlind)
+  signerNymEntropy] = decodeThing
+console.log(signerNymEntropy)
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   bbsHeader: bytesToHex(bbsHeaderBase),
   publicKey: bytesToHex(publicKey),
   hmacKey: bytesToHex(hmacKey),
   mandatoryPointers,
-  signerBlind: bytesToHex(numberToBytesBE(signerBlind, 32)),
-  featureOption: 'pseudonym_hidden_pid'
+  signerNymEntropy: signerNymEntropy.toString(16),
+  featureOption: 'pseudonym'
 }
 await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))
 // Combine pointers
@@ -200,11 +196,7 @@ const bbsHeader = concatBytes(proofHash, mandatoryHash)
 
 // Recreate BBS messages
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-// Get issuer public key
-// const encodedPbk = proof.verificationMethod.split('did:key:')[1].split('#')[0]
-// let pbk = base58btc.decode(encodedPbk)
-// pbk = pbk.slice(2, pbk.length) // First two bytes are multi-format indicator
-// // console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
+
 const ph = presentationHeader
 // Note that BBS proofGen usually uses cryptographic random numbers on each run which doesn't
 // make for good test vectors instead with use the helper technique use in BBS to generate
@@ -213,12 +205,15 @@ const ph = presentationHeader
 const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
 const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_PSEUDONYM_BBS_SHA)
 
-// const [bbsProof, disclosed_msgs, blindAdjDisclosedIdxs] = await BlindProofGen(publicKey, bbsSignature,
-//   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
-//   secretProverBlind, signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
-const bbsProof = await HiddenPidProofGen(publicKey, bbsSignature,
-  pseudonym, verifierId, pidMaterial, bbsHeader, ph, bbsMessages, adjSelectiveIndexes, secretProverBlind,
-  signerBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
+// Need nymSecret
+const [verified, nymSecret] = await BlindVerifyWithNym(publicKey, bbsSignature, bbsHeader, bbsMessages, [],
+  proverNym, signerNymEntropy, secretProverBlind, API_ID_PSEUDONYM_BBS_SHA)
+const committedMessages = []
+const disclosedCommitmentIndexes = []
+const [bbsProof, pseudonym] = await ProofGenWithNym(publicKey, bbsSignature, bbsHeader, ph,
+  nymSecret, nymDomain, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
+  secretProverBlind, API_ID_PSEUDONYM_BBS_SHA, randScalarFunc)
+
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph, pseudonym
 
 const disclosureData = {
@@ -227,8 +222,8 @@ const disclosureData = {
   mandatoryIndexes: adjMandatoryIndexes,
   adjSelectiveIndexes,
   presentationHeader: ph,
-  pseudonym: bytesToHex(pseudonym),
-  featureOption: 'pseudonym_hidden_pid',
+  pseudonym: bytesToHex(pseudonym.toRawBytes(true)),
+  featureOption: 'pseudonym',
   lengthBBSMessages: bbsMessages.length
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap))
@@ -246,7 +241,7 @@ verifierLabelMap.forEach(function (v, k) {
 // Pseudonym with Hidden Pid header bytes (may change)
 let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x09])
 const components = [bbsProof, compressLabelMap, adjMandatoryIndexes,
-  adjSelectiveIndexes, ph, pseudonym, bbsMessages.length]
+  adjSelectiveIndexes, ph, pseudonym.toRawBytes(true), bbsMessages.length]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

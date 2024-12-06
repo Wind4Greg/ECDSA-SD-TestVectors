@@ -1,6 +1,6 @@
-/* **TODO**: UPDATE THIS
+/*
     Walking through the steps and generating test vectors for verifying a derived
-    BBS selective disclosure proof with Pseudonym Hidden Pid feature.
+    BBS selective disclosure proof with Pseudonym.
 
 */
 
@@ -15,10 +15,10 @@ import { base58btc } from 'multiformats/bases/base58'
 import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 import { API_ID_PSEUDONYM_BBS_SHA } from '../lib/BBS.js'
-import { ProofVerifyWithPseudonym } from '../lib/PseudonymBBS.js'
+import { ProofVerifyWithNym } from '../lib/PseudonymBBS.js'
 
 // Create output directory for the results
-const baseDir = '../output/bbs/PseudoHiddenPid/'
+const baseDir = '../output/bbs/Pseudonym/'
 const inputDir = '../../input/'
 await mkdir(baseDir, { recursive: true })
 
@@ -28,7 +28,7 @@ jsonld.documentLoader = localLoader // Local loader for JSON-LD
 const verifierInfo = JSON.parse(
   await readFile(new URL(inputDir + 'verifierInfo.json', import.meta.url)))
 const te = new TextEncoder()
-const verifierId = te.encode(verifierInfo.verifierId) // need as byte array
+const nymDomain = te.encode(verifierInfo.nymDomainString) // need as byte array
 // Read base signed document from a file 'revealDocument.json', 'DBderivedCredential.json'
 const document = JSON.parse(
   await readFile(
@@ -137,8 +137,8 @@ console.log(`Public Key hex: ${bytesToHex(pbk)}, Length: ${pbk.length}`)
 const bbsHeader = concatBytes(proofHash, mandatoryHash)
 const bbsMessages = [...nonMandatory.values()].map(txt => te.encode(txt)) // must be byte arrays
 const ph = presentationHeader
-// ProofVerifyWithPseudonym(PK, proof, L, pseudonym_bytes,
-//  verifier_id, header, ph, disclosed_messages, disclosed_indexes, api_id)
-const verified = await ProofVerifyWithPseudonym(pbk, bbsProof, lengthBBSMessages, pseudonym,
-  verifierId, bbsHeader, ph, bbsMessages, adjSelectedIndexes, API_ID_PSEUDONYM_BBS_SHA)
+
+const verified = await ProofVerifyWithNym(pbk, bbsProof, bbsHeader, ph, pseudonym, nymDomain,
+  lengthBBSMessages, bbsMessages, [], adjSelectedIndexes, [], API_ID_PSEUDONYM_BBS_SHA)
+
 console.log(`Derived proof verified: ${verified}`)
