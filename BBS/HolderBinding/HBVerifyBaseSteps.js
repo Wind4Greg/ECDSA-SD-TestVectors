@@ -50,15 +50,15 @@ delete document.proof // IMPORTANT: all work uses document without proof
 const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x02
+// check header bytes are: 0xd9, 0x5d, and 0x04
 if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x04) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
-if (decodeThing.length !== 6) {
+if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers, signerBlindBytes] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKeyBase, hmacKey, mandatoryPointers] = decodeThing
 // setup HMAC stuff
 const hmac = await createHmac({ key: hmacKey })
 const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac })
@@ -99,11 +99,8 @@ if (bytesToHex(bbsHeader) !== bytesToHex(bbsHeaderBase)) {
 }
 const te = new TextEncoder()
 const bbsMessages = [...mandatoryNonMatch.values()].map(txt => te.encode(txt)) // must be byte arrays
-// const msgScalars = await msgsToScalars(bbsMessages, API_ID_BBS_SHA)
-// const gens = await prepareGenerators(bbsMessages.length + 1, API_ID_BBS_SHA)
-// const verified = await verify(pbk, bbsSignature, bbsHeader, msgScalars, gens, API_ID_BBS_SHA)
-const signerBlind = bytesToNumberBE(signerBlindBytes)
+// BlindVerify(PK, signature, header, messages, committed_messages, secret_prover_blind, api_id)
 const verified = await BlindVerify(pbk, bbsSignature, bbsHeader, bbsMessages, [holderSecretMaterial],
-  secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA)
+  secretProverBlind, API_ID_BLIND_BBS_SHA)
 
 console.log(`Base proof verified: ${verified}`)

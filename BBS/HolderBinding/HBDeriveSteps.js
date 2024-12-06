@@ -83,17 +83,16 @@ if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueByte
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
 
-if (decodeThing.length !== 6) {
+if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
-const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers, signerBlindBytes] = decodeThing
+const [bbsSignature, bbsHeaderBase, publicKey, hmacKey, mandatoryPointers] = decodeThing
 const baseProofData = {
   bbsSignature: bytesToHex(bbsSignature),
   bbsHeader: bytesToHex(bbsHeaderBase),
   publicKey: bytesToHex(publicKey),
   hmacKey: bytesToHex(hmacKey),
   mandatoryPointers,
-  signerBlind: bytesToHex(signerBlindBytes),
   featureOption: 'anonymous_holder_binding'
 }
 await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))
@@ -201,16 +200,13 @@ const ph = presentationHeader
 // Pseudo random (deterministic) scalar generation seed and function
 const seed = hexToBytes(deriveOptions.pseudoRandSeedHex)
 const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_BLIND_BBS_SHA)
-// const bbsProof = await proofGen(publicKey, bbsSignature, bbsHeader, ph, msgScalars,
-//   adjSelectiveIndexes, gens, API_ID_BBS_SHA, randScalarFunc)
-const signerBlind = bytesToNumberBE(signerBlindBytes)
 const committedMessages = [holderSecretMaterial] // the pid is the only committed msg
 const disclosedCommitmentIndexes = [] // we never disclose the pid
-// BlindProofGen(PK, signature, header, ph, messages,committed_messages, disclosed_indexes, disclosed_commitment_indexes,
-// secret_prover_blind, signer_blind, api_id, rand_scalars = calculate_random_scalars)
+// BlindProofGen(PK, signature, header, ph, messages, committed_messages, disclosed_indexes,
+// disclosed_commitment_indexes, secret_prover_blind, api_id, rand_scalars)
 const bbsProof = await BlindProofGen(publicKey, bbsSignature,
   bbsHeader, ph, bbsMessages, committedMessages, adjSelectiveIndexes, disclosedCommitmentIndexes,
-  secretProverBlind, signerBlind, API_ID_BLIND_BBS_SHA, randScalarFunc)
+  secretProverBlind, API_ID_BLIND_BBS_SHA, randScalarFunc)
 // 7. serialize via CBOR: BBSProofValue, compressedLabelMap, mandatoryIndexes, selectiveIndexes, ph, lengthBBSMessages
 
 const disclosureData = {
