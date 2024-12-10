@@ -208,6 +208,8 @@ const randScalarFunc = seededRandScalars.bind(null, seed, API_ID_PSEUDONYM_BBS_S
 // Need nymSecret
 const [verified, nymSecret] = await BlindVerifyWithNym(publicKey, bbsSignature, bbsHeader, bbsMessages, [],
   proverNym, signerNymEntropy, secretProverBlind, API_ID_PSEUDONYM_BBS_SHA)
+const nymSecretData = { nymSecretHex: nymSecret.toString(16)}
+await writeFile(baseDir + 'nymSecret.json', JSON.stringify(nymSecretData, replacerMap))
 const committedMessages = []
 const disclosedCommitmentIndexes = []
 const [bbsProof, pseudonym] = await ProofGenWithNym(publicKey, bbsSignature, bbsHeader, ph,
