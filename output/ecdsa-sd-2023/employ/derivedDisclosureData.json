@@ -1,0 +1,23 @@
+{
+  "baseSignature": "b8dc55afeb6427a990e9d60c0d363b654306d92703e5036210ca29619d8ed204194ba3d86e31cdbc99f4ee9d5f25f0cc1c1f44f5fa39abec9a50cdf519b457e0",
+  "publicKey": "zDnaeTHfhmSaQKBc7CmdL3K7oYg3D6SC7yowe2eBeVd2DH32r",
+  "signatures": [
+    "b181986ef2cfb77b71f27cfb4365b8860799d9e84c3df62b3863319250d57a91d429cb15127122c36fd34a92ea0745b4a641454c561c55c37741ee247a866264",
+    "13d02a9caf0d96b9fbec397d4faad90e78c56d0cbd933224d58b5c81623e3571b22aa15bc4ad201c364e3566793c9dda9c983e9965f47c7ce5ff6e1b42484dd4"
+  ],
+  "labelMap": {
+    "dataType": "Map",
+    "value": [
+      [
+        "c14n0",
+        "u4YIOZn1MHES1Z4Ij2hWZG3R4dEYBqg5fHTyDEvYhC38"
+      ]
+    ]
+  },
+  "mandatoryIndexes": [
+    0,
+    1,
+    2,
+    3
+  ]
+}

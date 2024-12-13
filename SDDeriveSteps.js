@@ -35,15 +35,25 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
   }
 }
 
+// const dirsAndFiles = {
+//   outputDir: './output/ecdsa-sd-2023/',
+//   inputFile: './input/windSelective.json'
+// }
+
+const dirsAndFiles = {
+  outputDir: './output/ecdsa-sd-2023/employ/',
+  inputFile: './input/employSelective.json'
+}
+
 // Create output directory for the test vectors
-const baseDir = './output/ecdsa-sd-2023/'
+const baseDir = dirsAndFiles.outputDir;
 await mkdir(baseDir, { recursive: true })
 
 // Chosen to be tricky as mandatory has "/boards/0/year" and we are going to
 // reveal all about board 0
 const selectivePointers = JSON.parse(
   await readFile(
-    new URL('./input/' + 'windSelective.json', import.meta.url)
+    new URL(dirsAndFiles.inputFile, import.meta.url)
   )
 )
 
