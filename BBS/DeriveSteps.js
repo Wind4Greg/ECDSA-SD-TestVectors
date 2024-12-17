@@ -47,15 +47,24 @@ const deriveOptions = JSON.parse(
   await readFile(new URL('../input/BBSDeriveMaterial.json', import.meta.url)))
 const presentationHeader = hexToBytes(deriveOptions.presentationHeaderHex)
 
+// const dirsAndFiles = {
+//   outputDir: './output/bbs/',
+//   inputFile: '../input/windSelective.json'
+// }
+
+const dirsAndFiles = {
+  outputDir: './output/bbs/prc/',
+  inputFile: '../input/prCredSelective.json'
+}
 
 // Create output directory for the test vectors
-const baseDir = './output/bbs/'
+const baseDir = dirsAndFiles.outputDir
 await mkdir(baseDir, { recursive: true })
 
 // Get the selective disclosure pointers, either windSelective.json or treeSelective.json
 const selectivePointers = JSON.parse(
   await readFile(
-    new URL('../input/' + 'windSelective.json', import.meta.url)
+    new URL(dirsAndFiles.inputFile, import.meta.url)
   )
 )
 jsonld.documentLoader = localLoader // Local loader for JSON-LD

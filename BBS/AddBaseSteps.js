@@ -28,15 +28,28 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
   }
 }
 
+// Set input file and output directory here
+// const dirsAndFiles = {
+//   outputDir: './output/bbs/',
+//   inputFile: '../input/windDoc.json',
+//   mandatoryFile: '../input/windMandatory.json'
+// }
+
+const dirsAndFiles = {
+  outputDir: './output/bbs/prc/',
+  inputFile: '../input/prCredUnsigned.json',
+  mandatoryFile: '../input/prCredMandatory.json'
+}
+
 // Create output directory for the test vectors
-const baseDir = './output/bbs/'
+const baseDir = dirsAndFiles.outputDir
 await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
 
 // Read input document from a file either treeDoc.json or windDoc.json
 const document = JSON.parse(
-  await readFile(new URL('../input/windDoc.json', import.meta.url)))
+  await readFile(new URL(dirsAndFiles.inputFile, import.meta.url)))
 
 // Obtain key material and process into byte array format
 const keyMaterial = JSON.parse(
@@ -71,7 +84,7 @@ const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac: hmacFun
 
 const mandatoryPointers = JSON.parse(
   await readFile(
-    new URL('../input/windMandatory.json', import.meta.url)
+    new URL(dirsAndFiles.mandatoryFile, import.meta.url)
   )
 )
 const groups = { mandatory: mandatoryPointers }

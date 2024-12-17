@@ -40,9 +40,14 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 //   inputFile: './input/windSelective.json'
 // }
 
+// const dirsAndFiles = {
+//   outputDir: './output/ecdsa-sd-2023/employ/',
+//   inputFile: './input/employSelective.json'
+// }
+
 const dirsAndFiles = {
-  outputDir: './output/ecdsa-sd-2023/employ/',
-  inputFile: './input/employSelective.json'
+  outputDir: './output/ecdsa-sd-2023/prc/',
+  inputFile: './input/prCredSelective.json'
 }
 
 // Create output directory for the test vectors

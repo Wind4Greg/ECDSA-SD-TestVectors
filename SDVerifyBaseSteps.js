@@ -16,7 +16,7 @@ import { decode as decodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
 
 // Create output directory for the test vectors
-const baseDir = './output/ecdsa-sd-2023/employ/'
+const baseDir = './output/ecdsa-sd-2023/prc/' // './output/ecdsa-sd-2023/employ/'
 await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD

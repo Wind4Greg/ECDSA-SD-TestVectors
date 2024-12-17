@@ -6,20 +6,36 @@
 
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import jsPointer from 'json-pointer'
+// Set input file and output directory here
+// const dirsAndFiles = {
+//   outputDir: './output/ecdsa-sd-2023/',
+//   inputFile: './input/windDoc.json',
+//   mandatoryFile: './input/windMandatory.json'
+// }
+// const dirsAndFiles = {
+//   outputDir: './output/ecdsa-sd-2023/employ/',
+//   inputFile: './input/employmentAuth.json',
+//   mandatoryFile: './input/employMandatory.json'
+// }
+const dirsAndFiles = {
+  outputDir: './output/ecdsa-sd-2023/prc/',
+  inputFile: './input/prCredUnsigned.json',
+  mandatoryFile: './input/prCredMandatory.json'
+}
 // Create output directory for the test vectors
-const baseDir = './output/ecdsa-sd-2023/'
+const baseDir = dirsAndFiles.outputDir
 const status = await mkdir(baseDir, { recursive: true })
 
 // Read input document from a file or just specify it right here.
 const document = JSON.parse(
   await readFile(
-    new URL('./input/windDoc.json', import.meta.url)
+    new URL(dirsAndFiles.inputFile, import.meta.url)
   )
 )
 
 const pointers = JSON.parse(
   await readFile(
-    new URL('./input/windMandatory.json', import.meta.url)
+    new URL(dirsAndFiles.mandatoryFile, import.meta.url)
   )
 )
 

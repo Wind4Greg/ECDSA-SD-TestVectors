@@ -17,7 +17,7 @@ import { base64url } from 'multiformats/bases/base64'
 import { API_ID_BBS_SHA, messages_to_scalars as msgsToScalars, prepareGenerators, verify } from './lib/BBS.js'
 
 // Create output directory for the test vectors
-const baseDir = './output/bbs/'
+const baseDir = './output/bbs/prc/' // './output/bbs/'
 await mkdir(baseDir, { recursive: true })
 
 jsonld.documentLoader = localLoader // Local loader for JSON-LD
