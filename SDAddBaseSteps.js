@@ -34,16 +34,16 @@ function replacerMap (key, value) { // See https://stackoverflow.com/questions/2
 //   inputFile: './input/windDoc.json',
 //   mandatoryFile: './input/windMandatory.json'
 // }
-// const dirsAndFiles = {
-//   outputDir: './output/ecdsa-sd-2023/employ/',
-//   inputFile: './input/employmentAuth.json',
-//   mandatoryFile: './input/employMandatory.json'
-// }
 const dirsAndFiles = {
-  outputDir: './output/ecdsa-sd-2023/prc/',
-  inputFile: './input/prCredUnsigned.json',
-  mandatoryFile: './input/prCredMandatory.json'
+  outputDir: './output/ecdsa-sd-2023/employ/',
+  inputFile: './input/employmentAuth.json',
+  mandatoryFile: './input/employMandatory.json'
 }
+// const dirsAndFiles = {
+//   outputDir: './output/ecdsa-sd-2023/prc/',
+//   inputFile: './input/prCredUnsigned.json',
+//   mandatoryFile: './input/prCredMandatory.json'
+// }
 
 
 // Create output directory for the test vectors

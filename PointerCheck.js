@@ -12,16 +12,16 @@ import jsPointer from 'json-pointer'
 //   inputFile: './input/windDoc.json',
 //   mandatoryFile: './input/windMandatory.json'
 // }
-// const dirsAndFiles = {
-//   outputDir: './output/ecdsa-sd-2023/employ/',
-//   inputFile: './input/employmentAuth.json',
-//   mandatoryFile: './input/employMandatory.json'
-// }
 const dirsAndFiles = {
-  outputDir: './output/ecdsa-sd-2023/prc/',
-  inputFile: './input/prCredUnsigned.json',
-  mandatoryFile: './input/prCredMandatory.json'
+  outputDir: './output/ecdsa-sd-2023/employ/',
+  inputFile: './input/employmentAuth.json',
+  mandatoryFile: './input/employMandatory.json'
 }
+// const dirsAndFiles = {
+//   outputDir: './output/ecdsa-sd-2023/prc/',
+//   inputFile: './input/prCredUnsigned.json',
+//   mandatoryFile: './input/prCredMandatory.json'
+// }
 // Create output directory for the test vectors
 const baseDir = dirsAndFiles.outputDir
 const status = await mkdir(baseDir, { recursive: true })
