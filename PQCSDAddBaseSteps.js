@@ -209,7 +209,7 @@ writeFile(
 let salts = [];
 let saltedHashes = [];
 nonMandatory.forEach(function (value, key) {
-  let salt = randomBytes(16);
+  let salt = new Uint8Array(randomBytes(16)); // **WARNING** randomBytes returns a Buffer we need Uint8Array!!!
   salts.push(salt);
   let saltedHash = sha256(concatBytes(salt, utf8encoder.encode(value)));
   saltedHashes.push(saltedHash);
@@ -265,6 +265,8 @@ let signature = ml_dsa44.sign(hashBigConcat, secretKey);
 // Return baseProof as base proof.
 // */
 let proofValue = new Uint8Array([0xd9, 0x5d, 0x00])
+console.log(salts);
+console.log(saltedHashes);
 const components = [signature, hmacKey, salts, saltedHashes, mandatoryPointers]
 const cborThing = encodeCbor(components)
 proofValue = concatBytes(proofValue, cborThing)
