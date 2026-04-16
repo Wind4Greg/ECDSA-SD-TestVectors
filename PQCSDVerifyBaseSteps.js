@@ -27,7 +27,6 @@ function isEqual(arr1, arr2) {
     return arr1.every((value, index) => value === arr2[index])
 }
 
-
 // Create output directory for the test vectors
 const baseDir = "./output/mldsa-sd-2026/employ/";
 await mkdir(baseDir, { recursive: true });
