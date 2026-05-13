@@ -72,7 +72,7 @@ const options = { documentLoader: localLoader };
 // Set proof options per draft
 const proofConfig = {};
 proofConfig.type = "DataIntegrityProof";
-proofConfig.cryptosuite = "mldsa-sd-2026";
+proofConfig.cryptosuite = "mldsa44-sd-2024";
 proofConfig.created = "2026-04-15T23:36:38Z";
 proofConfig.verificationMethod = "did:key:" + publicKeyMultibase;
 proofConfig.proofPurpose = "assertionMethod";
@@ -191,15 +191,6 @@ writeFile(
   to the values associated with their property names hashData.
 */
 
-// // **OLD** Initialize signatures to an array where each element holds the result of digitally signing
-// // the UTF-8 representation of each N-Quad string in nonMandatory, in order.
-// const signatures = []
-// nonMandatory.forEach(function (value, key) {
-//   const msgHash = sha256(value) // Hash is done outside of the algorithm in noble/curve case.
-//   const signature = p256.sign(msgHash, proofsecretKey)
-//   signatures.push(signature.toCompactRawBytes())
-//   // console.log(`value: ${value}, sig: ${signature.toCompactHex()}`);
-// })
 
 //  **NEW** Create salted hash array consisting of random salts (32 bytes for 256 bits or
 //  16 bytes for 128 bits) and salted hashes of (salt concatenated with non-mandatory value)
@@ -264,7 +255,7 @@ let signature = ml_dsa44.sign(hashBigConcat, secretKey);
 //  string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
 // Return baseProof as base proof.
 // */
-let proofValue = new Uint8Array([0xd9, 0x5d, 0x00])
+let proofValue = new Uint8Array([0xd9, 0x5d, 0x10]) // Header value from spec
 console.log(salts);
 console.log(saltedHashes);
 const components = [signature, hmacKey, salts, saltedHashes, mandatoryPointers]

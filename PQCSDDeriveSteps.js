@@ -85,8 +85,8 @@ delete document.proof // IMPORTANT: all work uses document without proof
 const proofValue = proof.proofValue // base64url encoded
 const proofValueBytes = base64url.decode(proofValue)
 // console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x00
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x00) {
+// check header bytes are: 0xd9, 0x5d, and 0x10
+if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x10) {
   throw new Error('Invalid proofValue header')
 }
 const decodeThing = decodeCbor(proofValueBytes.slice(3))
@@ -171,23 +171,19 @@ await writeFile(baseDir + 'derivedAdjMandatoryIndexes.json', JSON.stringify({ ad
   non-mandatory statements.
   Then simply filter to only those signatures.
 */
-const adjSignatureIndexes = []
+const adjSelectiveIndexes = []
 selectiveMatch.forEach((value, index) => {
   const adjIndex = nonMandatoryIndexes.indexOf(index)
   if (adjIndex !== -1) {
-    adjSignatureIndexes.push(adjIndex)
+    adjSelectiveIndexes.push(adjIndex)
   }
 })
 // **TODO** I think we will need to send this adjusted signature indexes
 // so the verifier can grab the approapriate salts and compute and verify the
 // salted hashes.
 console.log('adjust Signature Indexes:')
-console.log(adjSignatureIndexes)
+console.log(adjSelectiveIndexes)
 
-// **OLD**  have to pass on all the salts and all the saltedHashes
-// const filteredSignatures = signatures.filter((value, index) => adjSignatureIndexes.includes(index))
-// await writeFile(baseDir + 'derivedAdjSignatures.json',
-//   JSON.stringify({ adjSignatureIndexes, filteredSignatures: filteredSignatures.map(s => bytesToHex(s)) }))
 /*
 Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
 passing any custom options, and get the canonical bnode identifier map, canonicalIdMap. Note: This map
@@ -226,7 +222,7 @@ const disclosureData = {
   saltedHashes: saltedHashes.map(sh => bytesToHex(sh)),
   labelMap: verifierLabelMap,
   mandatoryIndexes: adjMandatoryIndexes,
-  selectiveIndexes: adjSignatureIndexes
+  selectiveIndexes: adjSelectiveIndexes
 }
 await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap, 2))
 
@@ -266,8 +262,8 @@ verifierLabelMap.forEach(function (v, k) {
   Return the derived proof as a string with the multibase-base64url-no-pad-encoding of proofValue.
   That is, return a string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
 */
-let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x01])
-const components = [signature, salts, saltedHashes, compressLabelMap, adjMandatoryIndexes, adjSignatureIndexes]
+let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x11])
+const components = [signature, salts, saltedHashes, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
 const cborThing = encodeCbor(components)
 derivedProofValue = concatBytes(derivedProofValue, cborThing)
 const derivedProofValueString = base64url.encode(derivedProofValue)

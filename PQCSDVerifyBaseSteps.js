@@ -46,11 +46,11 @@ delete document.proof; // IMPORTANT: all work uses document without proof
 const proofValue = proof.proofValue; // base64url encoded
 const proofValueBytes = base64url.decode(proofValue);
 // console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x00
+// check header bytes are: 0xd9, 0x5d, and 0x10
 if (
   proofValueBytes[0] !== 0xd9 ||
   proofValueBytes[1] !== 0x5d ||
-  proofValueBytes[2] !== 0x00
+  proofValueBytes[2] !== 0x10
 ) {
   throw new Error("Invalid proofValue header");
 }
