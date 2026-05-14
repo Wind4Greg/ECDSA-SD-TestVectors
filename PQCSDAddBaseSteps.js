@@ -3,6 +3,13 @@
     a base PQC-SD proof using selective disclosure primitive functions and 
     salted hash approach. The higher level steps are *transformation*, 
     *hashing*, and *serialization*.
+
+    This has been slightly reordered so that procedures that are independent of
+    a particular ciphersuite name or signature algorithm occur first. So that  
+    those outputs can be shared rather than repeated, e.g., salts and salted 
+    hashes.
+
+
 */
 
 import { mkdir, readFile, writeFile } from "fs/promises";
@@ -34,11 +41,12 @@ function replacerMap(key, value) {
   }
 }
 
+jsonld.documentLoader = localLoader; // Local loader for JSON-LD
 const utf8encoder = new TextEncoder(); // To convert utf8 text to Uint8Array
 
 // Set input file and output directory here
 const dirsAndFiles = {
-  outputDir: "./output/mldsa-sd-2026/employ/",
+  outputDir: "./output/pqc-sd/", // For outputs across different signature schemes
   inputFile: "./input/employmentAuth.json",
   mandatoryFile: "./input/employMandatory.json",
 };
@@ -47,42 +55,19 @@ const dirsAndFiles = {
 const baseDir = dirsAndFiles.outputDir;
 await mkdir(baseDir, { recursive: true });
 
-jsonld.documentLoader = localLoader; // Local loader for JSON-LD
+// HMAC/PRF key material -- Shared between issuer and holder
+const keyMaterialHMAC = JSON.parse(
+  await readFile(new URL("./input/HMACKey.json", import.meta.url)),
+);
+const hmacKeyString = keyMaterialHMAC.hmacKeyString;
+const hmacKey = hexToBytes(hmacKeyString);
 
 // Read input document from a file
 const document = JSON.parse(
   await readFile(new URL(dirsAndFiles.inputFile, import.meta.url)),
 );
 
-// Obtain key material and process into byte array format
-const keyMaterial = JSON.parse(
-  await readFile(new URL("./input/KeysMLDSA.json", import.meta.url)),
-);
-// HMAC/PRF key material -- Shared between issuer and holder
-const hmacKeyString = keyMaterial.hmacKeyString;
-const hmacKey = hexToBytes(hmacKeyString);
-
-// Sample long term issuer signing key
-const secretKey = hexToBytes(keyMaterial.mldsa44.secretKeyHex);
-const publicKeyMultibase = keyMaterial.mldsa44.publicKeyMultibase;
-
 const options = { documentLoader: localLoader };
-
-// **Proof Configuration Options**
-// Set proof options per draft
-const proofConfig = {};
-proofConfig.type = "DataIntegrityProof";
-proofConfig.cryptosuite = "mldsa44-sd-2024";
-proofConfig.created = "2026-04-15T23:36:38Z";
-proofConfig.verificationMethod = "did:key:" + publicKeyMultibase;
-proofConfig.proofPurpose = "assertionMethod";
-proofConfig["@context"] = document["@context"];
-writeFile(
-  baseDir + "addProofConfig.json",
-  JSON.stringify(proofConfig, null, 2),
-);
-const proofCanon = await jsonld.canonize(proofConfig);
-writeFile(baseDir + "addProofConfigCanon.txt", proofCanon);
 
 // **Transformation Step**
 
@@ -159,40 +144,7 @@ await writeFile(
   JSON.stringify(sortedHMACQuads, null, 2),
 );
 
-/* **Hashing Step**
-   "The required inputs to this algorithm are a transformed data document (transformedDocument)
-   and canonical proof configuration (canonicalProofConfig). A hash data value represented as an
-   object is produced as output. " */
-
-const proofHash = sha256(proofCanon); // @noble/hash will convert string to bytes via UTF-8
-
-// 3.3.17 hashMandatoryNQuads
-// Initialize bytes to the UTF-8 representation of the joined mandatory N-Quads.
-// Initialize mandatoryHash to the result of using hasher to hash bytes.
-// Return mandatoryHash.
-const mandatoryHash = sha256([...mandatory.values()].join(""));
-// Initialize hashData as a deep copy of transformedDocument and add proofHash as
-// "proofHash" and mandatoryHash as "mandatoryHash" to that object.
-const hashData = klona(transformed);
-hashData.proofHash = proofHash;
-hashData.mandatoryHash = mandatoryHash;
-// For test vector purposes convert maps to arrays of pairs and uint8arrays to hex
-// and don't rewrite the transformed information.
-const hashDataOutput = {};
-hashDataOutput.proofHash = bytesToHex(proofHash);
-hashDataOutput.mandatoryHash = bytesToHex(mandatoryHash);
-writeFile(
-  baseDir + "addHashData.json",
-  JSON.stringify(hashDataOutput, null, 2),
-);
-
-/* 3.5.5 Base Proof Serialization (ecdsa-sd-2023)
-  Initialize proofHash, mandatoryPointers, mandatoryHash, nonMandatory, and hmacKey
-  to the values associated with their property names hashData.
-*/
-
-
-//  **NEW** Create salted hash array consisting of random salts (32 bytes for 256 bits or
+//  Create salted hash array consisting of random salts (32 bytes for 256 bits or
 //  16 bytes for 128 bits) and salted hashes of (salt concatenated with non-mandatory value)
 //  SD-JWT currently uses 128 bits: https://www.rfc-editor.org/rfc/rfc9901.html#section-4.2.1
 //  So I'll just use 16 bytes too.
@@ -214,61 +166,123 @@ writeFile(
   JSON.stringify(saltedHashInfo, null, 2),
 );
 
-// // **OLD**3.4.1 serializeSignData
-// // The following algorithm serializes the data that is to be signed by the private key associated
-// // with the base proof verification method. The required inputs are the proof options hash (proofHash),
-// // the proof-scoped multikey-encoded public key (publicKey), and the mandatory hash (mandatoryHash).
-// // A single sign data value, represented as series of bytes, is produced as output.
-// // Return the concatenation of proofHash, publicKey, and mandatoryHash, in that order, as sign data.
-// const signData = concatBytes(proofHash, proofPublicKey, mandatoryHash)
-// const baseSignature = p256.sign(sha256(signData), secretKey).toCompactRawBytes()
-// // baseSignature, publicKey, hmacKey, signatures, and mandatoryPointers are inputs to
-// // 3.4.2 serializeBaseProofValue. This seems like a good test vector
-// const rawBaseSignatureInfo = {
-//   baseSignature: bytesToHex(baseSignature),
-//   publicKey: keyMaterial.proofKeyPair.publicKeyMultibase,
-//   signatures: signatures.map(sig => bytesToHex(sig)),
-//   mandatoryPointers
-// }
-// // console.log(rawBaseSignatureInfo);
-// writeFile(baseDir + 'addRawBaseSignatureInfo.json', JSON.stringify(rawBaseSignatureInfo, null, 2))
+// Signature specific  stuff
 
-// **NEW** produce a PQC signature over the concatenation of proofHash, mandatoryHash, salts, saltedHashes
-const bigConcatenation = concatBytes(proofHash, mandatoryHash, ...salts, ...saltedHashes);
-const hashBigConcat = sha256(bigConcatenation);
-let signature = ml_dsa44.sign(hashBigConcat, secretKey);
+const testCases = [
+  {
+    outputDir: "./output/mldsa44-sd-2024/",
+    keyFile: "./input/KeysMLDSA.json",
+    keyName: "mldsa44",
+    suiteName: "mldsa44-sd-2024",
+    sigAlg: ml_dsa44.sign,
+  },
+];
 
-// /* 3.4.2 **MODIFIED** serializeBaseProofValue
-// The following algorithm serializes the base proof value, including the signature, 
-// HMAC key, salts, salted  hashes, and mandatory pointers. The required inputs are the signature,
-// an HMAC key hmacKey, an array of salts, an array of salted hashes and an array of mandatoryPointers.
-// A single base proof string value is produced as output.
+for (const test of testCases) {
+  const baseDir = test.outputDir;
+  await mkdir(baseDir, { recursive: true });
+  // Obtain key material and process into byte array format
+  const keyMaterial = JSON.parse(
+    await readFile(new URL(test.keyFile, import.meta.url)),
+  );
+  // **Proof Configuration Options**
+  // Set proof options per draft
+  // Proof Configuration Step
+  // Sample long term issuer signing key
+  const secretKey = hexToBytes(keyMaterial[test.keyName].secretKeyHex);
+  const publicKeyMultibase = keyMaterial[test.keyName].publicKeyMultibase;
+  const proofConfig = {};
+  proofConfig.type = "DataIntegrityProof";
+  proofConfig.cryptosuite = test.suiteName;
+  proofConfig.created = "2026-04-15T23:36:38Z";
+  proofConfig.verificationMethod = "did:key:" + publicKeyMultibase;
+  proofConfig.proofPurpose = "assertionMethod";
+  proofConfig["@context"] = document["@context"];
+  writeFile(
+    baseDir + "addProofConfig.json",
+    JSON.stringify(proofConfig, null, 2),
+  );
+  const proofCanon = await jsonld.canonize(proofConfig);
+  writeFile(baseDir + "addProofConfigCanon.txt", proofCanon);
 
-// Initialize a byte array, proofValue, that starts with the ECDSA-SD base proof header bytes 0xd9, 0x5d, and 0x00.
+  /* **Hashing Step**
+   "The required inputs to this algorithm are a transformed data document (transformedDocument)
+   and canonical proof configuration (canonicalProofConfig). A hash data value represented as an
+   object is produced as output. " */
 
-// Initialize components to an array with five elements containing the values of: signature, hmacKey,
-//  salts, saltedHashes, and mandatoryPointers.
+  const proofHash = sha256(proofCanon); // @noble/hash will convert string to bytes via UTF-8
 
-// CBOR-encode components and append it to proofValue.
+  // 3.3.17 hashMandatoryNQuads
+  // Initialize bytes to the UTF-8 representation of the joined mandatory N-Quads.
+  // Initialize mandatoryHash to the result of using hasher to hash bytes.
+  // Return mandatoryHash.
+  const mandatoryHash = sha256([...mandatory.values()].join(""));
+  // Initialize hashData as a deep copy of transformedDocument and add proofHash as
+  // "proofHash" and mandatoryHash as "mandatoryHash" to that object.
+  const hashData = klona(transformed);
+  hashData.proofHash = proofHash;
+  hashData.mandatoryHash = mandatoryHash;
+  // For test vector purposes convert maps to arrays of pairs and uint8arrays to hex
+  // and don't rewrite the transformed information.
+  const hashDataOutput = {};
+  hashDataOutput.proofHash = bytesToHex(proofHash);
+  hashDataOutput.mandatoryHash = bytesToHex(mandatoryHash);
+  writeFile(
+    baseDir + "addHashData.json",
+    JSON.stringify(hashDataOutput, null, 2),
+  );
 
-// Initialize baseProof to a string with the multibase-base64url-no-pad-encoding of proofValue. That is, return a
-//  string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
-// Return baseProof as base proof.
-// */
-let proofValue = new Uint8Array([0xd9, 0x5d, 0x10]) // Header value from spec
-console.log(salts);
-console.log(saltedHashes);
-const components = [signature, hmacKey, salts, saltedHashes, mandatoryPointers]
-const cborThing = encodeCbor(components)
-proofValue = concatBytes(proofValue, cborThing)
-const baseProof = base64url.encode(proofValue)
-// console.log(baseProof)
-console.log(`Length of baseProof is ${baseProof.length} characters`)
+  // **NEW** produce a PQC signature over the concatenation of proofHash, mandatoryHash, salts, saltedHashes
+  const bigConcatenation = concatBytes(
+    proofHash,
+    mandatoryHash,
+    ...salts,
+    ...saltedHashes,
+  );
+  const hashBigConcat = sha256(bigConcatenation);
+  let signature = ml_dsa44.sign(hashBigConcat, secretKey);
 
-// Construct and Write Signed Document
-const signedDocument = klona(document)
-delete proofConfig['@context']
-signedDocument.proof = proofConfig
-signedDocument.proof.proofValue = baseProof
-console.log(JSON.stringify(signedDocument, null, 2))
-writeFile(baseDir + 'addSignedSDBase.json', JSON.stringify(signedDocument, null, 2))
+  // /* 3.4.2 **MODIFIED** serializeBaseProofValue
+  // The following algorithm serializes the base proof value, including the signature,
+  // HMAC key, salts, salted  hashes, and mandatory pointers. The required inputs are the signature,
+  // an HMAC key hmacKey, an array of salts, an array of salted hashes and an array of mandatoryPointers.
+  // A single base proof string value is produced as output.
+
+  // Initialize a byte array, proofValue, that starts with the ECDSA-SD base proof header bytes 0xd9, 0x5d, and 0x00.
+
+  // Initialize components to an array with five elements containing the values of: signature, hmacKey,
+  //  salts, saltedHashes, and mandatoryPointers.
+
+  // CBOR-encode components and append it to proofValue.
+
+  // Initialize baseProof to a string with the multibase-base64url-no-pad-encoding of proofValue. That is, return a
+  //  string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
+  // Return baseProof as base proof.
+  // */
+  let proofValue = new Uint8Array([0xd9, 0x5d, 0x10]); // Header value from spec
+  console.log(salts);
+  console.log(saltedHashes);
+  const components = [
+    signature,
+    hmacKey,
+    salts,
+    saltedHashes,
+    mandatoryPointers,
+  ];
+  const cborThing = encodeCbor(components);
+  proofValue = concatBytes(proofValue, cborThing);
+  const baseProof = base64url.encode(proofValue);
+  // console.log(baseProof)
+  console.log(`Length of baseProof is ${baseProof.length} characters`);
+
+  // Construct and Write Signed Document
+  const signedDocument = klona(document);
+  delete proofConfig["@context"];
+  signedDocument.proof = proofConfig;
+  signedDocument.proof.proofValue = baseProof;
+  console.log(JSON.stringify(signedDocument, null, 2));
+  writeFile(
+    baseDir + "addSignedSDBase.json",
+    JSON.stringify(signedDocument, null, 2),
+  );
+}

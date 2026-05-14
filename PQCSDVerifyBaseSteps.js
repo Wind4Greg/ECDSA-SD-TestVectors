@@ -28,7 +28,7 @@ function isEqual(arr1, arr2) {
 }
 
 // Create output directory for the test vectors
-const baseDir = "./output/mldsa-sd-2026/employ/";
+const baseDir = "./output/mldsa44-sd-2024/";
 await mkdir(baseDir, { recursive: true });
 
 jsonld.documentLoader = localLoader; // Local loader for JSON-LD
