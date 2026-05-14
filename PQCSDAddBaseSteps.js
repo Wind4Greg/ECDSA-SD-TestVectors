@@ -24,6 +24,8 @@ import { sha256 } from "@noble/hashes/sha256";
 import { hmac } from "@noble/hashes/hmac";
 import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
 import { ml_dsa44 } from "@noble/post-quantum/ml-dsa.js";
+import { slh_dsa_sha2_128s } from "@noble/post-quantum/slh-dsa.js";
+import { falcon512padded } from "@noble/post-quantum/falcon.js";
 import { klona } from "klona";
 import { encode as encodeCbor } from "cbor2";
 import { base64url } from "multiformats/bases/base64";
@@ -174,11 +176,26 @@ const testCases = [
     keyFile: "./input/KeysMLDSA.json",
     keyName: "mldsa44",
     suiteName: "mldsa44-sd-2024",
-    sigAlg: ml_dsa44.sign,
+    sigAlg: ml_dsa44,
+  },
+  {
+    outputDir: "./output/slhdsa128-sd-2024/",
+    keyFile: "./input/KeysSLHDSA.json",
+    keyName: "slh128s",
+    suiteName: "slhdsa128-sd-2024",
+    sigAlg: slh_dsa_sha2_128s,
+  },
+  {
+    outputDir: "./output/falcon512-sd-2024/",
+    keyFile: "./input/KeysFALCON.json",
+    keyName: "falcon512",
+    suiteName: "falcon512-sd-2024",
+    sigAlg: falcon512padded,
   },
 ];
 
 for (const test of testCases) {
+  console.log("Working on test case: ${test.suiteName}");
   const baseDir = test.outputDir;
   await mkdir(baseDir, { recursive: true });
   // Obtain key material and process into byte array format
@@ -240,7 +257,7 @@ for (const test of testCases) {
     ...saltedHashes,
   );
   const hashBigConcat = sha256(bigConcatenation);
-  let signature = ml_dsa44.sign(hashBigConcat, secretKey);
+  let signature = test.sigAlg.sign(hashBigConcat, secretKey);
 
   // /* 3.4.2 **MODIFIED** serializeBaseProofValue
   // The following algorithm serializes the base proof value, including the signature,
