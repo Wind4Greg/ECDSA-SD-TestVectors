@@ -1,0 +1,11 @@
+{
+  "type": "DataIntegrityProof",
+  "cryptosuite": "slhdsa128-sd-2024",
+  "created": "2026-04-15T23:36:38Z",
+  "verificationMethod": "did:key:uoCRINKVf8moX85R6JlvEIQk6Yp0uhjOB-Pn21k9wfPLpWw",
+  "proofPurpose": "assertionMethod",
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://w3id.org/citizenship/v4rc1"
+  ]
+}

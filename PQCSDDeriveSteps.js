@@ -12,62 +12,73 @@
     2. [serializeDerivedProofValue](https://w3c.github.io/vc-di-ecdsa/#serializederivedproofvalue)
 */
 
-import { mkdir, readFile, writeFile } from 'fs/promises'
+import { mkdir, readFile, writeFile } from "fs/promises";
 import {
-  createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup, selectJsonLd,
-  canonicalize, stripBlankNodePrefixes
-} from '@digitalbazaar/di-sd-primitives'
-import jsonld from 'jsonld'
-import { localLoader } from './documentLoader.js'
-import { bytesToHex, concatBytes } from '@noble/hashes/utils'
-import { decode as decodeCbor, encode as encodeCbor } from 'cbor2'
-import { base64url } from 'multiformats/bases/base64'
+  createHmac,
+  createHmacIdLabelMapFunction,
+  canonicalizeAndGroup,
+  selectJsonLd,
+  canonicalize,
+  stripBlankNodePrefixes,
+} from "@digitalbazaar/di-sd-primitives";
+import jsonld from "jsonld";
+import { localLoader } from "./documentLoader.js";
+import { bytesToHex, concatBytes } from "@noble/hashes/utils";
+import { decode as decodeCbor, encode as encodeCbor } from "cbor2";
+import { base64url } from "multiformats/bases/base64";
 
 // For serialization of JavaScript Map via JSON
-function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
+function replacerMap(key, value) {
+  // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
     return {
-      dataType: 'Map',
-      value: Array.from(value.entries()) // or with spread: value: [...value]
-    }
+      dataType: "Map",
+      value: Array.from(value.entries()), // or with spread: value: [...value]
+    };
   } else {
-    return value
+    return value;
   }
 }
 
-// const dirsAndFiles = {
-//   outputDir: './output/ecdsa-sd-2023/',
-//   inputFile: './input/windSelective.json'
-// }
+jsonld.documentLoader = localLoader; // Local loader for JSON-LD
 
 const dirsAndFiles = {
-  outputDir: './output/mldsa-sd-2026/employ/',
-  inputFile: './input/employSelective.json'
-}
+  selectFile: "./input/employSelective.json",
+};
 
-
-// Create output directory for the test vectors
-const baseDir = dirsAndFiles.outputDir;
-await mkdir(baseDir, { recursive: true })
+const testCases = [
+  {
+    suiteName: "mldsa44-sd-2024",
+    baseDir: "./output/mldsa44-sd-2024/",
+  },
+  {
+    suiteName: "slhdsa128-sd-2024",
+    baseDir: "./output/slhdsa128-sd-2024/",
+  },
+  {
+    suiteName: "falcon512-sd-2024",
+    baseDir: "./output/falcon512-sd-2024/",
+  },
+];
 
 const selectivePointers = JSON.parse(
-  await readFile(
-    new URL(dirsAndFiles.inputFile, import.meta.url)
-  )
-)
+  await readFile(new URL(dirsAndFiles.selectFile, import.meta.url)),
+);
 
-jsonld.documentLoader = localLoader // Local loader for JSON-LD
+for (const test of testCases) {
+  console.log(`Starting SD-Derive for ${test.suiteName}`);
+  // Create output directory for the test vectors
+  const baseDir = test.baseDir;
+  await mkdir(baseDir, { recursive: true });
 
-// Read base signed document from a file
-const document = JSON.parse(
-  await readFile(
-    new URL(baseDir + 'addSignedSDBase.json', import.meta.url)
-  )
-)
+  // Read base signed document from a file
+  const document = JSON.parse(
+    await readFile(new URL(baseDir + "addSignedSDBase.json", import.meta.url)),
+  );
 
-const options = { documentLoader: localLoader }
+  const options = { documentLoader: localLoader };
 
-/* Create Disclosure Data
+  /* Create Disclosure Data
 The inputs include a JSON-LD document (document), an PQC-SD base proof (proof), an array
 of JSON pointers to use to selectively disclose statements (selectivePointers), and any
 custom JSON-LD API options, such as a document loader). A single object, disclosure data,
@@ -75,169 +86,195 @@ is produced as output, which contains the "signature", "salts", "saltedHashes" f
 "labelMap", "mandatoryIndexes", and "revealDocument" fields.
 */
 
-/* Initialize signature, hmacKey, salts, saltedHashes, and mandatoryPointers to the
+  /* Initialize signature, hmacKey, salts, saltedHashes, and mandatoryPointers to the
 values of the associated properties in the object returned when calling the algorithm
 parseBaseProofValue, passing the proofValue from proof. */
 
-// parseBaseProofValue:
-const proof = document.proof
-delete document.proof // IMPORTANT: all work uses document without proof
-const proofValue = proof.proofValue // base64url encoded
-const proofValueBytes = base64url.decode(proofValue)
-// console.log(proofValueBytes.length);
-// check header bytes are: 0xd9, 0x5d, and 0x10
-if (proofValueBytes[0] !== 0xd9 || proofValueBytes[1] !== 0x5d || proofValueBytes[2] !== 0x10) {
-  throw new Error('Invalid proofValue header')
-}
-const decodeThing = decodeCbor(proofValueBytes.slice(3))
-if (decodeThing.length !== 5) {
-  throw new Error('Bad length of CBOR decoded proofValue data')
-}
-const [signature, hmacKey, salts,  saltedHashes, mandatoryPointers] = decodeThing
-const baseProofData = {
-  signature: bytesToHex(signature),
-  hmacKey: bytesToHex(hmacKey),
-  salts: salts.map(s => bytesToHex(s)),
-  saltedHashes: saltedHashes.map(sh => bytesToHex(sh)),
-  mandatoryPointers
-}
-await writeFile(baseDir + 'derivedRecoveredBaseData.json', JSON.stringify(baseProofData, replacerMap, 2))
-// Combine pointers
-const combinedPointers = mandatoryPointers.concat(selectivePointers)
-// Initialize revealDocument to the result of the "selectJsonLd" algorithm,
-// passing document, and combinedPointers as pointers.
-// function selectJsonLd({document, pointers, includeTypes = true} = {})
-const revealDocument = selectJsonLd({ document, pointers: combinedPointers })
-await writeFile(baseDir + 'derivedUnsignedReveal.json', JSON.stringify(revealDocument, replacerMap, 2))
-// setup HMAC stuff
-const hmac = await createHmac({ key: hmacKey })
-const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac })
+  // parseBaseProofValue:
+  const proof = document.proof;
+  delete document.proof; // IMPORTANT: all work uses document without proof
+  const proofValue = proof.proofValue; // base64url encoded
+  const proofValueBytes = base64url.decode(proofValue);
+  // console.log(proofValueBytes.length);
+  // check header bytes are: 0xd9, 0x5d, and 0x10
+  if (
+    proofValueBytes[0] !== 0xd9 ||
+    proofValueBytes[1] !== 0x5d ||
+    proofValueBytes[2] !== 0x10
+  ) {
+    throw new Error("Invalid proofValue header");
+  }
+  const decodeThing = decodeCbor(proofValueBytes.slice(3));
+  if (decodeThing.length !== 5) {
+    throw new Error("Bad length of CBOR decoded proofValue data");
+  }
+  const [signature, hmacKey, salts, saltedHashes, mandatoryPointers] =
+    decodeThing;
+  const baseProofData = {
+    signature: bytesToHex(signature),
+    hmacKey: bytesToHex(hmacKey),
+    salts: salts.map((s) => bytesToHex(s)),
+    saltedHashes: saltedHashes.map((sh) => bytesToHex(sh)),
+    mandatoryPointers,
+  };
+  await writeFile(
+    baseDir + "derivedRecoveredBaseData.json",
+    JSON.stringify(baseProofData, replacerMap, 2),
+  );
+  // Combine pointers
+  const combinedPointers = mandatoryPointers.concat(selectivePointers);
+  // Initialize revealDocument to the result of the "selectJsonLd" algorithm,
+  // passing document, and combinedPointers as pointers.
+  // function selectJsonLd({document, pointers, includeTypes = true} = {})
+  const revealDocument = selectJsonLd({ document, pointers: combinedPointers });
+  await writeFile(
+    baseDir + "derivedUnsignedReveal.json",
+    JSON.stringify(revealDocument, replacerMap, 2),
+  );
+  // setup HMAC stuff
+  const hmac = await createHmac({ key: hmacKey });
+  const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac });
 
-/*
+  /*
 Initialize groupDefinitions to a map with the following entries: key of the string "mandatory"
 and value of mandatoryPointers, key of the string "selective" and value of selectivePointers,
 and key of the string "combined" and value of combinedPointers.
 */
-const groups = {
-  mandatory: mandatoryPointers,
-  selective: selectivePointers,
-  combined: combinedPointers
-}
-const stuff = await canonicalizeAndGroup({
-  document,
-  labelMapFactoryFunction,
-  groups,
-  options
-})
-// console.log(JSON.stringify(stuff, replacerMap, 2))
-await writeFile(baseDir + 'derivedAllGroupData.json', JSON.stringify(stuff, replacerMap))
-const combinedMatch = stuff.groups.combined.matching
-const mandatoryMatch = stuff.groups.mandatory.matching
-const mandatoryNonMatch = stuff.groups.mandatory.nonMatching // For reverse engineering
-const selectiveMatch = stuff.groups.selective.matching
-console.log('Combined indexes:')
-const combinedIndexes = [...combinedMatch.keys()]
-console.log([...combinedMatch.keys()])
-console.log('Mandatory indexes:')
-console.log([...mandatoryMatch.keys()])
-console.log('Non-Mandatory indexes:')
-const nonMandatoryIndexes = [...mandatoryNonMatch.keys()]
-console.log(nonMandatoryIndexes) // These were used for individual signatures
-console.log('Selective Indexes:')
-const selectiveIndexes = [...selectiveMatch.keys()]
-console.log(selectiveIndexes)
-const groupIndexes = {
-  combinedIndexes,
-  mandatoryIndexes: [...mandatoryMatch.keys()],
-  nonMandatoryIndexes,
-  selectiveIndexes
-}
-await writeFile(baseDir + 'derivedGroupIndexes.json', JSON.stringify(groupIndexes, replacerMap))
-/*
+  const groups = {
+    mandatory: mandatoryPointers,
+    selective: selectivePointers,
+    combined: combinedPointers,
+  };
+  const stuff = await canonicalizeAndGroup({
+    document,
+    labelMapFactoryFunction,
+    groups,
+    options,
+  });
+  // console.log(JSON.stringify(stuff, replacerMap, 2))
+  await writeFile(
+    baseDir + "derivedAllGroupData.json",
+    JSON.stringify(stuff, replacerMap),
+  );
+  const combinedMatch = stuff.groups.combined.matching;
+  const mandatoryMatch = stuff.groups.mandatory.matching;
+  const mandatoryNonMatch = stuff.groups.mandatory.nonMatching; // For reverse engineering
+  const selectiveMatch = stuff.groups.selective.matching;
+  console.log("Combined indexes:");
+  const combinedIndexes = [...combinedMatch.keys()];
+  console.log([...combinedMatch.keys()]);
+  console.log("Mandatory indexes:");
+  console.log([...mandatoryMatch.keys()]);
+  console.log("Non-Mandatory indexes:");
+  const nonMandatoryIndexes = [...mandatoryNonMatch.keys()];
+  console.log(nonMandatoryIndexes); // These were used for individual signatures
+  console.log("Selective Indexes:");
+  const selectiveIndexes = [...selectiveMatch.keys()];
+  console.log(selectiveIndexes);
+  const groupIndexes = {
+    combinedIndexes,
+    mandatoryIndexes: [...mandatoryMatch.keys()],
+    nonMandatoryIndexes,
+    selectiveIndexes,
+  };
+  await writeFile(
+    baseDir + "derivedGroupIndexes.json",
+    JSON.stringify(groupIndexes, replacerMap),
+  );
+  /*
   My simplification. Compute the "adjusted mandatory indexes" relative to their
   positions in the combined statement list, i.e., find at what position a mandatory
   statement occurs in the list of combined statements.
 */
-const adjMandatoryIndexes = []
-mandatoryMatch.forEach((value, index) => {
-  adjMandatoryIndexes.push(combinedIndexes.indexOf(index))
-})
-// console.log('My Adjusted Mandatory:')
-// console.log(adjMandatoryIndexes)
-await writeFile(baseDir + 'derivedAdjMandatoryIndexes.json', JSON.stringify({ adjMandatoryIndexes }))
-/* Determine which signatures match a selectively disclosed statement.
+  const adjMandatoryIndexes = [];
+  mandatoryMatch.forEach((value, index) => {
+    adjMandatoryIndexes.push(combinedIndexes.indexOf(index));
+  });
+  // console.log('My Adjusted Mandatory:')
+  // console.log(adjMandatoryIndexes)
+  await writeFile(
+    baseDir + "derivedAdjMandatoryIndexes.json",
+    JSON.stringify({ adjMandatoryIndexes }),
+  );
+  /* Determine which signatures match a selectively disclosed statement.
   First determine the "adjusted signature indexes", i.e., relative to their
   place in the list of statements with signatures. These correspond to the
   non-mandatory statements.
   Then simply filter to only those signatures.
 */
-const adjSelectiveIndexes = []
-selectiveMatch.forEach((value, index) => {
-  const adjIndex = nonMandatoryIndexes.indexOf(index)
-  if (adjIndex !== -1) {
-    adjSelectiveIndexes.push(adjIndex)
-  }
-})
-// **TODO** I think we will need to send this adjusted signature indexes
-// so the verifier can grab the approapriate salts and compute and verify the
-// salted hashes.
-console.log('adjust Signature Indexes:')
-console.log(adjSelectiveIndexes)
+  const adjSelectiveIndexes = [];
+  selectiveMatch.forEach((value, index) => {
+    const adjIndex = nonMandatoryIndexes.indexOf(index);
+    if (adjIndex !== -1) {
+      adjSelectiveIndexes.push(adjIndex);
+    }
+  });
+  // we will need to send this adjusted signature indexes
+  // so the verifier can grab the appropriate salts and compute and verify the
+  // salted hashes.
+  console.log("adjust Signature Indexes:");
+  console.log(adjSelectiveIndexes);
 
-/*
+  /*
 Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
 passing any custom options, and get the canonical bnode identifier map, canonicalIdMap. Note: This map
 includes the canonical blank node identifiers that a verifier will produce when they canonicalize the
 reveal document.
 */
-const deskolemizedNQuads = stuff.groups.combined.deskolemizedNQuads
-let canonicalIdMap = new Map()
-// The goal of the below is to get the canonicalIdMap and not the canonical document
-await canonicalize(deskolemizedNQuads.join(''),
-  { ...options, inputFormat: 'application/n-quads', canonicalIdMap })
-// console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
-canonicalIdMap = stripBlankNodePrefixes(canonicalIdMap)
-// console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
-/* Initialize verifierLabelMap to an empty map. This map will map the canonical blank node identifiers
+  const deskolemizedNQuads = stuff.groups.combined.deskolemizedNQuads;
+  let canonicalIdMap = new Map();
+  // The goal of the below is to get the canonicalIdMap and not the canonical document
+  await canonicalize(deskolemizedNQuads.join(""), {
+    ...options,
+    inputFormat: "application/n-quads",
+    canonicalIdMap,
+  });
+  // console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
+  canonicalIdMap = stripBlankNodePrefixes(canonicalIdMap);
+  // console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
+  /* Initialize verifierLabelMap to an empty map. This map will map the canonical blank node identifiers
  the verifier will produce when they canonicalize the revealed document to the blank node identifiers
   that were originally signed in the base proof. (step 13)
 */
-const verifierLabelMap = new Map()
-/* For each key (inputLabel) and value (verifierLabel) in `canonicalIdMap:
+  const verifierLabelMap = new Map();
+  /* For each key (inputLabel) and value (verifierLabel) in `canonicalIdMap:
     Add an entry to verifierLabelMap using verifierLabel as the key and the value associated with inputLabel
     as a key in labelMap as the value.
 */
-const labelMap = stuff.labelMap
-canonicalIdMap.forEach(function (value, key) {
-  verifierLabelMap.set(value, labelMap.get(key))
-})
+  const labelMap = stuff.labelMap;
+  canonicalIdMap.forEach(function (value, key) {
+    verifierLabelMap.set(value, labelMap.get(key));
+  });
 
-/* Return an object with properties matching baseSignature, publicKey, "signatures" for filteredSignatures,
+  /* Return an object with properties matching baseSignature, publicKey, "signatures" for filteredSignatures,
 "verifierLabelMap" for labelMap, mandatoryIndexes, and revealDocument.
   **End** of the *createDisclosureData* function
 */
-const disclosureData = {
-  signature: bytesToHex(signature),
-  salts: salts.map(s => bytesToHex(s)),
-  saltedHashes: saltedHashes.map(sh => bytesToHex(sh)),
-  labelMap: verifierLabelMap,
-  mandatoryIndexes: adjMandatoryIndexes,
-  selectiveIndexes: adjSelectiveIndexes
-}
-await writeFile(baseDir + 'derivedDisclosureData.json', JSON.stringify(disclosureData, replacerMap, 2))
+  const disclosureData = {
+    signature: bytesToHex(signature),
+    salts: salts.map((s) => bytesToHex(s)),
+    saltedHashes: saltedHashes.map((sh) => bytesToHex(sh)),
+    labelMap: verifierLabelMap,
+    mandatoryIndexes: adjMandatoryIndexes,
+    selectiveIndexes: adjSelectiveIndexes,
+  };
+  await writeFile(
+    baseDir + "derivedDisclosureData.json",
+    JSON.stringify(disclosureData, replacerMap, 2),
+  );
 
-// Initialize newProof to a shallow copy of proof.
-const newProof = Object.assign({}, proof)
-/* 3.4.7 **Modified** serializeDerivedProofValue
+  // Initialize newProof to a shallow copy of proof.
+  const newProof = Object.assign({}, proof);
+  /* 3.4.7 **Modified** serializeDerivedProofValue
   The following algorithm serializes a derived proof value. The required inputs are a base signature
   (signature), an array of salts (salts), an array of salted hashes (saltedHashes), a label map (labelMap),
   and an array of mandatory indexes (mandatoryIndexes). A single derived proof value, serialized as a byte string,
   is produced as output.
 */
-/* Initialize compressedLabelMap to the result of calling the algorithm in Section 3.4.5
+  /* Initialize compressedLabelMap to the result of calling the algorithm in Section 3.4.5
   compressLabelMap, passing labelMap as the parameter.
 */
-/*  The following algorithm compresses a label map. The required inputs are label map (labelMap).
+  /*  The following algorithm compresses a label map. The required inputs are label map (labelMap).
     The output is a compressed label map.
 
     Initialize map to an empty map.
@@ -247,14 +284,14 @@ const newProof = Object.assign({}, proof)
         the characters after the "u" prefix in v.
     Return map as compressed label map.
 */
-const compressLabelMap = new Map()
-verifierLabelMap.forEach(function (v, k) {
-  const key = parseInt(k.split('c14n')[1])
-  const value = base64url.decode(v)
-  compressLabelMap.set(key, value)
-})
+  const compressLabelMap = new Map();
+  verifierLabelMap.forEach(function (v, k) {
+    const key = parseInt(k.split("c14n")[1]);
+    const value = base64url.decode(v);
+    compressLabelMap.set(key, value);
+  });
 
-/*  Initialize a byte array, proofValue, that starts with the ECDSA-SD disclosure proof header
+  /*  Initialize a byte array, proofValue, that starts with the ECDSA-SD disclosure proof header
   bytes 0xd9, 0x5d, and 0x01.
   Initialize components to an array with five elements containing the values of: baseSignature,
   publicKey, signatures, compressedLabelMap, and mandatoryIndexes.
@@ -262,18 +299,31 @@ verifierLabelMap.forEach(function (v, k) {
   Return the derived proof as a string with the multibase-base64url-no-pad-encoding of proofValue.
   That is, return a string starting with "u" and ending with the base64url-no-pad-encoded value of proofValue.
 */
-let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x11])
-const components = [signature, salts, saltedHashes, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
-const cborThing = encodeCbor(components)
-derivedProofValue = concatBytes(derivedProofValue, cborThing)
-const derivedProofValueString = base64url.encode(derivedProofValue)
-// console.log(derivedProofValueString)
-console.log(`Length of derivedProofValue is ${derivedProofValueString.length} characters`)
-/*  Replace proofValue in newProof with the result of calling the algorithm in Section 3.4.7
+  let derivedProofValue = new Uint8Array([0xd9, 0x5d, 0x11]);
+  const components = [
+    signature,
+    salts,
+    saltedHashes,
+    compressLabelMap,
+    adjMandatoryIndexes,
+    adjSelectiveIndexes,
+  ];
+  const cborThing = encodeCbor(components);
+  derivedProofValue = concatBytes(derivedProofValue, cborThing);
+  const derivedProofValueString = base64url.encode(derivedProofValue);
+  // console.log(derivedProofValueString)
+  console.log(
+    `Length of derivedProofValue is ${derivedProofValueString.length} characters`,
+  );
+  /*  Replace proofValue in newProof with the result of calling the algorithm in Section 3.4.7
   serializeDerivedProofValue, passing baseSignature, publicKey, signatures, labelMap, and mandatoryIndexes.
   Set the value of the "proof" property in revealDocument to newProof.
   Return revealDocument as the selectively revealed document. */
-newProof.proofValue = derivedProofValueString
-revealDocument.proof = newProof
-// console.log(JSON.stringify(revealDocument, null, 2));
-writeFile(baseDir + 'derivedRevealDocument.json', JSON.stringify(revealDocument, null, 2))
+  newProof.proofValue = derivedProofValueString;
+  revealDocument.proof = newProof;
+  // console.log(JSON.stringify(revealDocument, null, 2));
+  writeFile(
+    baseDir + "derivedRevealDocument.json",
+    JSON.stringify(revealDocument, null, 2),
+  );
+}
