@@ -248,4 +248,47 @@ async function createDisclosureData(document, mandatoryPointers, selectivePointe
     nonMandatory: stuff.groups.mandatory.nonMatching};
 }
 
+// *Create Verify Data* ***general*** returns {proofHash, nonMandatory, and mandatoryHash}
 
+async function createVerifyData(sdDocument, labelMapCompressed, mandatoryIndexes) {
+  // *Create Verify Data*
+  
+  const proof = sdDocument.proof
+  const proofValue = proof.proofValue
+  const proofConfig = klona(sdDocument.proof)
+  delete proofConfig.proofValue
+  proofConfig['@context'] = sdDocument['@context']
+  delete sdDocument.proof // **IMPORTANT** from now on we work with the document without proof!!!!!!!
+  const proofCanon = await jsonld.canonize(proofConfig)
+  const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
+
+  // 3.4.6 decompressLabelMap
+  const labelMap = new Map()
+  labelMapCompressed.forEach(function (v, k) {
+    const key = 'c14n' + k
+    const value = base64url.encode(v)
+    labelMap.set(key, value)
+  })
+
+  const labelMapFactoryFunction = await createLabelMapFunction({ labelMap })
+  /* Initialize nquads to the result of calling the "labelReplacementCanonicalize" algorithm, passing
+    document, labelMapFactoryFunction, and any custom JSON-LD API options. Note: This step transforms
+    the document into an array of canonical N-Quads with pseudorandom blank node identifiers based on
+    labelMap.
+  */
+  const nquads = await labelReplacementCanonicalizeJsonLd({document, labelMapFactoryFunction, options});
+  writeFile(baseDir + 'verifyNQuads.json', JSON.stringify(nquads, null, 2))
+  // Separate into mandatory and non-mandatory
+  const mandatory = []
+  const nonMandatory = []
+  nquads.forEach(function (value, index) {
+    if (mandatoryIndexes.includes(index)) {
+      mandatory.push(value)
+    } else {
+      nonMandatory.push(value)
+    }
+  })
+  // **CAUTION** JavaScript join() without argument uses ',' comma!!!
+  const mandatoryHash = sha256(mandatory.join(''));
+  return {proofHash, mandatoryHash, nonMandatory}
+}
