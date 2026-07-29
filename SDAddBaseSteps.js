@@ -16,6 +16,7 @@ import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import { encode as encodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
+
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -79,7 +80,7 @@ proofOptions.cryptosuite = 'ecdsa-sd-2023'
 proofOptions.created = '2023-08-15T23:36:38Z'
 proofOptions.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicKeyMultibase
 proofOptions.proofPurpose = 'assertionMethod'
-proofOptions['@context'] = document['@context'] // done in proof config now
+proofOptions['@context'] = document['@context'] // also done in proof config now
 writeFile(baseDir + 'addProofConfig.json', JSON.stringify(proofOptions, null, 2))
 
 // Canonicalize Proof Configuration

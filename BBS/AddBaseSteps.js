@@ -3,10 +3,8 @@
     a base BBS proof using selective disclosure primitive functions. The higher
     level steps are *transformation*, *hashing*, and *serialization*.
 */
-
+import { hashingSD, proofConfigCanon, transformSD} from '../CommonAlgs.js'
 import { mkdir, readFile, writeFile } from 'fs/promises'
-import { createHmac, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
-import { createShuffledIdLabelMapFunction } from './labelMap.js'
 import jsonld from 'jsonld'
 import { localLoader } from '../documentLoader.js'
 import { sha256 } from '@noble/hashes/sha256'
@@ -16,6 +14,7 @@ import { klona } from 'klona'
 import { base58btc } from 'multiformats/bases/base58'
 import { encode as encodeCbor } from 'cbor2'
 import { base64url } from 'multiformats/bases/base64'
+
 // For serialization of JavaScript Map via JSON
 function replacerMap (key, value) { // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
   if (value instanceof Map) {
@@ -67,53 +66,42 @@ const options = { documentLoader: localLoader }
 
 // Missing Step: **Proof Configuration Options**
 // Set proof options per draft
-const proofConfig = {}
-proofConfig.type = 'DataIntegrityProof'
-proofConfig.cryptosuite = 'bbs-2023'
-proofConfig.created = '2023-08-15T23:36:38Z'
-proofConfig.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicKeyMultibase
-proofConfig.proofPurpose = 'assertionMethod'
-proofConfig['@context'] = document['@context']
-writeFile(baseDir + 'addProofConfig.json', JSON.stringify(proofConfig, null, 2))
-const proofCanon = await jsonld.canonize(proofConfig)
-writeFile(baseDir + 'addProofConfigCanon.txt', proofCanon)
+const proofOptions = {}
+proofOptions.type = 'DataIntegrityProof'
+proofOptions.cryptosuite = 'bbs-2023'
+proofOptions.created = '2023-08-15T23:36:38Z'
+proofOptions.verificationMethod = 'did:key:' + publicKeyMultibase + '#' + publicKeyMultibase
+proofOptions.proofPurpose = 'assertionMethod'
+proofOptions['@context'] = document['@context']
+writeFile(baseDir + 'addProofConfig.json', JSON.stringify(proofOptions, null, 2))
 
-// **Transformation Step**
-const hmacFunc = await createHmac({ key: hmacKey })
-const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac: hmacFunc })
+const proofCanon = await proofConfigCanon(proofOptions, document, "sha256")
+writeFile(baseDir + 'addProofConfigCanon.txt', proofCanon)
 
 const mandatoryPointers = JSON.parse(
   await readFile(
     new URL(dirsAndFiles.mandatoryFile, import.meta.url)
   )
 )
-const groups = { mandatory: mandatoryPointers }
 
-const stuff = await canonicalizeAndGroup({ document, labelMapFactoryFunction, groups, options })
-// console.log(stuff.groups);
-const mandatory = stuff.groups.mandatory.matching
-const nonMandatory = stuff.groups.mandatory.nonMatching
-// As output the transformation algorithm wants us to return an object with
-// "mandatoryPointers" set to mandatoryPointers, "mandatory" set to mandatory,
-// "nonMandatory" set to nonMandatory, and "hmacKey" set to hmacKey.
+// **Transformation Step**
+// General SD transform, note  false ==> don't use legacy ECDSA-SD label map
+const {mandatory, nonMandatory} = await transformSD(document, mandatoryPointers, hmacKey, false);
 const transformed = { mandatoryPointers, mandatory, nonMandatory, hmacKey }
 // Converting maps to arrays of entries for test vector production not required
 // for algorithm.
 const transformOutput = { mandatoryPointers, mandatory, nonMandatory, hmacKeyString }
 await writeFile(baseDir + 'addBaseTransform.json', JSON.stringify(transformOutput, replacerMap, 2))
+
 // For illustration purposes only show the canonicalized document nquads
-const documentCanonQuads = await jsonld.canonize(document) // block of text
-const documentCanon = documentCanonQuads.split('\n').slice(0, -1).map(q => q + '\n') // array
-await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, null, 2))
-await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(stuff.nquads, null, 2))
+// const documentCanonQuads = await jsonld.canonize(document) // block of text
+// const documentCanon = documentCanonQuads.split('\n').slice(0, -1).map(q => q + '\n') // array
+// await writeFile(baseDir + 'addBaseDocCanon.json', JSON.stringify(documentCanon, null, 2))
+// await writeFile(baseDir + 'addBaseDocHMACCanon.json', JSON.stringify(stuff.nquads, null, 2))
 
 // **Hashing Step**
-const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
+const {proofHash, mandatoryHash} = hashingSD(mandatory, proofCanon, "sha256");
 
-// 3.3.17 hashMandatoryNQuads
-const mandatoryHash = sha256([...mandatory.values()].join(''))
-// Initialize hashData as a deep copy of transformedDocument and add proofHash as
-// "proofHash" and mandatoryHash as "mandatoryHash" to that object.
 const hashData = klona(transformed)
 hashData.proofHash = proofHash
 hashData.mandatoryHash = mandatoryHash
@@ -153,8 +141,8 @@ console.log(`Length of baseProof is ${baseProof.length} characters`)
 
 // Construct and Write Signed Document
 const signedDocument = klona(document)
-delete proofConfig['@context']
-signedDocument.proof = proofConfig
+delete proofOptions['@context']
+signedDocument.proof = proofOptions
 signedDocument.proof.proofValue = baseProof
 console.log(JSON.stringify(signedDocument, null, 2))
 writeFile(baseDir + 'addSignedSDBase.json', JSON.stringify(signedDocument, null, 2))

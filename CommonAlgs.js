@@ -40,7 +40,7 @@ import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
 import { base64url } from 'multiformats/bases/base64'
 import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
 import { createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
-
+import { createShuffledIdLabelMapFunction } from './BBS/labelMap.js'
 
 jsonld.documentLoader = localLoader; // Local loader for JSON-LD
 const options = { documentLoader: localLoader };
