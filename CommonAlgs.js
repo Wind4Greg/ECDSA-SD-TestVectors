@@ -34,12 +34,12 @@ These depend on whether SIC, SHoC or MCS.
 import { klona } from "klona";
 import jsonld from "jsonld"; // For RDFC
 import { localLoader } from "./documentLoader.js";
-import canonicalize from "canonicalize"; // For JCS
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
 import { base64url } from 'multiformats/bases/base64'
-import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
+import { canonicalize, createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
 import { createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
+import { selectJsonLd, stripBlankNodePrefixes } from '@digitalbazaar/di-sd-primitives'
 import { createShuffledIdLabelMapFunction } from './BBS/labelMap.js'
 
 jsonld.documentLoader = localLoader; // Local loader for JSON-LD
@@ -170,7 +170,7 @@ export function saltedHashingSD(nonMandatoryQuads, hashName="sha256") {
  * @returns {revealDocument, mandatoryIndexes, selectiveIndexes, 
  * verifierLabelMap, mandatory, nonMandatory}
  */
-async function createDisclosureData(document, mandatoryPointers, selectivePointers, hmacKey,  
+export async function createDisclosureData(document, mandatoryPointers, selectivePointers, hmacKey,  
   ecdsaLabelMap = false) {
   const combinedPointers = mandatoryPointers.concat(selectivePointers);
   // **Create unsigned selectively disclosed document**, i.e., the reveal document
@@ -244,8 +244,12 @@ async function createDisclosureData(document, mandatoryPointers, selectivePointe
     as a key in labelMap as the value.
   */
   const labelMap = stuff.labelMap;
+  // console.log("Label Map  from createDisclosureData:");
+  // console.log(labelMap);
+  // console.log("Canonical ID  map from createDisclosureData:");
+  // console.log(canonicalIdMap);
   canonicalIdMap.forEach(function (value, key) {verifierLabelMap.set(value, labelMap.get(key));});
-
+  // console.log(verifierLabelMap);
   return {revealDocument, mandatoryIndexes: adjMandatoryIndexes, 
     selectiveIndexes: adjSelectiveIndexes, verifierLabelMap, mandatory:stuff.groups.mandatory.matching,
     nonMandatory: stuff.groups.mandatory.nonMatching};
