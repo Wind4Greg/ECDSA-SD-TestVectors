@@ -13,10 +13,6 @@
 */
 import {createDisclosureData} from './CommonAlgs.js';
 import { mkdir, readFile, writeFile } from 'fs/promises'
-import {
-  createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup, selectJsonLd,
-  canonicalize, stripBlankNodePrefixes
-} from '@digitalbazaar/di-sd-primitives'
 import jsonld from 'jsonld'
 import { localLoader } from './documentLoader.js'
 import { bytesToHex, concatBytes } from '@noble/hashes/utils'
