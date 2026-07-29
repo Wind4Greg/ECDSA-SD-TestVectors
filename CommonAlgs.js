@@ -284,10 +284,9 @@ export async function createVerifyData(sdDocument, labelMapCompressed, mandatory
     the document into an array of canonical N-Quads with pseudorandom blank node identifiers based on
     labelMap.
   */
-  console.log(labelMap);
-  console.log(labelMapFactoryFunction);
+  // console.log(labelMap);
+  // console.log(labelMapFactoryFunction);
   const nquads = await labelReplacementCanonicalizeJsonLd({document: sdDocument, labelMapFactoryFunction, options: { documentLoader: localLoader }});
-  console.log(`nquads: ${nquads}`);
   // Separate into mandatory and non-mandatory
   const mandatory = []
   const nonMandatory = []

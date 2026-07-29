@@ -8,12 +8,8 @@
 
     Key initialization step: [3.4.9 createVerifyData](https://w3c.github.io/vc-di-ecdsa/#createverifydata)
 */
-
+import {createVerifyData} from './CommonAlgs.js';
 import { mkdir, readFile, writeFile } from "fs/promises";
-import {
-  createLabelMapFunction,
-  labelReplacementCanonicalizeJsonLd,
-} from "@digitalbazaar/di-sd-primitives";
 import jsonld from "jsonld";
 import { localLoader } from "./documentLoader.js";
 import { sha256 } from "@noble/hashes/sha256";
@@ -70,50 +66,11 @@ for (const test of testCases) {
 
   const options = { documentLoader: localLoader };
 
-  /* Create Verify Data
-The following algorithm creates the data needed to perform verification of an ECDSA-SD-protected
-verifiable credential. The inputs include a JSON-LD document (document), an ECDSA-SD disclosure proof
-(proof), and any custom JSON-LD API options, such as a document loader. A single verify data object
-value is produced as output containing the following fields: "signature", "proofHash",
-"salts",, "saltedHashes", "nonMandatory"?, and "mandatoryHash".
-*/
-  /* Initialize proofHash to the result of perform RDF Dataset Canonicalization [RDF-CANON] on the proof
-  options. The hash used is the same as the one used in the signature algorithm, i.e., SHA-256 for a
-  P-256 curve. Note: This step can be performed in parallel; it only needs to be completed before
-  this algorithm needs to use the proofHash value.
-*/
+
   const proof = document.proof;
   const proofValue = proof.proofValue;
-  const proofConfig = klona(document.proof);
-  delete proofConfig.proofValue;
-  proofConfig["@context"] = document["@context"];
-  delete document.proof; // **IMPORTANT** from now on we work with the document without proof!!!!!!!
-  const proofCanon = await jsonld.canonize(proofConfig);
-  const proofHash = sha256(proofCanon); // @noble/hash will convert string to bytes via UTF-8
-
-  // console.log(`proofHash: ${bytesToHex(proofHash)}`);
-  /* 3.4.8 parseDerivedProofValue
-The following algorithm parses the components of the derived proof value. The required inputs
-are a derived proof value (proofValue). A A single derived proof value value object is produced
-as output, which contains a set to five elements, using the names "signature", "salts",
-"saltedHashes", "labelMap", and "mandatoryIndexes".
-
-    Ensure the proofValue string starts with u, indicating that it is a multibase-base64url-no-pad-encoded
-      value, throwing an error if it does not.
-    Initialize decodedProofValue to the result of base64url-no-pad-decoding the substring after the
-      leading u in proofValue.
-    Ensure that the decodedProofValue starts with the ECDSA-SD disclosure proof header bytes 0xd9,
-      0x5d, and 0x01, throwing an error if it does not.
-    Initialize components to an array that is the result of CBOR-decoding the bytes that follow the
-      three-byte ECDSA-SD disclosure proof header. Ensure the result is an array of five elements.
-      Ensure the result is an array of five elements: a byte array of length 64, a byte array of
-      length 36, an array of byte arrays, each of length 64, a map of integers to byte arrays of
-      length 32, and an array of integers, throwing an error if not.
-    Replace the fourth element in components using the result of calling the algorithm in Section 3.4.6
-      decompressLabelMap, passing the existing fourth element of components as compressedLabelMap.
-    Return derived proof value as an object with properties set to the five elements, using the
-      names "baseSignature", "publicKey", "signatures", "labelMap", and "mandatoryIndexes", respectively.
-*/
+  
+  //  **Parse Derived Proof Value**
 
   if (!proofValue.startsWith("u")) {
     throw new Error("proofValue not a valid multibase-64-url encoding");
@@ -157,95 +114,13 @@ as output, which contains a set to five elements, using the names "signature", "
       throw new Error("Value in mandatory indexes  is not an integer");
     }
   });
-  /* Replace the fourth element in components using the result of calling the algorithm in Section 3.4.6
-  decompressLabelMap, passing the existing fourth element of components as compressedLabelMap.
-*/
-  /* 3.4.6 decompressLabelMap
-  The following algorithm decompresses a label map. The required input is a compressed label map
-   (compressedLabelMap). The output is a decompressed label map.
+  
 
-    Initialize map to an empty map.
-    For each entry (k, v) in compressedLabelMap:
-        Add an entry to map with a key that adds the prefix "c14n" to k and a value
-        that adds a prefix of "u" to the base64url-no-pad-encoded value for v.
-    Return map as decompressed label map.
-*/
-  const labelMap = new Map();
-  labelMapCompressed.forEach(function (v, k) {
-    const key = "c14n" + k;
-    const value = base64url.encode(v);
-    labelMap.set(key, value);
-  });
-  // console.log(labelMap);
-  /* Return derived proof value as an object with properties set to the five elements, using the
-  names "baseSignature", "publicKey", "signatures", "labelMap", and "mandatoryIndexes", respectively. */
-  // Could use a test vector here
-  const derivedProofValue = {
-    signature: bytesToHex(signature),
-    salts: salts.map((s) => bytesToHex(s)),
-    saltedHashes: saltedHashes.map((sh) => bytesToHex(sh)),
-    labelMap: [...labelMap],
-    mandatoryIndexes,
-    selectiveIndexes,
-  };
-  // console.log(labelMap);
-  writeFile(
-    baseDir + "verifyDerivedProofValue.json",
-    JSON.stringify(derivedProofValue, null, 2),
-  );
+  // get additional verify data
+  const {proofHash, mandatoryHash, nonMandatory} = await createVerifyData(document, labelMapCompressed, mandatoryIndexes, true);
 
-  // Initialize labelMapFactoryFunction to the result of calling the "createLabelMapFunction" algorithm.
-  const labelMapFactoryFunction = await createLabelMapFunction({ labelMap });
-  /* Initialize nquads to the result of calling the "labelReplacementCanonicalize" algorithm, passing
-  document, labelMapFactoryFunction, and any custom JSON-LD API options. Note: This step transforms
-  the document into an array of canonical N-Quads with pseudorandom blank node identifiers based on
-  labelMap.
-*/
-  const nquads = await labelReplacementCanonicalizeJsonLd({
-    document,
-    labelMapFactoryFunction,
-    options,
-  });
-  writeFile(baseDir + "verifyNQuads.json", JSON.stringify(nquads, null, 2));
-  /*  Initialize mandatory to an empty array.
-Initialize nonMandatory to an empty array.
-For each entry (index, nq) in nquads, separate the N-Quads into mandatory and non-mandatory categories:
+  // **Approach Specific Cryptographic Verification**
 
-    If mandatoryIndexes includes index, add nq to mandatory.
-    Otherwise, add nq to nonMandatory.
-*/
-  const mandatory = [];
-  const nonMandatory = [];
-  nquads.forEach(function (value, index) {
-    if (mandatoryIndexes.includes(index)) {
-      mandatory.push(value);
-    } else {
-      nonMandatory.push(value);
-    }
-  });
-  /*  Initialize mandatoryHash to the result of calling the "hashMandatory" primitive, passing mandatory.
-Return an object with properties matching baseSignature, proofHash, publicKey, signatures,
-nonMandatory, and mandatoryHash.
-*/
-  // **CAUTION** JavaScript join() without argument uses ',' comma!!!
-  const mandatoryHash = sha256(mandatory.join(""));
-  // End of Create Verify Data ==> Create a test vector
-  const createVerifyData = {
-    signature: bytesToHex(signature),
-    proofHash: bytesToHex(proofHash),
-    salts: salts.map((s) => bytesToHex(s)),
-    saltedHashes: saltedHashes.map((sh) => bytesToHex(sh)),
-    nonMandatory,
-    mandatoryHash: bytesToHex(mandatoryHash),
-  };
-  writeFile(
-    baseDir + "verifyCreateVerifyData.json",
-    JSON.stringify(createVerifyData, null, 2),
-  );
-
-  /* Initialize publicKeyBytes to the public key bytes expressed in publicKey. Instructions on
-how to decode the public key value can be found in Section 2.1.1 Multikey.
-*/
   // Get public key
   // console.log(proof.verificationMethod.split("did:key:"));
   //
