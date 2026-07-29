@@ -3,6 +3,7 @@
     BBS selective disclosure proof using selective disclosure primitive functions.
 */
 
+import {createVerifyData} from '../CommonAlgs.js';
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
 import jsonld from 'jsonld'
@@ -31,18 +32,11 @@ const document = JSON.parse(
 
 const options = { documentLoader: localLoader }
 
-// *Create Verify Data*
+// *Parse Derived Proof*
 
 const proof = document.proof
 const proofValue = proof.proofValue
-const proofConfig = klona(document.proof)
-delete proofConfig.proofValue
-proofConfig['@context'] = document['@context']
-delete document.proof // **IMPORTANT** from now on we work with the document without proof!!!!!!!
-const proofCanon = await jsonld.canonize(proofConfig)
-const proofHash = sha256(proofCanon) // @noble/hash will convert string to bytes via UTF-8
 
-// console.log(`proofHash: ${bytesToHex(proofHash)}`);
 // **Parse Derived Proof Value BBS** [bbsProof, compressLabelMap, adjMandatoryIndexes, adjSelectiveIndexes]
 if (!proofValue.startsWith('u')) {
   throw new Error('proofValue not a valid multibase-64-url encoding')
@@ -57,7 +51,7 @@ if (decodeThing.length !== 5) {
   throw new Error('Bad length of CBOR decoded proofValue data')
 }
 const [bbsProof, labelMapCompressed, mandatoryIndexes, adjSelectedIndexes, presentationHeader] = decodeThing
-// console.log(baseSignature, typeof baseSignature);
+
 if (!(labelMapCompressed instanceof Map)) {
   throw new Error('Bad label map in proofValue')
 }
@@ -75,47 +69,21 @@ mandatoryIndexes.forEach(value => {
     throw new Error('Value in mandatory indexes  is not an integer')
   }
 })
-const labelMap = new Map()
-labelMapCompressed.forEach(function (v, k) {
-  const key = 'c14n' + k
-  const value = 'b' + v
-  labelMap.set(key, value)
-})
-// console.log(labelMap);
+
+// get additional verify data
+const {proofHash, mandatoryHash, nonMandatory} = await createVerifyData(document, labelMapCompressed, mandatoryIndexes);
+
 // Could use a test vector here
-const derivedProofValue = {
-  bbsProof: bytesToHex(bbsProof),
-  labelMap: [...labelMap],
-  mandatoryIndexes,
-  adjSelectedIndexes
-}
+// const derivedProofValue = {
+//   bbsProof: bytesToHex(bbsProof),
+//   labelMap: [...labelMap],
+//   mandatoryIndexes,
+//   adjSelectedIndexes
+// }
 // console.log(labelMap);
-writeFile(baseDir + 'verifyDerivedProofValue.json', JSON.stringify(derivedProofValue, null, 2))
+// writeFile(baseDir + 'verifyDerivedProofValue.json', JSON.stringify(derivedProofValue, null, 2))
 
-// Initialize labelMapFactoryFunction to the result of calling the "createLabelMapFunction" algorithm.
-const labelMapFactoryFunction = await createLabelMapFunction({ labelMap })
-/* Initialize nquads to the result of calling the "labelReplacementCanonicalize" algorithm, passing
-  document, labelMapFactoryFunction, and any custom JSON-LD API options. Note: This step transforms
-  the document into an array of canonical N-Quads with pseudorandom blank node identifiers based on
-  labelMap.
-*/
-const nquads = await labelReplacementCanonicalizeJsonLd({
-  document,
-  labelMapFactoryFunction,
-  options
-})
-writeFile(baseDir + 'verifyNQuads.json', JSON.stringify(nquads, null, 2))
-const mandatory = []
-const nonMandatory = []
-nquads.forEach(function (value, index) {
-  if (mandatoryIndexes.includes(index)) {
-    mandatory.push(value)
-  } else {
-    nonMandatory.push(value)
-  }
-})
-const mandatoryHash = sha256(mandatory.join(''))
-
+// **Approach Specific Cryptographic Verification**
 // Get public key
 console.log(proof.verificationMethod.split('did:key:'))
 //

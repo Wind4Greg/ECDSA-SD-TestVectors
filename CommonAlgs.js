@@ -35,9 +35,11 @@ import { klona } from "klona";
 import jsonld from "jsonld"; // For RDFC
 import { localLoader } from "./documentLoader.js";
 import canonicalize from "canonicalize"; // For JCS
-import { sha256, sha384, sha512 } from "@noble/hashes/sha2.js";
-import * as utils from "@noble/hashes/utils.js";
-const { bytesToHex, concatBytes, equalBytes, hexToBytes } = utils;
+import { sha256 } from "@noble/hashes/sha256";
+import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
+import { base64url } from 'multiformats/bases/base64'
+import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
+
 
 jsonld.documentLoader = localLoader; // Local loader for JSON-LD
 const options = { documentLoader: localLoader };
@@ -250,11 +252,10 @@ async function createDisclosureData(document, mandatoryPointers, selectivePointe
 
 // *Create Verify Data* ***general*** returns {proofHash, nonMandatory, and mandatoryHash}
 
-async function createVerifyData(sdDocument, labelMapCompressed, mandatoryIndexes) {
+export async function createVerifyData(sdDocument, labelMapCompressed, mandatoryIndexes, ecdsaLabelMap = false) {
   // *Create Verify Data*
   
   const proof = sdDocument.proof
-  const proofValue = proof.proofValue
   const proofConfig = klona(sdDocument.proof)
   delete proofConfig.proofValue
   proofConfig['@context'] = sdDocument['@context']
@@ -265,19 +266,28 @@ async function createVerifyData(sdDocument, labelMapCompressed, mandatoryIndexes
   // 3.4.6 decompressLabelMap
   const labelMap = new Map()
   labelMapCompressed.forEach(function (v, k) {
-    const key = 'c14n' + k
-    const value = base64url.encode(v)
-    labelMap.set(key, value)
+    const key = 'c14n' + k;
+    if(ecdsaLabelMap) {
+      const value = base64url.encode(v);
+      labelMap.set(key, value);
+    } else {
+      const value = 'b' + v
+      labelMap.set(key, value)
+    }
+
   })
 
-  const labelMapFactoryFunction = await createLabelMapFunction({ labelMap })
+  const labelMapFactoryFunction = await createLabelMapFunction({ labelMap });
+
   /* Initialize nquads to the result of calling the "labelReplacementCanonicalize" algorithm, passing
     document, labelMapFactoryFunction, and any custom JSON-LD API options. Note: This step transforms
     the document into an array of canonical N-Quads with pseudorandom blank node identifiers based on
     labelMap.
   */
-  const nquads = await labelReplacementCanonicalizeJsonLd({document, labelMapFactoryFunction, options});
-  writeFile(baseDir + 'verifyNQuads.json', JSON.stringify(nquads, null, 2))
+  console.log(labelMap);
+  console.log(labelMapFactoryFunction);
+  const nquads = await labelReplacementCanonicalizeJsonLd({document: sdDocument, labelMapFactoryFunction, options: { documentLoader: localLoader }});
+  console.log(`nquads: ${nquads}`);
   // Separate into mandatory and non-mandatory
   const mandatory = []
   const nonMandatory = []
