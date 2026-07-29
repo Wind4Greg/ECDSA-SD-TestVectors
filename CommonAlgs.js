@@ -39,6 +39,7 @@ import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
 import { base64url } from 'multiformats/bases/base64'
 import { createLabelMapFunction, labelReplacementCanonicalizeJsonLd } from '@digitalbazaar/di-sd-primitives'
+import { createHmac, createHmacIdLabelMapFunction, canonicalizeAndGroup } from '@digitalbazaar/di-sd-primitives'
 
 
 jsonld.documentLoader = localLoader; // Local loader for JSON-LD
@@ -51,7 +52,7 @@ const options = { documentLoader: localLoader };
  * @param {string} hash - what hash to feed to the RDF canonicalization algorithm
  * @returns canonicalized document as a multi-line string.
  */
-export async function proofConfig(proofOptions, document, hash = "sha256") {
+export async function proofConfigCanon(proofOptions, document, hash = "sha256") {
   const copyProofOptions = klona(proofOptions);
   copyProofOptions["@context"] = document["@context"];
   let proofCanon;
