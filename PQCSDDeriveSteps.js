@@ -1,26 +1,11 @@
 /*
     Walking through the steps and generating test vectors for the create a PQC-SD
-    **derived** selective disclosure proof using selective disclosure primitive
-    functions.
-
-    Reference:
-
-    [Add Derived Proof (ecdsa-sd-2023)](https://w3c.github.io/vc-di-ecdsa/#add-derived-proof-ecdsa-sd-2023)
-
-    Key steps:
-    1. [createDisclosureData](https://w3c.github.io/vc-di-ecdsa/#createdisclosuredata)
-    2. [serializeDerivedProofValue](https://w3c.github.io/vc-di-ecdsa/#serializederivedproofvalue)
+    **derived** selective disclosure proof using selective disclosure common 
+    algorithms.
 */
 
 import { mkdir, readFile, writeFile } from "fs/promises";
-import {
-  createHmac,
-  createHmacIdLabelMapFunction,
-  canonicalizeAndGroup,
-  selectJsonLd,
-  canonicalize,
-  stripBlankNodePrefixes,
-} from "@digitalbazaar/di-sd-primitives";
+import {createDisclosureData} from './CommonAlgs.js';
 import jsonld from "jsonld";
 import { localLoader } from "./documentLoader.js";
 import { bytesToHex, concatBytes } from "@noble/hashes/utils";
@@ -78,14 +63,6 @@ for (const test of testCases) {
 
   const options = { documentLoader: localLoader };
 
-  /* Create Disclosure Data
-The inputs include a JSON-LD document (document), an PQC-SD base proof (proof), an array
-of JSON pointers to use to selectively disclose statements (selectivePointers), and any
-custom JSON-LD API options, such as a document loader). A single object, disclosure data,
-is produced as output, which contains the "signature", "salts", "saltedHashes" for
-"labelMap", "mandatoryIndexes", and "revealDocument" fields.
-*/
-
   /* Initialize signature, hmacKey, salts, saltedHashes, and mandatoryPointers to the
 values of the associated properties in the object returned when calling the algorithm
 parseBaseProofValue, passing the proofValue from proof. */
@@ -121,142 +98,36 @@ parseBaseProofValue, passing the proofValue from proof. */
     baseDir + "derivedRecoveredBaseData.json",
     JSON.stringify(baseProofData, replacerMap, 2),
   );
-  // Combine pointers
-  const combinedPointers = mandatoryPointers.concat(selectivePointers);
-  // Initialize revealDocument to the result of the "selectJsonLd" algorithm,
-  // passing document, and combinedPointers as pointers.
-  // function selectJsonLd({document, pointers, includeTypes = true} = {})
-  const revealDocument = selectJsonLd({ document, pointers: combinedPointers });
+
+  /* Create Disclosure Data */
+
+  const {revealDocument, mandatoryIndexes, selectiveIndexes, verifierLabelMap, 
+    mandatory, nonMandatory} = await createDisclosureData(document, 
+    mandatoryPointers, selectivePointers, hmacKey, false);
+
   await writeFile(
     baseDir + "derivedUnsignedReveal.json",
     JSON.stringify(revealDocument, replacerMap, 2),
   );
-  // setup HMAC stuff
-  const hmac = await createHmac({ key: hmacKey });
-  const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac });
 
-  /*
-Initialize groupDefinitions to a map with the following entries: key of the string "mandatory"
-and value of mandatoryPointers, key of the string "selective" and value of selectivePointers,
-and key of the string "combined" and value of combinedPointers.
-*/
-  const groups = {
-    mandatory: mandatoryPointers,
-    selective: selectivePointers,
-    combined: combinedPointers,
-  };
-  const stuff = await canonicalizeAndGroup({
-    document,
-    labelMapFactoryFunction,
-    groups,
-    options,
-  });
-  // console.log(JSON.stringify(stuff, replacerMap, 2))
-  await writeFile(
-    baseDir + "derivedAllGroupData.json",
-    JSON.stringify(stuff, replacerMap),
-  );
-  const combinedMatch = stuff.groups.combined.matching;
-  const mandatoryMatch = stuff.groups.mandatory.matching;
-  const mandatoryNonMatch = stuff.groups.mandatory.nonMatching; // For reverse engineering
-  const selectiveMatch = stuff.groups.selective.matching;
-  console.log("Combined indexes:");
-  const combinedIndexes = [...combinedMatch.keys()];
-  console.log([...combinedMatch.keys()]);
-  console.log("Mandatory indexes:");
-  console.log([...mandatoryMatch.keys()]);
-  console.log("Non-Mandatory indexes:");
-  const nonMandatoryIndexes = [...mandatoryNonMatch.keys()];
-  console.log(nonMandatoryIndexes); // These were used for individual signatures
-  console.log("Selective Indexes:");
-  const selectiveIndexes = [...selectiveMatch.keys()];
-  console.log(selectiveIndexes);
   const groupIndexes = {
-    combinedIndexes,
-    mandatoryIndexes: [...mandatoryMatch.keys()],
-    nonMandatoryIndexes,
+    // combinedIndexes,
+    mandatoryIndexes,
+    // nonMandatoryIndexes,
     selectiveIndexes,
   };
   await writeFile(
     baseDir + "derivedGroupIndexes.json",
     JSON.stringify(groupIndexes, replacerMap),
   );
-  /*
-  My simplification. Compute the "adjusted mandatory indexes" relative to their
-  positions in the combined statement list, i.e., find at what position a mandatory
-  statement occurs in the list of combined statements.
-*/
-  const adjMandatoryIndexes = [];
-  mandatoryMatch.forEach((value, index) => {
-    adjMandatoryIndexes.push(combinedIndexes.indexOf(index));
-  });
-  // console.log('My Adjusted Mandatory:')
-  // console.log(adjMandatoryIndexes)
-  await writeFile(
-    baseDir + "derivedAdjMandatoryIndexes.json",
-    JSON.stringify({ adjMandatoryIndexes }),
-  );
-  /* Determine which signatures match a selectively disclosed statement.
-  First determine the "adjusted signature indexes", i.e., relative to their
-  place in the list of statements with signatures. These correspond to the
-  non-mandatory statements.
-  Then simply filter to only those signatures.
-*/
-  const adjSelectiveIndexes = [];
-  selectiveMatch.forEach((value, index) => {
-    const adjIndex = nonMandatoryIndexes.indexOf(index);
-    if (adjIndex !== -1) {
-      adjSelectiveIndexes.push(adjIndex);
-    }
-  });
-  // we will need to send this adjusted signature indexes
-  // so the verifier can grab the appropriate salts and compute and verify the
-  // salted hashes.
-  console.log("adjust Signature Indexes:");
-  console.log(adjSelectiveIndexes);
 
-  /*
-Run the RDF Dataset Canonicalization Algorithm [RDF-CANON] on the joined combinedGroup.deskolemizedNQuads,
-passing any custom options, and get the canonical bnode identifier map, canonicalIdMap. Note: This map
-includes the canonical blank node identifiers that a verifier will produce when they canonicalize the
-reveal document.
-*/
-  const deskolemizedNQuads = stuff.groups.combined.deskolemizedNQuads;
-  let canonicalIdMap = new Map();
-  // The goal of the below is to get the canonicalIdMap and not the canonical document
-  await canonicalize(deskolemizedNQuads.join(""), {
-    ...options,
-    inputFormat: "application/n-quads",
-    canonicalIdMap,
-  });
-  // console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
-  canonicalIdMap = stripBlankNodePrefixes(canonicalIdMap);
-  // console.log(JSON.stringify(canonicalIdMap, replacerMap, 2))
-  /* Initialize verifierLabelMap to an empty map. This map will map the canonical blank node identifiers
- the verifier will produce when they canonicalize the revealed document to the blank node identifiers
-  that were originally signed in the base proof. (step 13)
-*/
-  const verifierLabelMap = new Map();
-  /* For each key (inputLabel) and value (verifierLabel) in `canonicalIdMap:
-    Add an entry to verifierLabelMap using verifierLabel as the key and the value associated with inputLabel
-    as a key in labelMap as the value.
-*/
-  const labelMap = stuff.labelMap;
-  canonicalIdMap.forEach(function (value, key) {
-    verifierLabelMap.set(value, labelMap.get(key));
-  });
-
-  /* Return an object with properties matching baseSignature, publicKey, "signatures" for filteredSignatures,
-"verifierLabelMap" for labelMap, mandatoryIndexes, and revealDocument.
-  **End** of the *createDisclosureData* function
-*/
   const disclosureData = {
     signature: bytesToHex(signature),
     salts: salts.map((s) => bytesToHex(s)),
     saltedHashes: saltedHashes.map((sh) => bytesToHex(sh)),
     labelMap: verifierLabelMap,
-    mandatoryIndexes: adjMandatoryIndexes,
-    selectiveIndexes: adjSelectiveIndexes,
+    mandatoryIndexes,
+    selectiveIndexes,
   };
   await writeFile(
     baseDir + "derivedDisclosureData.json",
@@ -265,31 +136,15 @@ reveal document.
 
   // Initialize newProof to a shallow copy of proof.
   const newProof = Object.assign({}, proof);
-  /* 3.4.7 **Modified** serializeDerivedProofValue
-  The following algorithm serializes a derived proof value. The required inputs are a base signature
-  (signature), an array of salts (salts), an array of salted hashes (saltedHashes), a label map (labelMap),
-  and an array of mandatory indexes (mandatoryIndexes). A single derived proof value, serialized as a byte string,
-  is produced as output.
-*/
-  /* Initialize compressedLabelMap to the result of calling the algorithm in Section 3.4.5
-  compressLabelMap, passing labelMap as the parameter.
-*/
-  /*  The following algorithm compresses a label map. The required inputs are label map (labelMap).
-    The output is a compressed label map.
 
-    Initialize map to an empty map.
-    For each entry (k, v) in labelMap:
-        Add an entry to map with a key that is a base-10 integer parsed from the characters following
-        the "c14n" prefix in k and a value that is a byte array resulting from base64url-no-pad-decoding
-        the characters after the "u" prefix in v.
-    Return map as compressed label map.
-*/
-  const compressLabelMap = new Map();
+
+
+  const compressLabelMap = new Map()
   verifierLabelMap.forEach(function (v, k) {
-    const key = parseInt(k.split("c14n")[1]);
-    const value = base64url.decode(v);
-    compressLabelMap.set(key, value);
-  });
+    const key = parseInt(k.split('c14n')[1])
+    const value = parseInt(v.split('b')[1])
+    compressLabelMap.set(key, value)
+  })
 
   /*  Initialize a byte array, proofValue, that starts with the ECDSA-SD disclosure proof header
   bytes 0xd9, 0x5d, and 0x01.
@@ -305,8 +160,8 @@ reveal document.
     salts,
     saltedHashes,
     compressLabelMap,
-    adjMandatoryIndexes,
-    adjSelectiveIndexes,
+    mandatoryIndexes,
+    selectiveIndexes,
   ];
   const cborThing = encodeCbor(components);
   derivedProofValue = concatBytes(derivedProofValue, cborThing);

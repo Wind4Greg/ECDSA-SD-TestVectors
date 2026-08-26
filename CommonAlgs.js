@@ -15,7 +15,10 @@ These depend on whether SIC, SHoC or MCS.
 
 1. **Create Base Proof**
    1. *Base Proof Configuration*: return canonicalized proof config. ***General***
-   2. *Base Proof Transformation*: **General** canonicalizes and returns object with separated lists of mandatory and non-mandatory claims. Does shuffling. Only difference is choice of label map function. Can use the same for BBS and Quantum-Resistant-SD. The kind used in ECDSA-SD produces linkable artifacts and  can't be used with BBS.
+   2. *Base Proof Transformation*: **General** canonicalizes and returns object with 
+   separated lists of mandatory and non-mandatory claims. Does shuffling. Only difference 
+   is choice of label map function. Can use the same for BBS and Quantum-Resistant-SD. The 
+   kind used in ECDSA-SD produces linkable artifacts and  can't be used with BBS.
    3. *Bash Proof Hashing*:  computes *proofHash* and *mandatoryHash* in all cases. In SHoC case adds *salts* and *saltedHashes* as well. Can make ***general***  or partial reuse.
    4. *Base Proof Serialization*: This is where signatures are actually computed. Would need a different variant for SIC, SHoC, and BBS. For SIC and SHoC the signature algorithms.
 2. **Add Derived Proof** (proposed)
@@ -31,6 +34,7 @@ These depend on whether SIC, SHoC or MCS.
    3. New *Derived Proof Verification* approach specific cryptographic verification procedures.
 
 */
+import { randomBytes } from "crypto";
 import { klona } from "klona";
 import jsonld from "jsonld"; // For RDFC
 import { localLoader } from "./documentLoader.js";
@@ -132,7 +136,7 @@ export function saltedHashingSD(nonMandatoryQuads, hashName="sha256") {
   const encoder = new TextEncoder(); // Use encoder to convert to Uint8Array
   let hashFunc;
   let saltSize;
-  switch (hash) {
+  switch (hashName) {
     case "sha256":
       hashFunc = sha256;
       saltSize = 16; //in bytes, half the size of the hash value

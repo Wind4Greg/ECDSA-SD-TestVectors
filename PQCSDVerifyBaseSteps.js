@@ -5,9 +5,9 @@ import { mkdir, readFile } from "fs/promises";
 import { klona } from "klona";
 import {
   createHmac,
-  createHmacIdLabelMapFunction,
   canonicalizeAndGroup,
 } from "@digitalbazaar/di-sd-primitives";
+import { createShuffledIdLabelMapFunction } from './BBS/labelMap.js'
 import jsonld from "jsonld";
 import { sha256 } from "@noble/hashes/sha256";
 import { ml_dsa44 } from "@noble/post-quantum/ml-dsa.js";
@@ -90,7 +90,7 @@ for (let test of testCases) {
   // console.log(JSON.stringify(saltedHashInfo, null, 2));
   // setup HMAC stuff
   const hmac = await createHmac({ key: hmacKey });
-  const labelMapFactoryFunction = createHmacIdLabelMapFunction({ hmac });
+  const labelMapFactoryFunction = createShuffledIdLabelMapFunction({ hmac });
 
   const groups = {
     mandatory: mandatoryPointers,

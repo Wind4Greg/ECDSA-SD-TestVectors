@@ -101,11 +101,13 @@ for (const test of testCases) {
   if (!(labelMapCompressed instanceof Map)) {
     throw new Error("Bad label map in proofValue");
   }
+  // Using shuffle labeling, just an integer
   labelMapCompressed.forEach(function (value, key) {
-    if (!Number.isInteger(key) || value.length !== 32) {
-      throw new Error("Bad key or value in compress label map in proofValue");
+    if (!Number.isInteger(key) || !Number.isInteger(value)) {
+      throw new Error('Bad key or value in compress label map in proofValue')
     }
-  });
+  })
+
   if (!Array.isArray(mandatoryIndexes)) {
     throw new Error("mandatory indexes is not an array in proofValue");
   }
@@ -117,7 +119,7 @@ for (const test of testCases) {
   
 
   // get additional verify data
-  const {proofHash, mandatoryHash, nonMandatory} = await createVerifyData(document, labelMapCompressed, mandatoryIndexes, true);
+  const {proofHash, mandatoryHash, nonMandatory} = await createVerifyData(document, labelMapCompressed, mandatoryIndexes, false);
 
   // **Approach Specific Cryptographic Verification**
 
@@ -141,11 +143,6 @@ passing proofHash, publicKey, and mandatoryHash.
     ...saltedHashes,
   );
 
-  /* Initialize verificationResult be the result of applying the verification algorithm of the
-Elliptic Curve Digital Signature Algorithm (ECDSA) [FIPS-186-5], with toVerify as the data to
-be verified against the baseSignature using the public key specified by publicKeyBytes.
-If verificationResult is false, return false.
-*/
   // Verify base signature
   const msgHash = sha256(toVerify); // Hash is done outside of the algorithm in noble/curve case.
   let verificationResult = test.sigAlg.verify(signature, msgHash, pbk);

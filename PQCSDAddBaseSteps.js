@@ -12,12 +12,8 @@
 
 */
 
+import { hashingSD, proofConfigCanon, saltedHashingSD, transformSD} from './CommonAlgs.js'
 import { mkdir, readFile, writeFile } from "fs/promises";
-import {
-  createHmac,
-  createHmacIdLabelMapFunction,
-  canonicalizeAndGroup,
-} from "@digitalbazaar/di-sd-primitives";
 import jsonld from "jsonld";
 import { localLoader } from "./documentLoader.js";
 import { sha256 } from "@noble/hashes/sha256";
@@ -29,7 +25,7 @@ import { falcon512padded } from "@noble/post-quantum/falcon.js";
 import { klona } from "klona";
 import { encode as encodeCbor } from "cbor2";
 import { base64url } from "multiformats/bases/base64";
-import { randomBytes } from "crypto";
+
 // For serialization of JavaScript Map via JSON
 function replacerMap(key, value) {
   // See https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
@@ -69,31 +65,16 @@ const document = JSON.parse(
   await readFile(new URL(dirsAndFiles.inputFile, import.meta.url)),
 );
 
-const options = { documentLoader: localLoader };
 
 // **Transformation Step**
 
-const hmacFunc = await createHmac({ key: hmacKey });
-const labelMapFactoryFunction = createHmacIdLabelMapFunction({
-  hmac: hmacFunc,
-});
-
-/* Initialize groupDefinitions to a map with an entry with a key of the string
-   "mandatory" and a value of mandatoryPointers. */
 const mandatoryPointers = JSON.parse(
   await readFile(new URL(dirsAndFiles.mandatoryFile, import.meta.url)),
 );
-const groups = { mandatory: mandatoryPointers };
 
-const stuff = await canonicalizeAndGroup({
-  document,
-  labelMapFactoryFunction,
-  groups,
-  options,
-});
-// console.log(stuff.groups);
-const mandatory = stuff.groups.mandatory.matching;
-const nonMandatory = stuff.groups.mandatory.nonMatching;
+// General SD transform, note  true ==> legacy ECDSA-SD label map
+const {mandatory, nonMandatory} = await transformSD(document, mandatoryPointers, hmacKey, false);
+
 // As output the transformation algorithm wants us to return an object with
 // "mandatoryPointers" set to mandatoryPointers, "mandatory" set to mandatory,
 // "nonMandatory" set to nonMandatory, and "hmacKey" set to hmacKey.
@@ -111,54 +92,47 @@ await writeFile(
   JSON.stringify(transformOutput, replacerMap, 2),
 );
 // For illustration purposes only show the canonicalized document nquads
-const documentCanonQuads = await jsonld.canonize(document); // block of text
-const documentCanon = documentCanonQuads
-  .split("\n")
-  .slice(0, -1)
-  .map((q) => q + "\n"); // array
-await writeFile(
-  baseDir + "addBaseDocCanon.json",
-  JSON.stringify(documentCanon, null, 2),
-);
-// HMAC based bnode replacement function
-const bnodeIdMap = new Map(); // Keeps track of old blank node ids and their replacements
-function hmacID(bnode) {
-  if (bnodeIdMap.has(bnode)) {
-    return bnodeIdMap.get(bnode);
-  }
-  // console.log(`bnode: ${bnode}`)
-  const hmacBytes = hmac(sha256, hmacKey, bnode.split("_:")[1]); // only use the c14nx part
-  const newId = "_:" + base64url.encode(hmacBytes);
-  bnodeIdMap.set(bnode, newId);
-  return newId;
-}
-// Using JavaScripts string replace with global regex and above replacement function
-const hmacQuads = documentCanonQuads.replace(/(_:c14n[0-9]+)/g, hmacID);
-// console.log(hmacQuads)
-// console.log(bnodeIdMap)
-const sortedHMACQuads = hmacQuads
-  .split("\n")
-  .slice(0, -1)
-  .map((q) => q + "\n")
-  .sort();
-await writeFile(
-  baseDir + "addBaseDocHMACCanon.json",
-  JSON.stringify(sortedHMACQuads, null, 2),
-);
+// const documentCanonQuads = await jsonld.canonize(document); // block of text
+// const documentCanon = documentCanonQuads
+//   .split("\n")
+//   .slice(0, -1)
+//   .map((q) => q + "\n"); // array
+// await writeFile(
+//   baseDir + "addBaseDocCanon.json",
+//   JSON.stringify(documentCanon, null, 2),
+// );
+// // HMAC based bnode replacement function
+// const bnodeIdMap = new Map(); // Keeps track of old blank node ids and their replacements
+// function hmacID(bnode) {
+//   if (bnodeIdMap.has(bnode)) {
+//     return bnodeIdMap.get(bnode);
+//   }
+//   // console.log(`bnode: ${bnode}`)
+//   const hmacBytes = hmac(sha256, hmacKey, bnode.split("_:")[1]); // only use the c14nx part
+//   const newId = "_:" + base64url.encode(hmacBytes);
+//   bnodeIdMap.set(bnode, newId);
+//   return newId;
+// }
+// // Using JavaScripts string replace with global regex and above replacement function
+// const hmacQuads = documentCanonQuads.replace(/(_:c14n[0-9]+)/g, hmacID);
+// // console.log(hmacQuads)
+// // console.log(bnodeIdMap)
+// const sortedHMACQuads = hmacQuads
+//   .split("\n")
+//   .slice(0, -1)
+//   .map((q) => q + "\n")
+//   .sort();
+// await writeFile(
+//   baseDir + "addBaseDocHMACCanon.json",
+//   JSON.stringify(sortedHMACQuads, null, 2),
+// );
 
 //  Create salted hash array consisting of random salts (32 bytes for 256 bits or
 //  16 bytes for 128 bits) and salted hashes of (salt concatenated with non-mandatory value)
 //  SD-JWT currently uses 128 bits: https://www.rfc-editor.org/rfc/rfc9901.html#section-4.2.1
 //  So I'll just use 16 bytes too.
-//
-let salts = [];
-let saltedHashes = [];
-nonMandatory.forEach(function (value, key) {
-  let salt = new Uint8Array(randomBytes(16)); // **WARNING** randomBytes returns a Buffer we need Uint8Array!!!
-  salts.push(salt);
-  let saltedHash = sha256(concatBytes(salt, utf8encoder.encode(value)));
-  saltedHashes.push(saltedHash);
-});
+
+const {salts, saltedHashes} = saltedHashingSD(nonMandatory, "sha256");
 let saltedHashInfo = {
   salts: salts.map((s) => bytesToHex(s)),
   saltedHashes: saltedHashes.map((sh) => bytesToHex(sh)),
@@ -219,7 +193,8 @@ for (const test of testCases) {
     baseDir + "addProofConfig.json",
     JSON.stringify(proofConfig, null, 2),
   );
-  const proofCanon = await jsonld.canonize(proofConfig);
+
+  const proofCanon = await proofConfigCanon(proofConfig, document, "sha256") 
   writeFile(baseDir + "addProofConfigCanon.txt", proofCanon);
 
   /* **Hashing Step**
@@ -227,13 +202,7 @@ for (const test of testCases) {
    and canonical proof configuration (canonicalProofConfig). A hash data value represented as an
    object is produced as output. " */
 
-  const proofHash = sha256(proofCanon); // @noble/hash will convert string to bytes via UTF-8
-
-  // 3.3.17 hashMandatoryNQuads
-  // Initialize bytes to the UTF-8 representation of the joined mandatory N-Quads.
-  // Initialize mandatoryHash to the result of using hasher to hash bytes.
-  // Return mandatoryHash.
-  const mandatoryHash = sha256([...mandatory.values()].join(""));
+  const {proofHash, mandatoryHash} = hashingSD(mandatory, proofCanon, "sha256");
   // Initialize hashData as a deep copy of transformedDocument and add proofHash as
   // "proofHash" and mandatoryHash as "mandatoryHash" to that object.
   const hashData = klona(transformed);
