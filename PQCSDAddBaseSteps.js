@@ -91,41 +91,6 @@ await writeFile(
   baseDir + "addBaseTransform.json",
   JSON.stringify(transformOutput, replacerMap, 2),
 );
-// For illustration purposes only show the canonicalized document nquads
-// const documentCanonQuads = await jsonld.canonize(document); // block of text
-// const documentCanon = documentCanonQuads
-//   .split("\n")
-//   .slice(0, -1)
-//   .map((q) => q + "\n"); // array
-// await writeFile(
-//   baseDir + "addBaseDocCanon.json",
-//   JSON.stringify(documentCanon, null, 2),
-// );
-// // HMAC based bnode replacement function
-// const bnodeIdMap = new Map(); // Keeps track of old blank node ids and their replacements
-// function hmacID(bnode) {
-//   if (bnodeIdMap.has(bnode)) {
-//     return bnodeIdMap.get(bnode);
-//   }
-//   // console.log(`bnode: ${bnode}`)
-//   const hmacBytes = hmac(sha256, hmacKey, bnode.split("_:")[1]); // only use the c14nx part
-//   const newId = "_:" + base64url.encode(hmacBytes);
-//   bnodeIdMap.set(bnode, newId);
-//   return newId;
-// }
-// // Using JavaScripts string replace with global regex and above replacement function
-// const hmacQuads = documentCanonQuads.replace(/(_:c14n[0-9]+)/g, hmacID);
-// // console.log(hmacQuads)
-// // console.log(bnodeIdMap)
-// const sortedHMACQuads = hmacQuads
-//   .split("\n")
-//   .slice(0, -1)
-//   .map((q) => q + "\n")
-//   .sort();
-// await writeFile(
-//   baseDir + "addBaseDocHMACCanon.json",
-//   JSON.stringify(sortedHMACQuads, null, 2),
-// );
 
 //  Create salted hash array consisting of random salts (32 bytes for 256 bits or
 //  16 bytes for 128 bits) and salted hashes of (salt concatenated with non-mandatory value)
@@ -226,7 +191,8 @@ for (const test of testCases) {
     ...saltedHashes,
   );
   const hashBigConcat = sha256(bigConcatenation);
-  let signature = test.sigAlg.sign(hashBigConcat, secretKey);
+  // Note that the extraEntropy option may only be valid for ML-DSA and SLH-DSA
+  let signature = test.sigAlg.sign(hashBigConcat, secretKey, {extraEntropy: false});
 
   // /* 3.4.2 **MODIFIED** serializeBaseProofValue
   // The following algorithm serializes the base proof value, including the signature,
